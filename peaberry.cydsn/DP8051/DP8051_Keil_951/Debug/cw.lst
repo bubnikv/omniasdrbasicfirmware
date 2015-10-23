@@ -1,0 +1,809 @@
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE CW
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\cw.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\cw.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Deb
+                    -ug/cw.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\cw.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          // 09/30/2014 Additions to support low latency CW and Iambic funtionality  Ron Patton / W4MMP
+  15          // 01/01/2015 Added Semi Break-in Support Ron Patton / W4MMP
+  16          
+  17          #include <peaberry.h>
+  18          #include <iambino.h>
+  19          
+  20          uint8 E_key_0;
+  21          uint8 E_key_1;
+  22          
+  23          
+  24          uint8 cw_timer(uint8 start){
+  25   1          uint8 ret_status;
+  26   1              
+  27   1          if(start){
+  28   2              CW_Control_Write(1); //Resets and Starts the timer
+  29   2              ret_status = FALSE;
+  30   2          }else{
+  31   2              if (CW_Hold_Timer_ReadStatusRegister() & 0x80){//Check if the timer has expired
+  32   3                  ret_status = TRUE;
+  33   3              }else{
+  34   3                  ret_status = FALSE;
+  35   3              }
+  36   2          }
+  37   1          return ret_status;   
+  38   1      }
+  39          
+  40          
+  41          void cw_blink(void){
+  42   1          
+  43   1          char *cw_msg = {"C  "};
+  44   1          char *cw_and_iambic = {"C I  "};
+  45   1          char *cw_and_semi = {"C S  "};
+  46   1          char *cw_and_iambic_and_semi = {"C I S  "};
+  47   1          //static char *msg;
+  48   1          static uint8 i, beat;
+  49   1          static uint16 timer = 0;
+  50   1           
+  51   1          switch(E_cw_message_toggle) {
+  52   2              case FALSE:
+  53   2                  i = Status_Read() & STATUS_BEAT;
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 2   
+
+  54   2                  if (beat != i) {
+  55   3                      beat = i;
+  56   3                      if (!timer--) {
+  57   4                          timer = 300; 
+  58   4                          Morse_Main(0);
+  59   4                      }
+  60   3                  }
+  61   2                  break;
+  62   2              case TRUE:
+  63   2                 if(ee_cw_mode && !ee_iambic_mode && !ee_semi_breakin){
+  64   3                      //msg = cw_msg;
+  65   3                      Morse_Main(cw_msg);
+  66   3                  }
+  67   2                  if(ee_cw_mode && ee_iambic_mode && !ee_semi_breakin){
+  68   3                      Morse_Main(cw_and_iambic);
+  69   3                      //msg = cw_and_iambic;
+  70   3                  }
+  71   2                  if(ee_cw_mode && !ee_iambic_mode && ee_semi_breakin){
+  72   3                      Morse_Main(cw_and_semi);
+  73   3                      //msg = cw_and_semi;
+  74   3                  }
+  75   2                  if(ee_cw_mode && ee_iambic_mode && ee_semi_breakin){
+  76   3                      Morse_Main(cw_and_iambic_and_semi);
+  77   3                      //msg = cw_and_iambic_and_semi;
+  78   3                  }
+  79   2                  E_cw_message_toggle = FALSE;
+  80   2                  break;
+  81   2          }
+  82   1      }   
+  83           
+  84          void cw_normal(void){
+  85   1          static uint8 cw_transmit = FALSE;
+  86   1          
+  87   1          if(TX_Request){
+  88   2              if( (E_key_0) && (E_key_1)){ //No key pressed
+  89   3                  if(cw_transmit){
+  90   4                      cw_transmit = FALSE;
+  91   4                      Control_Write(Control_Read() & ~CONTROL_TX);
+  92   4                      if(ee_external_sound)Control_Write(Control_Read() & ~CONTROL_ATU_1);
+  93   4                  }
+  94   3              }else if(!E_key_0 || !E_key_1){ //Key is pressed
+  95   3                  if(!cw_transmit){
+  96   4                      Control_Write(Control_Read() | CONTROL_TX);
+  97   4                      cw_transmit = TRUE;
+  98   4                      if(ee_external_sound) Control_Write(Control_Read() | CONTROL_ATU_1);
+  99   4                  }
+ 100   3              }
+ 101   2          }
+ 102   1      }
+ 103          
+ 104          // The follow routine implements semi break-in mode.  When either key_0 or key_1 are activated the Peaberr
+             -y signals the host application 
+ 105          // to go into transmit mode via the ATU to PC Comm port connection.  The routine will keep the host applic
+             -ation in TX mode until cd_delay_counter has
+ 106          // counted down to zero.
+ 107          
+ 108          void cw_semi_breakin(void){
+ 109   1          static uint8 state = 0;
+ 110   1          uint8 cw_timer_status;
+ 111   1                
+ 112   1          switch (state){
+ 113   2              case 0:   //Initial state   No key press No TX_Request TX line not active.  Now check for key pres
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 3   
+
+             -s
+ 114   2                  if(!E_key_0 || !E_key_1){ //A Key is pressed. Turn on TX Mode.  Wait for next state to check k
+             -ey again for key press
+ 115   3                      switch(ee_semi_control){//Signal host application to turn on TX Mode via comm port
+ 116   4                          case SEMI_USE_ATU:
+ 117   4                              Control_Write((Control_Read()) | (CONTROL_ATU_0_OE | CONTROL_ATU_0)); 
+ 118   4                              break;
+ 119   4                          case SEMI_USE_AMP:
+ 120   4                              Control_Write((Control_Read()) & ~CONTROL_AMP);  // Turn AMP Line ON
+ 121   4                              break;
+ 122   4                      }
+ 123   3                      cw_timer_status = cw_timer(TRUE);
+ 124   3                      state = 1;
+ 125   3                  }
+ 126   2                  break;
+ 127   2                  
+ 128   2              case 1: //Check for TX request and Key down
+ 129   2                  if(TX_Request){ //Should be in TX_Request state
+ 130   3                      if(!E_key_0 || !E_key_1){ // Key down
+ 131   4                          cw_timer_status = cw_timer(TRUE);//Reset and Start the CW hold timer
+ 132   4                          Control_Write(Control_Read() | CONTROL_TX); 
+ 133   4                          if(ee_external_sound) Control_Write(Control_Read() | CONTROL_ATU_1); //Turn on the ext
+             -ernal sound oscillator
+ 134   4                      }
+ 135   3                      state = 2; //Next state.  Check for Key up
+ 136   3                  }else{
+ 137   3                      state = 3; //TX request was not on for this iteration.  
+ 138   3                  }
+ 139   2                  break;
+ 140   2              
+ 141   2              case 2: // Check for Key up
+ 142   2                  if( (E_key_0) && (E_key_1)){  //No key is active
+ 143   3                      Control_Write(Control_Read() & ~CONTROL_TX);  // Turn off the TX line
+ 144   3                      if(ee_external_sound)Control_Write(Control_Read() & ~CONTROL_ATU_1); //Turn off the extern
+             -al sound oscillator
+ 145   3                  }
+ 146   2                  state = 3;
+ 147   2                  break;
+ 148   2                  
+ 149   2              case 3:
+ 150   2                  cw_timer_status = cw_timer(FALSE);
+ 151   2                  if(cw_timer_status){
+ 152   3                      switch(ee_semi_control){//Signal host application to turn off TX mode via the comm port
+ 153   4                          case SEMI_USE_ATU:
+ 154   4                              Control_Write(Control_Read() & ~CONTROL_ATU_0);
+ 155   4                              break;
+ 156   4                          case SEMI_USE_AMP:
+ 157   4                              Control_Write((Control_Read()) | CONTROL_AMP);   // Turn AMP Line OFF
+ 158   4                              break;
+ 159   4                      }
+ 160   3                      state = 0;
+ 161   3                  }else{
+ 162   3                      state = 1;
+ 163   3                  }
+ 164   2                  break;
+ 165   2          }//End of switch(state)
+ 166   1       }
+ 167          
+ 168          void Manage_Paddles_Port(void)
+ 169          {
+ 170   1          uint8 key;
+ 171   1          uint8 paddles_section;
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 4   
+
+ 172   1          
+ 173   1          paddles_section = CyEnterCriticalSection();
+ 174   1          key = Status_Read();
+ 175   1          CyExitCriticalSection(paddles_section);
+ 176   1          
+ 177   1          if (key & STATUS_KEY_0)E_key_0 = TRUE; else E_key_0 = FALSE;
+ 178   1          if (key & STATUS_KEY_1)E_key_1 = TRUE; else E_key_1 = FALSE;
+ 179   1          if(!ee_iambic_mode){
+ 180   2              if(!ee_semi_breakin){
+ 181   3                  cw_normal();
+ 182   3              }else{
+ 183   3                  cw_semi_breakin();
+ 184   3              }
+ 185   2          }else{
+ 186   2              iambic();
+ 187   2          }
+ 188   1      }
+ 189          
+ 190          
+ 191          
+ 192          
+ 193             
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 5   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION _cw_timer (BEGIN)
+                                           ; SOURCE LINE # 24
+;---- Variable 'start' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 27
+0000 EF                MOV     A,R7
+0001 600C              JZ      ?C0001
+                                           ; SOURCE LINE # 28
+0003 7F01              MOV     R7,#01H
+0005 120000      E     LCALL   _CW_Control_Write
+                                           ; SOURCE LINE # 29
+0008 E4                CLR     A
+0009 900000      R     MOV     DPTR,#ret_status
+000C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 30
+000D 8014              SJMP    ?C0002
+000F         ?C0001:
+                                           ; SOURCE LINE # 31
+000F 120000      E     LCALL   CW_Hold_Timer_ReadStatusRegister
+0012 EF                MOV     A,R7
+0013 30E708            JNB     ACC.7,?C0003
+                                           ; SOURCE LINE # 32
+0016 900000      R     MOV     DPTR,#ret_status
+0019 7401              MOV     A,#01H
+001B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 33
+001C 8005              SJMP    ?C0002
+001E         ?C0003:
+                                           ; SOURCE LINE # 34
+001E E4                CLR     A
+001F 900000      R     MOV     DPTR,#ret_status
+0022 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 35
+                                           ; SOURCE LINE # 36
+0023         ?C0002:
+                                           ; SOURCE LINE # 37
+0023 900000      R     MOV     DPTR,#ret_status
+0026 E0                MOVX    A,@DPTR
+0027 FF                MOV     R7,A
+                                           ; SOURCE LINE # 38
+0028         ?C0005:
+0028 22                RET     
+             ; FUNCTION _cw_timer (END)
+
+             ; FUNCTION cw_blink (BEGIN)
+                                           ; SOURCE LINE # 41
+                                           ; SOURCE LINE # 43
+0000 7BFF              MOV     R3,#0FFH
+0002 7A00        R     MOV     R2,#HIGH ?SC_0
+0004 7900        R     MOV     R1,#LOW ?SC_0
+0006 900000      R     MOV     DPTR,#cw_msg
+0009 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 44
+000C 7A00        R     MOV     R2,#HIGH ?SC_4
+000E 7900        R     MOV     R1,#LOW ?SC_4
+0010 900000      R     MOV     DPTR,#cw_and_iambic
+0013 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 45
+0016 7A00        R     MOV     R2,#HIGH ?SC_10
+0018 7900        R     MOV     R1,#LOW ?SC_10
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 6   
+
+001A 900000      R     MOV     DPTR,#cw_and_semi
+001D 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 46
+0020 7A00        R     MOV     R2,#HIGH ?SC_16
+0022 7900        R     MOV     R1,#LOW ?SC_16
+0024 900000      R     MOV     DPTR,#cw_and_iambic_and_semi
+0027 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 51
+002A 900000      E     MOV     DPTR,#E_cw_message_toggle
+002D E0                MOVX    A,@DPTR
+002E 14                DEC     A
+002F 6041              JZ      ?C0010
+0031 04                INC     A
+0032 6003              JZ      $ + 5H
+0034 020000      R     LJMP    ?C0015
+                                           ; SOURCE LINE # 52
+0037         ?C0007:
+                                           ; SOURCE LINE # 53
+0037 120000      E     LCALL   Status_Read
+003A EF                MOV     A,R7
+003B 5408              ANL     A,#08H
+003D FF                MOV     R7,A
+003E 900000      R     MOV     DPTR,#i
+0041 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 54
+0042 A3                INC     DPTR
+0043 E0                MOVX    A,@DPTR
+0044 6F                XRL     A,R7
+0045 7003              JNZ     $ + 5H
+0047 020000      R     LJMP    ?C0015
+                                           ; SOURCE LINE # 55
+004A 900000      R     MOV     DPTR,#i
+004D E0                MOVX    A,@DPTR
+004E A3                INC     DPTR
+004F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 56
+0050 A3                INC     DPTR
+0051 74FF              MOV     A,#0FFH
+0053 F5F0              MOV     B,A
+0055 120000      E     LCALL   ?C?ILDIX
+0058 45F0              ORL     A,B
+005A 6003              JZ      $ + 5H
+005C 020000      R     LJMP    ?C0015
+                                           ; SOURCE LINE # 57
+005F 900000      R     MOV     DPTR,#timer
+0062 04                INC     A
+0063 F0                MOVX    @DPTR,A
+0064 A3                INC     DPTR
+0065 742C              MOV     A,#02CH
+0067 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 58
+0068 7B00              MOV     R3,#00H
+006A 7A00              MOV     R2,#00H
+006C 7900              MOV     R1,#00H
+006E 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 59
+                                           ; SOURCE LINE # 60
+                                           ; SOURCE LINE # 61
+0071 22                RET     
+                                           ; SOURCE LINE # 62
+0072         ?C0010:
+                                           ; SOURCE LINE # 63
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 7   
+
+0072 900000      E     MOV     DPTR,#ee_cw_mode
+0075 E0                MOVX    A,@DPTR
+0076 6015              JZ      ?C0011
+0078 900000      E     MOV     DPTR,#ee_iambic_mode
+007B E0                MOVX    A,@DPTR
+007C 700F              JNZ     ?C0011
+007E 900000      E     MOV     DPTR,#ee_semi_breakin
+0081 E0                MOVX    A,@DPTR
+0082 7009              JNZ     ?C0011
+                                           ; SOURCE LINE # 65
+0084 900000      R     MOV     DPTR,#cw_msg
+0087 120000      E     LCALL   ?C?PLDXDATA
+008A 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 66
+008D         ?C0011:
+                                           ; SOURCE LINE # 67
+008D 900000      E     MOV     DPTR,#ee_cw_mode
+0090 E0                MOVX    A,@DPTR
+0091 6015              JZ      ?C0012
+0093 900000      E     MOV     DPTR,#ee_iambic_mode
+0096 E0                MOVX    A,@DPTR
+0097 600F              JZ      ?C0012
+0099 900000      E     MOV     DPTR,#ee_semi_breakin
+009C E0                MOVX    A,@DPTR
+009D 7009              JNZ     ?C0012
+                                           ; SOURCE LINE # 68
+009F 900000      R     MOV     DPTR,#cw_and_iambic
+00A2 120000      E     LCALL   ?C?PLDXDATA
+00A5 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 70
+00A8         ?C0012:
+                                           ; SOURCE LINE # 71
+00A8 900000      E     MOV     DPTR,#ee_cw_mode
+00AB E0                MOVX    A,@DPTR
+00AC 6015              JZ      ?C0013
+00AE 900000      E     MOV     DPTR,#ee_iambic_mode
+00B1 E0                MOVX    A,@DPTR
+00B2 700F              JNZ     ?C0013
+00B4 900000      E     MOV     DPTR,#ee_semi_breakin
+00B7 E0                MOVX    A,@DPTR
+00B8 6009              JZ      ?C0013
+                                           ; SOURCE LINE # 72
+00BA 900000      R     MOV     DPTR,#cw_and_semi
+00BD 120000      E     LCALL   ?C?PLDXDATA
+00C0 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 74
+00C3         ?C0013:
+                                           ; SOURCE LINE # 75
+00C3 900000      E     MOV     DPTR,#ee_cw_mode
+00C6 E0                MOVX    A,@DPTR
+00C7 6015              JZ      ?C0014
+00C9 900000      E     MOV     DPTR,#ee_iambic_mode
+00CC E0                MOVX    A,@DPTR
+00CD 600F              JZ      ?C0014
+00CF 900000      E     MOV     DPTR,#ee_semi_breakin
+00D2 E0                MOVX    A,@DPTR
+00D3 6009              JZ      ?C0014
+                                           ; SOURCE LINE # 76
+00D5 900000      R     MOV     DPTR,#cw_and_iambic_and_semi
+00D8 120000      E     LCALL   ?C?PLDXDATA
+00DB 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 78
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 8   
+
+00DE         ?C0014:
+                                           ; SOURCE LINE # 79
+00DE E4                CLR     A
+00DF 900000      E     MOV     DPTR,#E_cw_message_toggle
+00E2 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 80
+                                           ; SOURCE LINE # 81
+                                           ; SOURCE LINE # 82
+00E3         ?C0015:
+00E3 22                RET     
+             ; FUNCTION cw_blink (END)
+
+             ; FUNCTION cw_normal (BEGIN)
+                                           ; SOURCE LINE # 84
+                                           ; SOURCE LINE # 87
+0000 900000      E     MOV     DPTR,#TX_Request
+0003 E0                MOVX    A,@DPTR
+0004 605D              JZ      ?C0025
+                                           ; SOURCE LINE # 88
+0006 900000      R     MOV     DPTR,#E_key_0
+0009 E0                MOVX    A,@DPTR
+000A 6027              JZ      ?C0017
+000C A3                INC     DPTR
+000D E0                MOVX    A,@DPTR
+000E 6023              JZ      ?C0017
+                                           ; SOURCE LINE # 89
+0010 900000      R     MOV     DPTR,#cw_transmit
+0013 E0                MOVX    A,@DPTR
+0014 604D              JZ      ?C0025
+                                           ; SOURCE LINE # 90
+0016 E4                CLR     A
+0017 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 91
+0018 120000      E     LCALL   Control_Read
+001B EF                MOV     A,R7
+001C 54FB              ANL     A,#0FBH
+001E FF                MOV     R7,A
+001F 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 92
+0022 900000      E     MOV     DPTR,#ee_external_sound
+0025 E0                MOVX    A,@DPTR
+0026 603B              JZ      ?C0025
+0028 120000      E     LCALL   Control_Read
+002B EF                MOV     A,R7
+002C 547F              ANL     A,#07FH
+002E FF                MOV     R7,A
+002F 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 93
+                                           ; SOURCE LINE # 94
+0032 22                RET     
+0033         ?C0017:
+0033 900000      R     MOV     DPTR,#E_key_0
+0036 E0                MOVX    A,@DPTR
+0037 6004              JZ      ?C0022
+0039 A3                INC     DPTR
+003A E0                MOVX    A,@DPTR
+003B 7026              JNZ     ?C0025
+003D         ?C0022:
+                                           ; SOURCE LINE # 95
+003D 900000      R     MOV     DPTR,#cw_transmit
+0040 E0                MOVX    A,@DPTR
+0041 7020              JNZ     ?C0025
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 9   
+
+                                           ; SOURCE LINE # 96
+0043 120000      E     LCALL   Control_Read
+0046 EF                MOV     A,R7
+0047 4404              ORL     A,#04H
+0049 FF                MOV     R7,A
+004A 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 97
+004D 900000      R     MOV     DPTR,#cw_transmit
+0050 7401              MOV     A,#01H
+0052 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 98
+0053 900000      E     MOV     DPTR,#ee_external_sound
+0056 E0                MOVX    A,@DPTR
+0057 600A              JZ      ?C0025
+0059 120000      E     LCALL   Control_Read
+005C EF                MOV     A,R7
+005D 4480              ORL     A,#080H
+005F FF                MOV     R7,A
+0060 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 99
+                                           ; SOURCE LINE # 100
+                                           ; SOURCE LINE # 101
+                                           ; SOURCE LINE # 102
+0063         ?C0025:
+0063 22                RET     
+             ; FUNCTION cw_normal (END)
+
+             ; FUNCTION cw_semi_breakin (BEGIN)
+                                           ; SOURCE LINE # 108
+                                           ; SOURCE LINE # 112
+0000 900000      R     MOV     DPTR,#state
+0003 E0                MOVX    A,@DPTR
+0004 14                DEC     A
+0005 6051              JZ      ?C0033
+0007 14                DEC     A
+0008 7003              JNZ     $ + 5H
+000A 020000      R     LJMP    ?C0039
+000D 14                DEC     A
+000E 7003              JNZ     $ + 5H
+0010 020000      R     LJMP    ?C0042
+0013 2403              ADD     A,#03H
+0015 6003              JZ      $ + 5H
+0017 020000      R     LJMP    ?C0048
+                                           ; SOURCE LINE # 113
+001A         ?C0027:
+                                           ; SOURCE LINE # 114
+001A 900000      R     MOV     DPTR,#E_key_0
+001D E0                MOVX    A,@DPTR
+001E 6007              JZ      ?C0029
+0020 A3                INC     DPTR
+0021 E0                MOVX    A,@DPTR
+0022 6003              JZ      $ + 5H
+0024 020000      R     LJMP    ?C0048
+0027         ?C0029:
+                                           ; SOURCE LINE # 115
+0027 900000      E     MOV     DPTR,#ee_semi_control
+002A E0                MOVX    A,@DPTR
+002B 14                DEC     A
+002C 600F              JZ      ?C0032
+002E 04                INC     A
+002F 7016              JNZ     ?C0030
+                                           ; SOURCE LINE # 116
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 10  
+
+0031         ?C0031:
+                                           ; SOURCE LINE # 117
+0031 120000      E     LCALL   Control_Read
+0034 EF                MOV     A,R7
+0035 4460              ORL     A,#060H
+0037 FF                MOV     R7,A
+0038 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 118
+003B 800A              SJMP    ?C0030
+                                           ; SOURCE LINE # 119
+003D         ?C0032:
+                                           ; SOURCE LINE # 120
+003D 120000      E     LCALL   Control_Read
+0040 EF                MOV     A,R7
+0041 54F7              ANL     A,#0F7H
+0043 FF                MOV     R7,A
+0044 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 121
+                                           ; SOURCE LINE # 122
+0047         ?C0030:
+                                           ; SOURCE LINE # 123
+0047 7F01              MOV     R7,#01H
+0049 120000      R     LCALL   _cw_timer
+004C 900000      R     MOV     DPTR,#cw_timer_status
+004F EF                MOV     A,R7
+0050 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 124
+0051 900000      R     MOV     DPTR,#state
+0054 7401              MOV     A,#01H
+0056 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 125
+                                           ; SOURCE LINE # 126
+0057 22                RET     
+                                           ; SOURCE LINE # 128
+0058         ?C0033:
+                                           ; SOURCE LINE # 129
+0058 900000      E     MOV     DPTR,#TX_Request
+005B E0                MOVX    A,@DPTR
+005C 6035              JZ      ?C0034
+                                           ; SOURCE LINE # 130
+005E 900000      R     MOV     DPTR,#E_key_0
+0061 E0                MOVX    A,@DPTR
+0062 6004              JZ      ?C0036
+0064 A3                INC     DPTR
+0065 E0                MOVX    A,@DPTR
+0066 7024              JNZ     ?C0035
+0068         ?C0036:
+                                           ; SOURCE LINE # 131
+0068 7F01              MOV     R7,#01H
+006A 120000      R     LCALL   _cw_timer
+006D 900000      R     MOV     DPTR,#cw_timer_status
+0070 EF                MOV     A,R7
+0071 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 132
+0072 120000      E     LCALL   Control_Read
+0075 EF                MOV     A,R7
+0076 4404              ORL     A,#04H
+0078 FF                MOV     R7,A
+0079 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 133
+007C 900000      E     MOV     DPTR,#ee_external_sound
+007F E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 11  
+
+0080 600A              JZ      ?C0035
+0082 120000      E     LCALL   Control_Read
+0085 EF                MOV     A,R7
+0086 4480              ORL     A,#080H
+0088 FF                MOV     R7,A
+0089 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 134
+008C         ?C0035:
+                                           ; SOURCE LINE # 135
+008C 900000      R     MOV     DPTR,#state
+008F 7402              MOV     A,#02H
+0091 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 136
+0092 22                RET     
+0093         ?C0034:
+                                           ; SOURCE LINE # 137
+0093 900000      R     MOV     DPTR,#state
+0096 7403              MOV     A,#03H
+0098 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 138
+                                           ; SOURCE LINE # 139
+0099 22                RET     
+                                           ; SOURCE LINE # 141
+009A         ?C0039:
+                                           ; SOURCE LINE # 142
+009A 900000      R     MOV     DPTR,#E_key_0
+009D E0                MOVX    A,@DPTR
+009E 601E              JZ      ?C0040
+00A0 A3                INC     DPTR
+00A1 E0                MOVX    A,@DPTR
+00A2 601A              JZ      ?C0040
+                                           ; SOURCE LINE # 143
+00A4 120000      E     LCALL   Control_Read
+00A7 EF                MOV     A,R7
+00A8 54FB              ANL     A,#0FBH
+00AA FF                MOV     R7,A
+00AB 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 144
+00AE 900000      E     MOV     DPTR,#ee_external_sound
+00B1 E0                MOVX    A,@DPTR
+00B2 600A              JZ      ?C0040
+00B4 120000      E     LCALL   Control_Read
+00B7 EF                MOV     A,R7
+00B8 547F              ANL     A,#07FH
+00BA FF                MOV     R7,A
+00BB 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 145
+00BE         ?C0040:
+                                           ; SOURCE LINE # 146
+00BE 900000      R     MOV     DPTR,#state
+00C1 7403              MOV     A,#03H
+00C3 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 147
+00C4 22                RET     
+                                           ; SOURCE LINE # 149
+00C5         ?C0042:
+                                           ; SOURCE LINE # 150
+00C5 E4                CLR     A
+00C6 FF                MOV     R7,A
+00C7 120000      R     LCALL   _cw_timer
+00CA 900000      R     MOV     DPTR,#cw_timer_status
+00CD EF                MOV     A,R7
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 12  
+
+00CE F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 151
+00CF 6026              JZ      ?C0043
+                                           ; SOURCE LINE # 152
+00D1 900000      E     MOV     DPTR,#ee_semi_control
+00D4 E0                MOVX    A,@DPTR
+00D5 14                DEC     A
+00D6 600F              JZ      ?C0046
+00D8 04                INC     A
+00D9 7016              JNZ     ?C0044
+                                           ; SOURCE LINE # 153
+00DB         ?C0045:
+                                           ; SOURCE LINE # 154
+00DB 120000      E     LCALL   Control_Read
+00DE EF                MOV     A,R7
+00DF 54DF              ANL     A,#0DFH
+00E1 FF                MOV     R7,A
+00E2 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 155
+00E5 800A              SJMP    ?C0044
+                                           ; SOURCE LINE # 156
+00E7         ?C0046:
+                                           ; SOURCE LINE # 157
+00E7 120000      E     LCALL   Control_Read
+00EA EF                MOV     A,R7
+00EB 4408              ORL     A,#08H
+00ED FF                MOV     R7,A
+00EE 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 158
+                                           ; SOURCE LINE # 159
+00F1         ?C0044:
+                                           ; SOURCE LINE # 160
+00F1 E4                CLR     A
+00F2 900000      R     MOV     DPTR,#state
+00F5 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 161
+00F6 22                RET     
+00F7         ?C0043:
+                                           ; SOURCE LINE # 162
+00F7 900000      R     MOV     DPTR,#state
+00FA 7401              MOV     A,#01H
+00FC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 163
+                                           ; SOURCE LINE # 164
+                                           ; SOURCE LINE # 165
+                                           ; SOURCE LINE # 166
+00FD         ?C0048:
+00FD 22                RET     
+             ; FUNCTION cw_semi_breakin (END)
+
+             ; FUNCTION Manage_Paddles_Port (BEGIN)
+                                           ; SOURCE LINE # 168
+                                           ; SOURCE LINE # 169
+                                           ; SOURCE LINE # 173
+0000 120000      E     LCALL   CyEnterCriticalSection
+0003 900000      R     MOV     DPTR,#paddles_section
+0006 EF                MOV     A,R7
+0007 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 174
+0008 120000      E     LCALL   Status_Read
+000B 900000      R     MOV     DPTR,#key
+000E EF                MOV     A,R7
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 13  
+
+000F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 175
+0010 A3                INC     DPTR
+0011 E0                MOVX    A,@DPTR
+0012 FF                MOV     R7,A
+0013 120000      E     LCALL   _CyExitCriticalSection
+                                           ; SOURCE LINE # 177
+0016 900000      R     MOV     DPTR,#key
+0019 E0                MOVX    A,@DPTR
+001A FF                MOV     R7,A
+001B 30E008            JNB     ACC.0,?C0049
+001E 900000      R     MOV     DPTR,#E_key_0
+0021 7401              MOV     A,#01H
+0023 F0                MOVX    @DPTR,A
+0024 8005              SJMP    ?C0050
+0026         ?C0049:
+0026 E4                CLR     A
+0027 900000      R     MOV     DPTR,#E_key_0
+002A F0                MOVX    @DPTR,A
+002B         ?C0050:
+                                           ; SOURCE LINE # 178
+002B EF                MOV     A,R7
+002C 30E108            JNB     ACC.1,?C0051
+002F 900000      R     MOV     DPTR,#E_key_1
+0032 7401              MOV     A,#01H
+0034 F0                MOVX    @DPTR,A
+0035 8005              SJMP    ?C0052
+0037         ?C0051:
+0037 E4                CLR     A
+0038 900000      R     MOV     DPTR,#E_key_1
+003B F0                MOVX    @DPTR,A
+003C         ?C0052:
+                                           ; SOURCE LINE # 179
+003C 900000      E     MOV     DPTR,#ee_iambic_mode
+003F E0                MOVX    A,@DPTR
+0040 700E              JNZ     ?C0053
+                                           ; SOURCE LINE # 180
+0042 900000      E     MOV     DPTR,#ee_semi_breakin
+0045 E0                MOVX    A,@DPTR
+0046 7004              JNZ     ?C0054
+                                           ; SOURCE LINE # 181
+0048 120000      R     LCALL   cw_normal
+                                           ; SOURCE LINE # 182
+004B 22                RET     
+004C         ?C0054:
+                                           ; SOURCE LINE # 183
+004C 120000      R     LCALL   cw_semi_breakin
+                                           ; SOURCE LINE # 184
+                                           ; SOURCE LINE # 185
+004F 22                RET     
+0050         ?C0053:
+                                           ; SOURCE LINE # 186
+0050 120000      E     LCALL   iambic
+                                           ; SOURCE LINE # 187
+                                           ; SOURCE LINE # 188
+0053         ?C0057:
+0053 22                RET     
+             ; FUNCTION Manage_Paddles_Port (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 14  
+
+   CODE SIZE        =    707    ----
+   CONSTANT SIZE    =     24    ----
+   XDATA SIZE       =      8      16
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

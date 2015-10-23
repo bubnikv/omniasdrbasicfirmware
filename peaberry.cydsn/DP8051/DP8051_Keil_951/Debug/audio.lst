@@ -1,0 +1,667 @@
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE AUDIO
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\audio.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\audio.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\
+                    -Debug/audio.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\audio.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          // 09/30/2014 Additions to support low latency CW and Iambic funtionality  Ron Patton / W4MMP
+  15          // 01/01/2015 Added Semi Break-in Support Ron Patton / W4MMP
+  16          
+  17          #include <peaberry.h>
+  18          
+  19          // Constants from our USBFS enumeration
+  20          #define RX_ENDPOINT     2
+  21          #define RX_INTERFACE    2
+  22          #define TX_ENDPOINT     3
+  23          #define TX_INTERFACE    3
+  24          
+  25          // IQ Reversal option
+  26          // 0: RX=norm TX=norm
+  27          // 1: RX=rev TX=norm
+  28          // 2: RX=norm TX=rev
+  29          // 3: RX=rev TX=rev
+  30          uint8 Audio_IQ_Channels;
+  31          
+  32          // This implements similar logic as USBFS_LoadInEP.
+  33          void Audio_USB_LoadInEP(uint8 epNumber, uint8 *pData, uint16 length)
+  34          {
+  35   1          uint8 ri, td_config;
+  36   1          uint8 *p;
+  37   1      
+  38   1          ri = ((epNumber - USBFS_EP1) << USBFS_EPX_CNTX_ADDR_SHIFT);
+  39   1          p = (uint8 *)&USBFS_ARB_RW1_DR_PTR[ri];
+  40   1          if (Audio_IQ_Channels & 0x01) {
+  41   2              td_config = TD_TERMIN_EN | TD_INC_SRC_ADR | TD_SWAP_EN;
+  42   2          } else {
+  43   2              td_config = TD_TERMIN_EN | TD_INC_SRC_ADR | TD_SWAP_EN | TD_SWAP_SIZE4;
+  44   2          }
+  45   1          CY_SET_REG8(&USBFS_SIE_EP1_CNT0_PTR[ri], (length >> 8u) | (USBFS_EP[epNumber].epToggle));
+  46   1          CY_SET_REG8(&USBFS_SIE_EP1_CNT1_PTR[ri],  length & 0xFFu);
+  47   1          CyDmaChDisable(USBFS_DmaChan[epNumber]);
+  48   1          CyDmaTdSetConfiguration(USBFS_DmaTd[epNumber], length, USBFS_DmaTd[epNumber], td_config);
+  49   1          CyDmaTdSetAddress(USBFS_DmaTd[epNumber],  LO16((uint32)pData), LO16((uint32)p));
+  50   1          CyDmaClearPendingDrq(USBFS_DmaChan[epNumber]);
+  51   1          CyDmaChSetInitialTd(USBFS_DmaChan[epNumber], USBFS_DmaTd[epNumber]);
+  52   1          CyDmaChEnable(USBFS_DmaChan[epNumber], 1);
+  53   1          USBFS_EP[epNumber].apiEpState = USBFS_NO_EVENT_PENDING;
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 2   
+
+  54   1          USBFS_ARB_EP1_CFG_PTR[ri] |= USBFS_ARB_EPX_CFG_IN_DATA_RDY;
+  55   1      }
+  56          
+  57          // This implements similar logic as USBFS_ReadOutEP.
+  58          void Audio_USB_ReadOutEP(uint8 epNumber, uint8 *pData, uint16 length)
+  59          {
+  60   1          uint8 ri, td_config;
+  61   1          uint8 *p;
+  62   1      
+  63   1          ri = ((epNumber - USBFS_EP1) << USBFS_EPX_CNTX_ADDR_SHIFT);
+  64   1          p = (uint8 *)&USBFS_ARB_RW1_DR_PTR[ri];
+  65   1          if (Audio_IQ_Channels & 0x02) {
+  66   2              td_config = TD_TERMIN_EN | TD_INC_DST_ADR | TD_SWAP_EN;
+  67   2          } else {
+  68   2              td_config = TD_TERMIN_EN | TD_INC_DST_ADR | TD_SWAP_EN | TD_SWAP_SIZE4;
+  69   2          }
+  70   1          CyDmaChDisable(USBFS_DmaChan[epNumber]);
+  71   1          CyDmaTdSetConfiguration(USBFS_DmaTd[epNumber], length, USBFS_DmaTd[epNumber], td_config);
+  72   1          CyDmaTdSetAddress(USBFS_DmaTd[epNumber],  LO16((uint32)p), LO16((uint32)pData));
+  73   1          CyDmaClearPendingDrq(USBFS_DmaChan[epNumber]);
+  74   1          CyDmaChSetInitialTd(USBFS_DmaChan[epNumber], USBFS_DmaTd[epNumber]);
+  75   1          CyDmaChEnable(USBFS_DmaChan[epNumber], 1);
+  76   1      }
+  77          
+  78          uint8 TX_Enabled;
+  79          
+  80          void Audio_Start(void) {
+  81   1          if(USBFS_DmaTd[RX_ENDPOINT] == DMA_INVALID_TD)
+  82   1              USBFS_InitEP_DMA(RX_ENDPOINT, PCM3060_RxBuf());
+  83   1          if(USBFS_DmaTd[TX_ENDPOINT] == DMA_INVALID_TD)
+  84   1              USBFS_InitEP_DMA(TX_ENDPOINT, PCM3060_TxBuf());
+  85   1          TX_Enabled = 0;
+  86   1          Audio_USB_ReadOutEP(TX_ENDPOINT, PCM3060_TxBuf(), 0);
+  87   1      }
+  88          
+  89          void Audio_Main(void) {
+  90   1      
+  91   1          if (USBFS_GetInterfaceSetting(TX_INTERFACE)) {
+  92   2              if (!TX_Enabled) {
+  93   3                  USBFS_EnableOutEP(TX_ENDPOINT);
+  94   3                  TX_Enabled = 1;
+  95   3              }
+  96   2          } else {
+  97   2              if (TX_Enabled) {
+  98   3                  USBFS_DisableOutEP(TX_ENDPOINT);
+  99   3                  TX_Enabled = 0;
+ 100   3              }
+ 101   2          }
+ 102   1      
+ 103   1          if(USBFS_IsConfigurationChanged()) {
+ 104   2              USBFS_EnableOutEP(TX_ENDPOINT);
+ 105   2          }
+ 106   1          
+ 107   1          if (USBFS_GetEPState(TX_ENDPOINT) == USBFS_OUT_BUFFER_FULL) {
+ 108   2              Audio_USB_ReadOutEP(TX_ENDPOINT, PCM3060_TxBuf(), I2S_BUF_SIZE);
+ 109   2              USBFS_EnableOutEP(TX_ENDPOINT);
+ 110   2          }
+ 111   1      
+ 112   1          if (USBFS_GetEPState(RX_ENDPOINT) == USBFS_IN_BUFFER_EMPTY) {
+ 113   2                      Audio_USB_LoadInEP(RX_ENDPOINT, PCM3060_RxBuf(), I2S_BUF_SIZE);
+ 114   2              }
+ 115   1      }
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 3   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION _Audio_USB_LoadInEP (BEGIN)
+                                           ; SOURCE LINE # 33
+0000 900000      R     MOV     DPTR,#pData
+0003 120000      E     LCALL   ?C?PSTXDATA
+0006 900000      R     MOV     DPTR,#epNumber
+0009 EF                MOV     A,R7
+000A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 34
+                                           ; SOURCE LINE # 38
+000B 24FF              ADD     A,#0FFH
+000D FF                MOV     R7,A
+000E E4                CLR     A
+000F 34FF              ADDC    A,#0FFH
+0011 FE                MOV     R6,A
+0012 EF                MOV     A,R7
+0013 C4                SWAP    A
+0014 F8                MOV     R0,A
+0015 540F              ANL     A,#0FH
+0017 C8                XCH     A,R0
+0018 68                XRL     A,R0
+0019 FF                MOV     R7,A
+001A EE                MOV     A,R6
+001B C4                SWAP    A
+001C 54F0              ANL     A,#0F0H
+001E 48                ORL     A,R0
+001F 900000      R     MOV     DPTR,#ri
+0022 EF                MOV     A,R7
+0023 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 39
+0024 2488              ADD     A,#088H
+0026 FF                MOV     R7,A
+0027 E4                CLR     A
+0028 3460              ADDC    A,#060H
+002A FA                MOV     R2,A
+002B A907              MOV     R1,AR7
+002D 7B01              MOV     R3,#01H
+002F 900000      R     MOV     DPTR,#p
+0032 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 40
+0035 900000      R     MOV     DPTR,#Audio_IQ_Channels
+0038 E0                MOVX    A,@DPTR
+0039 30E008            JNB     ACC.0,?C0001
+                                           ; SOURCE LINE # 41
+003C 900000      R     MOV     DPTR,#td_config
+003F 7491              MOV     A,#091H
+0041 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 42
+0042 8006              SJMP    ?C0002
+0044         ?C0001:
+                                           ; SOURCE LINE # 43
+0044 900000      R     MOV     DPTR,#td_config
+0047 74D1              MOV     A,#0D1H
+0049 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 44
+004A         ?C0002:
+                                           ; SOURCE LINE # 45
+004A 900000      R     MOV     DPTR,#length
+004D E0                MOVX    A,@DPTR
+004E FC                MOV     R4,A
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 4   
+
+004F A3                INC     DPTR
+0050 E0                MOVX    A,@DPTR
+0051 FD                MOV     R5,A
+0052 EC                MOV     A,R4
+0053 FF                MOV     R7,A
+0054 900000      R     MOV     DPTR,#epNumber
+0057 E0                MOVX    A,@DPTR
+0058 FE                MOV     R6,A
+0059 75F00B            MOV     B,#0BH
+005C 900000      E     MOV     DPTR,#USBFS_EP+03H
+005F 120000      E     LCALL   ?C?OFFXADD
+0062 E0                MOVX    A,@DPTR
+0063 4F                ORL     A,R7
+0064 FF                MOV     R7,A
+0065 900000      R     MOV     DPTR,#ri
+0068 E0                MOVX    A,@DPTR
+0069 FB                MOV     R3,A
+006A 240C              ADD     A,#0CH
+006C F582              MOV     DPL,A
+006E E4                CLR     A
+006F 3460              ADDC    A,#060H
+0071 F583              MOV     DPH,A
+0073 EF                MOV     A,R7
+0074 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 46
+0075 ED                MOV     A,R5
+0076 740D              MOV     A,#0DH
+0078 2B                ADD     A,R3
+0079 F582              MOV     DPL,A
+007B E4                CLR     A
+007C 3460              ADDC    A,#060H
+007E F583              MOV     DPH,A
+0080 ED                MOV     A,R5
+0081 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 47
+0082 7400        E     MOV     A,#LOW USBFS_DmaChan
+0084 2E                ADD     A,R6
+0085 F582              MOV     DPL,A
+0087 E4                CLR     A
+0088 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+008A F583              MOV     DPH,A
+008C E0                MOVX    A,@DPTR
+008D FF                MOV     R7,A
+008E 120000      E     LCALL   _CyDmaChDisable
+                                           ; SOURCE LINE # 48
+0091 900000      R     MOV     DPTR,#epNumber
+0094 E0                MOVX    A,@DPTR
+0095 2400        E     ADD     A,#LOW USBFS_DmaTd
+0097 F582              MOV     DPL,A
+0099 E4                CLR     A
+009A 3400        E     ADDC    A,#HIGH USBFS_DmaTd
+009C F583              MOV     DPH,A
+009E E0                MOVX    A,@DPTR
+009F FB                MOV     R3,A
+00A0 FF                MOV     R7,A
+00A1 900000      R     MOV     DPTR,#length
+00A4 E0                MOVX    A,@DPTR
+00A5 FC                MOV     R4,A
+00A6 A3                INC     DPTR
+00A7 E0                MOVX    A,@DPTR
+00A8 FD                MOV     R5,A
+00A9 900000      R     MOV     DPTR,#td_config
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 5   
+
+00AC E0                MOVX    A,@DPTR
+00AD 900000      E     MOV     DPTR,#?_CyDmaTdSetConfiguration?BYTE+04H
+00B0 F0                MOVX    @DPTR,A
+00B1 120000      E     LCALL   _CyDmaTdSetConfiguration
+                                           ; SOURCE LINE # 49
+00B4 900000      R     MOV     DPTR,#epNumber
+00B7 E0                MOVX    A,@DPTR
+00B8 2400        E     ADD     A,#LOW USBFS_DmaTd
+00BA F582              MOV     DPL,A
+00BC E4                CLR     A
+00BD 3400        E     ADDC    A,#HIGH USBFS_DmaTd
+00BF F583              MOV     DPH,A
+00C1 E0                MOVX    A,@DPTR
+00C2 FF                MOV     R7,A
+00C3 900000      R     MOV     DPTR,#pData
+00C6 120000      E     LCALL   ?C?PLDXDATA
+00C9 E9                MOV     A,R1
+00CA EA                MOV     A,R2
+00CB E4                CLR     A
+00CC AD01              MOV     R5,AR1
+00CE AC02              MOV     R4,AR2
+00D0 C005              PUSH    AR5
+00D2 900000      R     MOV     DPTR,#p
+00D5 120000      E     LCALL   ?C?PLDXDATA
+00D8 E9                MOV     A,R1
+00D9 EA                MOV     A,R2
+00DA E4                CLR     A
+00DB AB01              MOV     R3,AR1
+00DD D005              POP     AR5
+00DF 120000      E     LCALL   _CyDmaTdSetAddress
+                                           ; SOURCE LINE # 50
+00E2 900000      R     MOV     DPTR,#epNumber
+00E5 E0                MOVX    A,@DPTR
+00E6 2400        E     ADD     A,#LOW USBFS_DmaChan
+00E8 F582              MOV     DPL,A
+00EA E4                CLR     A
+00EB 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+00ED F583              MOV     DPH,A
+00EF E0                MOVX    A,@DPTR
+00F0 FF                MOV     R7,A
+00F1 120000      E     LCALL   _CyDmaClearPendingDrq
+                                           ; SOURCE LINE # 51
+00F4 900000      R     MOV     DPTR,#epNumber
+00F7 E0                MOVX    A,@DPTR
+00F8 FE                MOV     R6,A
+00F9 2400        E     ADD     A,#LOW USBFS_DmaChan
+00FB F582              MOV     DPL,A
+00FD E4                CLR     A
+00FE 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+0100 F583              MOV     DPH,A
+0102 E0                MOVX    A,@DPTR
+0103 FF                MOV     R7,A
+0104 7400        E     MOV     A,#LOW USBFS_DmaTd
+0106 2E                ADD     A,R6
+0107 F582              MOV     DPL,A
+0109 E4                CLR     A
+010A 3400        E     ADDC    A,#HIGH USBFS_DmaTd
+010C F583              MOV     DPH,A
+010E E0                MOVX    A,@DPTR
+010F FD                MOV     R5,A
+0110 120000      E     LCALL   _CyDmaChSetInitialTd
+                                           ; SOURCE LINE # 52
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 6   
+
+0113 900000      R     MOV     DPTR,#epNumber
+0116 E0                MOVX    A,@DPTR
+0117 2400        E     ADD     A,#LOW USBFS_DmaChan
+0119 F582              MOV     DPL,A
+011B E4                CLR     A
+011C 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+011E F583              MOV     DPH,A
+0120 E0                MOVX    A,@DPTR
+0121 FF                MOV     R7,A
+0122 7D01              MOV     R5,#01H
+0124 120000      E     LCALL   _CyDmaChEnable
+                                           ; SOURCE LINE # 53
+0127 900000      R     MOV     DPTR,#epNumber
+012A E0                MOVX    A,@DPTR
+012B 75F00B            MOV     B,#0BH
+012E 900000      E     MOV     DPTR,#USBFS_EP+01H
+0131 120000      E     LCALL   ?C?OFFXADD
+0134 E4                CLR     A
+0135 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 54
+0136 900000      R     MOV     DPTR,#ri
+0139 E0                MOVX    A,@DPTR
+013A 2480              ADD     A,#080H
+013C F582              MOV     DPL,A
+013E E4                CLR     A
+013F 3460              ADDC    A,#060H
+0141 F583              MOV     DPH,A
+0143 E0                MOVX    A,@DPTR
+0144 4401              ORL     A,#01H
+0146 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 55
+0147 22                RET     
+             ; FUNCTION _Audio_USB_LoadInEP (END)
+
+             ; FUNCTION _Audio_USB_ReadOutEP (BEGIN)
+                                           ; SOURCE LINE # 58
+0000 900000      R     MOV     DPTR,#pData
+0003 120000      E     LCALL   ?C?PSTXDATA
+0006 900000      R     MOV     DPTR,#epNumber
+0009 EF                MOV     A,R7
+000A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 59
+                                           ; SOURCE LINE # 63
+000B 24FF              ADD     A,#0FFH
+000D FF                MOV     R7,A
+000E E4                CLR     A
+000F 34FF              ADDC    A,#0FFH
+0011 FE                MOV     R6,A
+0012 EF                MOV     A,R7
+0013 C4                SWAP    A
+0014 F8                MOV     R0,A
+0015 540F              ANL     A,#0FH
+0017 C8                XCH     A,R0
+0018 68                XRL     A,R0
+0019 FF                MOV     R7,A
+001A EE                MOV     A,R6
+001B C4                SWAP    A
+001C 54F0              ANL     A,#0F0H
+001E 48                ORL     A,R0
+;---- Variable 'ri' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 64
+001F EF                MOV     A,R7
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 7   
+
+0020 2488              ADD     A,#088H
+0022 FF                MOV     R7,A
+0023 E4                CLR     A
+0024 3460              ADDC    A,#060H
+0026 FA                MOV     R2,A
+0027 A907              MOV     R1,AR7
+0029 7B01              MOV     R3,#01H
+002B 900000      R     MOV     DPTR,#p
+002E 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 65
+0031 900000      R     MOV     DPTR,#Audio_IQ_Channels
+0034 E0                MOVX    A,@DPTR
+0035 30E108            JNB     ACC.1,?C0004
+                                           ; SOURCE LINE # 66
+0038 900000      R     MOV     DPTR,#td_config
+003B 7492              MOV     A,#092H
+003D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 67
+003E 8006              SJMP    ?C0005
+0040         ?C0004:
+                                           ; SOURCE LINE # 68
+0040 900000      R     MOV     DPTR,#td_config
+0043 74D2              MOV     A,#0D2H
+0045 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 69
+0046         ?C0005:
+                                           ; SOURCE LINE # 70
+0046 900000      R     MOV     DPTR,#epNumber
+0049 E0                MOVX    A,@DPTR
+004A 2400        E     ADD     A,#LOW USBFS_DmaChan
+004C F582              MOV     DPL,A
+004E E4                CLR     A
+004F 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+0051 F583              MOV     DPH,A
+0053 E0                MOVX    A,@DPTR
+0054 FF                MOV     R7,A
+0055 120000      E     LCALL   _CyDmaChDisable
+                                           ; SOURCE LINE # 71
+0058 900000      R     MOV     DPTR,#epNumber
+005B E0                MOVX    A,@DPTR
+005C 2400        E     ADD     A,#LOW USBFS_DmaTd
+005E F582              MOV     DPL,A
+0060 E4                CLR     A
+0061 3400        E     ADDC    A,#HIGH USBFS_DmaTd
+0063 F583              MOV     DPH,A
+0065 E0                MOVX    A,@DPTR
+0066 FB                MOV     R3,A
+0067 FF                MOV     R7,A
+0068 900000      R     MOV     DPTR,#length
+006B E0                MOVX    A,@DPTR
+006C FC                MOV     R4,A
+006D A3                INC     DPTR
+006E E0                MOVX    A,@DPTR
+006F FD                MOV     R5,A
+0070 A3                INC     DPTR
+0071 E0                MOVX    A,@DPTR
+0072 900000      E     MOV     DPTR,#?_CyDmaTdSetConfiguration?BYTE+04H
+0075 F0                MOVX    @DPTR,A
+0076 120000      E     LCALL   _CyDmaTdSetConfiguration
+                                           ; SOURCE LINE # 72
+0079 900000      R     MOV     DPTR,#epNumber
+007C E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 8   
+
+007D 2400        E     ADD     A,#LOW USBFS_DmaTd
+007F F582              MOV     DPL,A
+0081 E4                CLR     A
+0082 3400        E     ADDC    A,#HIGH USBFS_DmaTd
+0084 F583              MOV     DPH,A
+0086 E0                MOVX    A,@DPTR
+0087 FF                MOV     R7,A
+0088 900000      R     MOV     DPTR,#p
+008B 120000      E     LCALL   ?C?PLDXDATA
+008E E9                MOV     A,R1
+008F EA                MOV     A,R2
+0090 E4                CLR     A
+0091 AD01              MOV     R5,AR1
+0093 AC02              MOV     R4,AR2
+0095 C005              PUSH    AR5
+0097 900000      R     MOV     DPTR,#pData
+009A 120000      E     LCALL   ?C?PLDXDATA
+009D E9                MOV     A,R1
+009E EA                MOV     A,R2
+009F E4                CLR     A
+00A0 AB01              MOV     R3,AR1
+00A2 D005              POP     AR5
+00A4 120000      E     LCALL   _CyDmaTdSetAddress
+                                           ; SOURCE LINE # 73
+00A7 900000      R     MOV     DPTR,#epNumber
+00AA E0                MOVX    A,@DPTR
+00AB 2400        E     ADD     A,#LOW USBFS_DmaChan
+00AD F582              MOV     DPL,A
+00AF E4                CLR     A
+00B0 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+00B2 F583              MOV     DPH,A
+00B4 E0                MOVX    A,@DPTR
+00B5 FF                MOV     R7,A
+00B6 120000      E     LCALL   _CyDmaClearPendingDrq
+                                           ; SOURCE LINE # 74
+00B9 900000      R     MOV     DPTR,#epNumber
+00BC E0                MOVX    A,@DPTR
+00BD FE                MOV     R6,A
+00BE 2400        E     ADD     A,#LOW USBFS_DmaChan
+00C0 F582              MOV     DPL,A
+00C2 E4                CLR     A
+00C3 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+00C5 F583              MOV     DPH,A
+00C7 E0                MOVX    A,@DPTR
+00C8 FF                MOV     R7,A
+00C9 7400        E     MOV     A,#LOW USBFS_DmaTd
+00CB 2E                ADD     A,R6
+00CC F582              MOV     DPL,A
+00CE E4                CLR     A
+00CF 3400        E     ADDC    A,#HIGH USBFS_DmaTd
+00D1 F583              MOV     DPH,A
+00D3 E0                MOVX    A,@DPTR
+00D4 FD                MOV     R5,A
+00D5 120000      E     LCALL   _CyDmaChSetInitialTd
+                                           ; SOURCE LINE # 75
+00D8 900000      R     MOV     DPTR,#epNumber
+00DB E0                MOVX    A,@DPTR
+00DC 2400        E     ADD     A,#LOW USBFS_DmaChan
+00DE F582              MOV     DPL,A
+00E0 E4                CLR     A
+00E1 3400        E     ADDC    A,#HIGH USBFS_DmaChan
+00E3 F583              MOV     DPH,A
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 9   
+
+00E5 E0                MOVX    A,@DPTR
+00E6 FF                MOV     R7,A
+00E7 7D01              MOV     R5,#01H
+00E9 120000      E     LCALL   _CyDmaChEnable
+                                           ; SOURCE LINE # 76
+00EC 22                RET     
+             ; FUNCTION _Audio_USB_ReadOutEP (END)
+
+             ; FUNCTION Audio_Start (BEGIN)
+                                           ; SOURCE LINE # 80
+                                           ; SOURCE LINE # 81
+0000 900000      E     MOV     DPTR,#USBFS_DmaTd+02H
+0003 E0                MOVX    A,@DPTR
+0004 B4FF08            CJNE    A,#0FFH,?C0007
+                                           ; SOURCE LINE # 82
+0007 120000      E     LCALL   PCM3060_RxBuf
+000A 7F02              MOV     R7,#02H
+000C 120000      E     LCALL   _USBFS_InitEP_DMA
+000F         ?C0007:
+                                           ; SOURCE LINE # 83
+000F 900000      E     MOV     DPTR,#USBFS_DmaTd+03H
+0012 E0                MOVX    A,@DPTR
+0013 B4FF08            CJNE    A,#0FFH,?C0008
+                                           ; SOURCE LINE # 84
+0016 120000      E     LCALL   PCM3060_TxBuf
+0019 7F03              MOV     R7,#03H
+001B 120000      E     LCALL   _USBFS_InitEP_DMA
+001E         ?C0008:
+                                           ; SOURCE LINE # 85
+001E E4                CLR     A
+001F 900000      R     MOV     DPTR,#TX_Enabled
+0022 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 86
+0023 120000      E     LCALL   PCM3060_TxBuf
+0026 E4                CLR     A
+0027 900000      R     MOV     DPTR,#?_Audio_USB_ReadOutEP?BYTE+04H
+002A F0                MOVX    @DPTR,A
+002B A3                INC     DPTR
+002C F0                MOVX    @DPTR,A
+002D 7F03              MOV     R7,#03H
+002F 120000      R     LCALL   _Audio_USB_ReadOutEP
+                                           ; SOURCE LINE # 87
+0032 22                RET     
+             ; FUNCTION Audio_Start (END)
+
+             ; FUNCTION Audio_Main (BEGIN)
+                                           ; SOURCE LINE # 89
+                                           ; SOURCE LINE # 91
+0000 7F03              MOV     R7,#03H
+0002 120000      E     LCALL   _USBFS_GetInterfaceSetting
+0005 EF                MOV     A,R7
+0006 6013              JZ      ?C0010
+                                           ; SOURCE LINE # 92
+0008 900000      R     MOV     DPTR,#TX_Enabled
+000B E0                MOVX    A,@DPTR
+000C 701D              JNZ     ?C0012
+                                           ; SOURCE LINE # 93
+000E 7F03              MOV     R7,#03H
+0010 120000      E     LCALL   _USBFS_EnableOutEP
+                                           ; SOURCE LINE # 94
+0013 900000      R     MOV     DPTR,#TX_Enabled
+0016 7401              MOV     A,#01H
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 10  
+
+0018 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 95
+                                           ; SOURCE LINE # 96
+0019 8010              SJMP    ?C0012
+001B         ?C0010:
+                                           ; SOURCE LINE # 97
+001B 900000      R     MOV     DPTR,#TX_Enabled
+001E E0                MOVX    A,@DPTR
+001F 600A              JZ      ?C0012
+                                           ; SOURCE LINE # 98
+0021 7F03              MOV     R7,#03H
+0023 120000      E     LCALL   _USBFS_DisableOutEP
+                                           ; SOURCE LINE # 99
+0026 E4                CLR     A
+0027 900000      R     MOV     DPTR,#TX_Enabled
+002A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 100
+                                           ; SOURCE LINE # 101
+002B         ?C0012:
+                                           ; SOURCE LINE # 103
+002B 120000      E     LCALL   USBFS_IsConfigurationChanged
+002E EF                MOV     A,R7
+002F 6005              JZ      ?C0014
+                                           ; SOURCE LINE # 104
+0031 7F03              MOV     R7,#03H
+0033 120000      E     LCALL   _USBFS_EnableOutEP
+                                           ; SOURCE LINE # 105
+0036         ?C0014:
+                                           ; SOURCE LINE # 107
+0036 7F03              MOV     R7,#03H
+0038 120000      E     LCALL   _USBFS_GetEPState
+003B EF                MOV     A,R7
+003C B40117            CJNE    A,#01H,?C0015
+                                           ; SOURCE LINE # 108
+003F 120000      E     LCALL   PCM3060_TxBuf
+0042 900000      R     MOV     DPTR,#?_Audio_USB_ReadOutEP?BYTE+04H
+0045 7401              MOV     A,#01H
+0047 F0                MOVX    @DPTR,A
+0048 A3                INC     DPTR
+0049 7480              MOV     A,#080H
+004B F0                MOVX    @DPTR,A
+004C 7F03              MOV     R7,#03H
+004E 120000      R     LCALL   _Audio_USB_ReadOutEP
+                                           ; SOURCE LINE # 109
+0051 7F03              MOV     R7,#03H
+0053 120000      E     LCALL   _USBFS_EnableOutEP
+                                           ; SOURCE LINE # 110
+0056         ?C0015:
+                                           ; SOURCE LINE # 112
+0056 7F02              MOV     R7,#02H
+0058 120000      E     LCALL   _USBFS_GetEPState
+005B EF                MOV     A,R7
+005C B40112            CJNE    A,#01H,?C0017
+                                           ; SOURCE LINE # 113
+005F 120000      E     LCALL   PCM3060_RxBuf
+0062 900000      R     MOV     DPTR,#?_Audio_USB_LoadInEP?BYTE+04H
+0065 7401              MOV     A,#01H
+0067 F0                MOVX    @DPTR,A
+0068 A3                INC     DPTR
+0069 7480              MOV     A,#080H
+006B F0                MOVX    @DPTR,A
+006C 7F02              MOV     R7,#02H
+C51 COMPILER V9.51   AUDIO                                                                 10/22/2015 22:07:33 PAGE 11  
+
+006E 120000      R     LCALL   _Audio_USB_LoadInEP
+                                           ; SOURCE LINE # 114
+                                           ; SOURCE LINE # 115
+0071         ?C0017:
+0071 22                RET     
+             ; FUNCTION Audio_Main (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    730    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      2      21
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
