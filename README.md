@@ -1,4 +1,4 @@
-<This project provides modified firmware based on the original source provided by David Turnbull / AE9RB
+This project provides modified firmware based on the original source provided by David Turnbull / AE9RB
 The modified firmware now supports very low latency CW and Iambic code generation.
 
 ## Building Firmware
