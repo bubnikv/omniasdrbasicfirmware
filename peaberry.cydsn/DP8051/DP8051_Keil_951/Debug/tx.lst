@@ -1,0 +1,293 @@
+C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE TX
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\tx.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\tx.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Deb
+                    -ug/tx.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\tx.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          // 09/30/2014 Additions to support low latency CW and Iambic funtionality  Ron Patton / W4MMP
+  15          // 01/01/2015 Added Semi Break-in Support Ron Patton / W4MMP
+  16          
+  17          
+  18          #include <peaberry.h>
+  19          #include <iambino.h>
+  20          
+  21          //#define TX_LED_BLINK_ON_MS 40
+  22          //#define TX_LED_BLINK_OFF_MS 50
+  23          
+  24          uint8 TX_Request = 0;
+  25          uint8 TX_Inhibit = 0;
+  26          
+  27          void TX_Main(void) {
+  28   1          static uint8 state = 0, blink;
+  29   1          uint8 i, blink_time = 2;
+  30   1          
+  31   1          switch (state) {
+  32   2              case 0: // receiving
+  33   2                  if (TX_Request && !TX_Inhibit) {
+  34   3                      state = 1;
+  35   3                      Control_Write(Control_Read() & ~CONTROL_RX);
+  36   3                  }
+  37   2                  break;
+  38   2              case 1:
+  39   2                  if(!ee_cw_mode){
+  40   3                      Control_Write(Control_Read() | CONTROL_TX);
+  41   3                  }
+  42   2                  state = 2;
+  43   2                  break;
+  44   2              case 2:
+  45   2                  if(!ee_cw_mode){
+  46   3                      Control_Write(Control_Read() & ~CONTROL_AMP);
+  47   3                  }else {
+  48   3                      if(ee_semi_control != SEMI_USE_AMP){
+  49   4                          Control_Write(Control_Read() & ~CONTROL_AMP);
+  50   4                      }
+  51   3                  }
+  52   2                  state = 10;
+  53   2                  blink = 1;
+C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 2   
+
+  54   2                  break;
+  55   2              case 10: // transmitting
+  56   2                  if (TX_Request) {
+  57   3                      blink--;
+  58   3                      if (!blink) {
+  59   4                          i = Control_Read();
+  60   4                          if (i & CONTROL_LED) blink = TX_LED_BLINK_OFF_MS * 2;
+  61   4                          else blink = TX_LED_BLINK_ON_MS * 2;
+  62   4                          Control_Write(i ^ CONTROL_LED);
+  63   4                      }
+  64   3                  } else {
+  65   3                      Control_Write(Control_Read() & ~(CONTROL_TX | CONTROL_LED) | CONTROL_AMP);
+  66   3                      state = 11;
+  67   3                  }
+  68   2                  break;
+  69   2              case 11:
+  70   2                  Control_Write(Control_Read() | CONTROL_RX);
+  71   2                  state = 0;
+  72   2                  break;
+  73   2          }
+  74   1          
+  75   1      }
+C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 3   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION TX_Main (BEGIN)
+                                           ; SOURCE LINE # 27
+                                           ; SOURCE LINE # 29
+0000 900000      R     MOV     DPTR,#blink_time
+0003 7402              MOV     A,#02H
+0005 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 31
+0006 900000      R     MOV     DPTR,#state
+0009 E0                MOVX    A,@DPTR
+000A 14                DEC     A
+000B 6036              JZ      ?C0004
+000D 14                DEC     A
+000E 604A              JZ      ?C0006
+0010 24F8              ADD     A,#0F8H
+0012 6075              JZ      ?C0010
+0014 14                DEC     A
+0015 7003              JNZ     $ + 5H
+0017 020000      R     LJMP    ?C0016
+001A 240B              ADD     A,#0BH
+001C 6003              JZ      $ + 5H
+001E 020000      R     LJMP    ?C0017
+                                           ; SOURCE LINE # 32
+0021         ?C0002:
+                                           ; SOURCE LINE # 33
+0021 900000      R     MOV     DPTR,#TX_Request
+0024 E0                MOVX    A,@DPTR
+0025 7003              JNZ     $ + 5H
+0027 020000      R     LJMP    ?C0017
+002A 900000      R     MOV     DPTR,#TX_Inhibit
+002D E0                MOVX    A,@DPTR
+002E 6003              JZ      $ + 5H
+0030 020000      R     LJMP    ?C0017
+                                           ; SOURCE LINE # 34
+0033 900000      R     MOV     DPTR,#state
+0036 04                INC     A
+0037 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 35
+0038 120000      E     LCALL   Control_Read
+003B EF                MOV     A,R7
+003C 54FD              ANL     A,#0FDH
+003E FF                MOV     R7,A
+003F 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 36
+                                           ; SOURCE LINE # 37
+0042 22                RET     
+                                           ; SOURCE LINE # 38
+0043         ?C0004:
+                                           ; SOURCE LINE # 39
+0043 900000      E     MOV     DPTR,#ee_cw_mode
+0046 E0                MOVX    A,@DPTR
+0047 700A              JNZ     ?C0005
+                                           ; SOURCE LINE # 40
+0049 120000      E     LCALL   Control_Read
+004C EF                MOV     A,R7
+004D 4404              ORL     A,#04H
+004F FF                MOV     R7,A
+0050 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 41
+0053         ?C0005:
+C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 4   
+
+                                           ; SOURCE LINE # 42
+0053 900000      R     MOV     DPTR,#state
+0056 7402              MOV     A,#02H
+0058 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 43
+0059 22                RET     
+                                           ; SOURCE LINE # 44
+005A         ?C0006:
+                                           ; SOURCE LINE # 45
+005A 900000      E     MOV     DPTR,#ee_cw_mode
+005D E0                MOVX    A,@DPTR
+005E 700C              JNZ     ?C0007
+                                           ; SOURCE LINE # 46
+0060 120000      E     LCALL   Control_Read
+0063 EF                MOV     A,R7
+0064 54F7              ANL     A,#0F7H
+0066 FF                MOV     R7,A
+0067 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 47
+006A 8012              SJMP    ?C0008
+006C         ?C0007:
+                                           ; SOURCE LINE # 48
+006C 900000      E     MOV     DPTR,#ee_semi_control
+006F E0                MOVX    A,@DPTR
+0070 6401              XRL     A,#01H
+0072 600A              JZ      ?C0008
+                                           ; SOURCE LINE # 49
+0074 120000      E     LCALL   Control_Read
+0077 EF                MOV     A,R7
+0078 54F7              ANL     A,#0F7H
+007A FF                MOV     R7,A
+007B 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 50
+                                           ; SOURCE LINE # 51
+007E         ?C0008:
+                                           ; SOURCE LINE # 52
+007E 900000      R     MOV     DPTR,#state
+0081 740A              MOV     A,#0AH
+0083 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 53
+0084 A3                INC     DPTR
+0085 7401              MOV     A,#01H
+0087 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 54
+0088 22                RET     
+                                           ; SOURCE LINE # 55
+0089         ?C0010:
+                                           ; SOURCE LINE # 56
+0089 900000      R     MOV     DPTR,#TX_Request
+008C E0                MOVX    A,@DPTR
+008D 6026              JZ      ?C0011
+                                           ; SOURCE LINE # 57
+008F 900000      R     MOV     DPTR,#blink
+0092 E0                MOVX    A,@DPTR
+0093 14                DEC     A
+0094 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 58
+0095 E0                MOVX    A,@DPTR
+0096 703F              JNZ     ?C0017
+                                           ; SOURCE LINE # 59
+0098 120000      E     LCALL   Control_Read
+;---- Variable 'i' assigned to Register 'R7' ----
+C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 5   
+
+                                           ; SOURCE LINE # 60
+009B EF                MOV     A,R7
+009C 30E008            JNB     ACC.0,?C0013
+009F 900000      R     MOV     DPTR,#blink
+00A2 7464              MOV     A,#064H
+00A4 F0                MOVX    @DPTR,A
+00A5 8006              SJMP    ?C0014
+00A7         ?C0013:
+                                           ; SOURCE LINE # 61
+00A7 900000      R     MOV     DPTR,#blink
+00AA 7450              MOV     A,#050H
+00AC F0                MOVX    @DPTR,A
+00AD         ?C0014:
+                                           ; SOURCE LINE # 62
+00AD EF                MOV     A,R7
+00AE 6401              XRL     A,#01H
+00B0 FF                MOV     R7,A
+00B1 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 63
+                                           ; SOURCE LINE # 64
+00B4 22                RET     
+00B5         ?C0011:
+                                           ; SOURCE LINE # 65
+00B5 120000      E     LCALL   Control_Read
+00B8 EF                MOV     A,R7
+00B9 54FA              ANL     A,#0FAH
+00BB 4408              ORL     A,#08H
+00BD FF                MOV     R7,A
+00BE 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 66
+00C1 900000      R     MOV     DPTR,#state
+00C4 740B              MOV     A,#0BH
+00C6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 67
+                                           ; SOURCE LINE # 68
+00C7 22                RET     
+                                           ; SOURCE LINE # 69
+00C8         ?C0016:
+                                           ; SOURCE LINE # 70
+00C8 120000      E     LCALL   Control_Read
+00CB EF                MOV     A,R7
+00CC 4402              ORL     A,#02H
+00CE FF                MOV     R7,A
+00CF 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 71
+00D2 E4                CLR     A
+00D3 900000      R     MOV     DPTR,#state
+00D6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 72
+                                           ; SOURCE LINE # 73
+                                           ; SOURCE LINE # 75
+00D7         ?C0017:
+00D7 22                RET     
+             ; FUNCTION TX_Main (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    216    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4       1
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 6   
+
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

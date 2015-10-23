@@ -1,0 +1,196 @@
+--------------- Rebuild Started: 10/22/2015 22:07:08 Project: peaberry, Configuration: DP8051 Keil 9.51 Debug ---------------
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\main.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\usbvend.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\pcm3060.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\si570.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\settings.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\audio.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\tx.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\morse.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\t1.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\sync.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\band.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\iambic.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\cw.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\cyfitter_cfg.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_audio.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_boot.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_cdc.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_cls.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_descr.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_drv.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_episr.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_hid.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_pm.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_std.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_vnd.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_midi.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2C.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2C_BOOT.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2C_INT.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2C_PM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2C_SLAVE.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2C_MASTER.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2S.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\I2S_PM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Status.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\FracN_api.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\RxI2S_Buff_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\RxI2S_Stage_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Control.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Control_PM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\SyncSOF_api.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\TxI2S_Buff_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\TxI2S_Stage_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\EEPROM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\TxI2S_Zero_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\P_DMA_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\FRAC_CLK.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Bootloadable.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CW_Control.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CW_Control_PM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CW_Clock.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CW_Hold_Timer.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CW_Hold_Timer_PM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Iambic_Clock_1.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Iambic_Counter.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Iambic_Counter_PM.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\Iambic_Clock_Main.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_ep3_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_EP17_DMA_Done_SR.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_ep2_dma.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_VBUS.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_Dm.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_Dp.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_EP_DMA_Done_isr.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS_EP8_DMA_Done_SR.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CyBootAsmKeil.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CyDmac.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CyFlash.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CyLib.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\cymem.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\cyPm.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\CySpc.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\cyutils.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\KeilStart.obj"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\peaberry.hex"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\peaberry.elf"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\peaberry.map"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\peaberry.cyacd"
+Deleting file ".\peaberry.cycdx"
+Deleting file ".\peaberry.svd"
+Deleting file ".\peaberry.rpt"
+Deleting file ".\peaberry_timing.html"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\.deps\C_FILE.P"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\.deps\DP8051_C_FILE.P"
+Deleting file ".\DP8051\DP8051_Keil_951\Debug\.deps\KEIL_8051_ASM_FILE.P"
+cydsfit.exe -.appdatapath "C:\Users\Ron\AppData\Local\Cypress Semiconductor\PSoC Creator\3.3" -.fdsnotice -.fdswarpdepfile=warp_dependencies.txt -.fdselabdepfile=elab_dependencies.txt -.fdsbldfile=generated_files.txt -p "J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\peaberry.cydsn\peaberry.cyprj" -d CY8C3246PVI-147 -s "J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\peaberry.cydsn\Generated_Source\PSoC3" -- -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=BE
+Elaborating Design...
+HDL Generation ...
+Synthesis ...
+Place and Route ...
+Tech mapping ...
+Analog Placement ...
+Analog Routing ...
+Analog Code Generation ...
+Digital Placement ...
+Digital Routing ...
+Bitstream Generation ...
+Static timing analysis ...
+Warning: sta.M0021: peaberry_timing.html: Warning-1350: Asynchronous path(s) exist from "\USBFS:USB\/sof_int" to "CyBUS_CLK". See the timing report for details. (File=J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\peaberry.cydsn\peaberry_timing.html)
+Warning: sta.M0021: peaberry_timing.html: Warning-1350: Asynchronous path(s) exist from "CyBUS_CLK" to "\USBFS:USB\/sof_int". See the timing report for details. (File=J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\peaberry.cydsn\peaberry_timing.html)
+Warning: sta.M0019: peaberry_timing.html: Warning-1366: Setup time violation found in a path from clock ( CyBUS_CLK ) to clock ( FRAC_CLK ). (File=J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\peaberry.cydsn\peaberry_timing.html)
+API Generation ...
+Dependency Generation ...
+Clean Temporary Files ...
+c51.exe .\main.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/main.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\main.obj)
+c51.exe .\usbvend.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/usbvend.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\usbvend.obj)
+c51.exe .\pcm3060.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/pcm3060.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\pcm3060.obj)
+c51.exe .\si570.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/si570.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\si570.obj)
+c51.exe .\settings.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/settings.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\settings.obj)
+c51.exe .\audio.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/audio.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\audio.obj)
+c51.exe .\tx.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/tx.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\tx.obj)
+c51.exe .\morse.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/morse.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\morse.obj)
+c51.exe .\t1.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/t1.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\t1.obj)
+c51.exe .\sync.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/sync.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\sync.obj)
+c51.exe .\band.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/band.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\band.obj)
+c51.exe .\iambic.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/iambic.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\iambic.obj)
+c51.exe .\cw.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/cw.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\cw.obj)
+c51.exe .\Generated_Source\PSoC3\cyfitter_cfg.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/cyfitter_cfg.lst) CD OT(5 ,Size) DF(CYAPP_ECC_OFFSET='2112') OJ(.\DP8051\DP8051_Keil_951\Debug\cyfitter_cfg.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_audio.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_audio.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_audio.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_boot.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_boot.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_boot.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_cdc.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_cdc.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_cdc.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_cls.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_cls.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_cls.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_descr.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_descr.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_descr.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_drv.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_drv.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_drv.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_episr.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_episr.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_episr.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_hid.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_hid.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_hid.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_pm.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_pm.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_pm.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_std.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_std.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_std.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_vnd.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_vnd.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_vnd.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_midi.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_midi.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_midi.obj)
+c51.exe .\Generated_Source\PSoC3\I2C.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2C.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2C.obj)
+c51.exe .\Generated_Source\PSoC3\I2C_BOOT.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2C_BOOT.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2C_BOOT.obj)
+c51.exe .\Generated_Source\PSoC3\I2C_INT.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2C_INT.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2C_INT.obj)
+c51.exe .\Generated_Source\PSoC3\I2C_PM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2C_PM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2C_PM.obj)
+c51.exe .\Generated_Source\PSoC3\I2C_SLAVE.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2C_SLAVE.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2C_SLAVE.obj)
+c51.exe .\Generated_Source\PSoC3\I2C_MASTER.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2C_MASTER.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2C_MASTER.obj)
+c51.exe .\Generated_Source\PSoC3\I2S.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2S.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2S.obj)
+c51.exe .\Generated_Source\PSoC3\I2S_PM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/I2S_PM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\I2S_PM.obj)
+c51.exe .\Generated_Source\PSoC3\Status.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Status.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Status.obj)
+c51.exe .\Generated_Source\PSoC3\FracN_api.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/FracN_api.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\FracN_api.obj)
+c51.exe .\Generated_Source\PSoC3\RxI2S_Buff_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/RxI2S_Buff_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\RxI2S_Buff_dma.obj)
+c51.exe .\Generated_Source\PSoC3\RxI2S_Stage_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/RxI2S_Stage_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\RxI2S_Stage_dma.obj)
+c51.exe .\Generated_Source\PSoC3\Control.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Control.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Control.obj)
+c51.exe .\Generated_Source\PSoC3\Control_PM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Control_PM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Control_PM.obj)
+c51.exe .\Generated_Source\PSoC3\SyncSOF_api.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/SyncSOF_api.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\SyncSOF_api.obj)
+c51.exe .\Generated_Source\PSoC3\TxI2S_Buff_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/TxI2S_Buff_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\TxI2S_Buff_dma.obj)
+c51.exe .\Generated_Source\PSoC3\TxI2S_Stage_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/TxI2S_Stage_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\TxI2S_Stage_dma.obj)
+c51.exe .\Generated_Source\PSoC3\EEPROM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/EEPROM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\EEPROM.obj)
+c51.exe .\Generated_Source\PSoC3\TxI2S_Zero_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/TxI2S_Zero_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\TxI2S_Zero_dma.obj)
+c51.exe .\Generated_Source\PSoC3\P_DMA_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/P_DMA_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\P_DMA_dma.obj)
+c51.exe .\Generated_Source\PSoC3\FRAC_CLK.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/FRAC_CLK.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\FRAC_CLK.obj)
+c51.exe .\Generated_Source\PSoC3\Bootloadable.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Bootloadable.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Bootloadable.obj)
+c51.exe .\Generated_Source\PSoC3\CW_Control.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CW_Control.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CW_Control.obj)
+c51.exe .\Generated_Source\PSoC3\CW_Control_PM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CW_Control_PM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CW_Control_PM.obj)
+c51.exe .\Generated_Source\PSoC3\CW_Clock.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CW_Clock.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CW_Clock.obj)
+c51.exe .\Generated_Source\PSoC3\CW_Hold_Timer.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CW_Hold_Timer.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CW_Hold_Timer.obj)
+c51.exe .\Generated_Source\PSoC3\CW_Hold_Timer_PM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CW_Hold_Timer_PM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CW_Hold_Timer_PM.obj)
+c51.exe .\Generated_Source\PSoC3\Iambic_Clock_1.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Iambic_Clock_1.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Iambic_Clock_1.obj)
+c51.exe .\Generated_Source\PSoC3\Iambic_Counter.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Iambic_Counter.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Iambic_Counter.obj)
+c51.exe .\Generated_Source\PSoC3\Iambic_Counter_PM.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Iambic_Counter_PM.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Iambic_Counter_PM.obj)
+c51.exe .\Generated_Source\PSoC3\Iambic_Clock_Main.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/Iambic_Clock_Main.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\Iambic_Clock_Main.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_ep3_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_ep3_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_ep3_dma.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_EP17_DMA_Done_SR.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_EP17_DMA_Done_SR.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_EP17_DMA_Done_SR.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_ep2_dma.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_ep2_dma.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_ep2_dma.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_VBUS.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_VBUS.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_VBUS.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_Dm.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_Dm.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_Dm.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_Dp.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_Dp.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_Dp.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_EP_DMA_Done_isr.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_EP_DMA_Done_isr.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_EP_DMA_Done_isr.obj)
+c51.exe .\Generated_Source\PSoC3\USBFS_EP8_DMA_Done_SR.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_EP8_DMA_Done_SR.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_EP8_DMA_Done_SR.obj)
+Ax51.exe .\Generated_Source\PSoC3\CyBootAsmKeil.a51 CASE EP "INCDIR(., Generated_Source\PSoC3)" DB MACRO NOCO PR(.\DP8051\DP8051_Keil_951\Debug/CyBootAsmKeil.lst) OJ(.\DP8051\DP8051_Keil_951\Debug\CyBootAsmKeil.obj)
+c51.exe .\Generated_Source\PSoC3\CyDmac.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CyDmac.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CyDmac.obj)
+c51.exe .\Generated_Source\PSoC3\CyFlash.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CyFlash.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CyFlash.obj)
+c51.exe .\Generated_Source\PSoC3\CyLib.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CyLib.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CyLib.obj)
+Ax51.exe .\Generated_Source\PSoC3\cymem.a51 CASE EP "INCDIR(., Generated_Source\PSoC3)" DB MACRO NOCO PR(.\DP8051\DP8051_Keil_951\Debug/cymem.lst) OJ(.\DP8051\DP8051_Keil_951\Debug\cymem.obj)
+c51.exe .\Generated_Source\PSoC3\cyPm.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/cyPm.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\cyPm.obj)
+c51.exe .\Generated_Source\PSoC3\CySpc.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CySpc.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\CySpc.obj)
+c51.exe .\Generated_Source\PSoC3\cyutils.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP "INCDIR(., Generated_Source\PSoC3)" FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/cyutils.lst) CD OT(5 ,Size) OJ(.\DP8051\DP8051_Keil_951\Debug\cyutils.obj)
+Ax51.exe .\Generated_Source\PSoC3\KeilStart.a51 CASE EP "INCDIR(., Generated_Source\PSoC3)" DB MACRO NOCO PR(.\DP8051\DP8051_Keil_951\Debug/KeilStart.lst) OJ(.\DP8051\DP8051_Keil_951\Debug\KeilStart.obj)
+LIBX51.exe TRANSFER '.\DP8051\DP8051_Keil_951\Debug\cyfitter_cfg.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_audio.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_boot.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_cdc.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_cls.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_descr.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_drv.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_episr.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_hid.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_pm.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_std.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_vnd.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_midi.obj', '.\DP8051\DP8051_Keil_951\Debug\I2C.obj', '.\DP8051\DP8051_Keil_951\Debug\I2C_BOOT.obj', '.\DP8051\DP8051_Keil_951\Debug\I2C_INT.obj', '.\DP8051\DP8051_Keil_951\Debug\I2C_PM.obj', '.\DP8051\DP8051_Keil_951\Debug\I2C_SLAVE.obj', '.\DP8051\DP8051_Keil_951\Debug\I2C_MASTER.obj', '.\DP8051\DP8051_Keil_951\Debug\I2S.obj', '.\DP8051\DP8051_Keil_951\Debug\I2S_PM.obj', '.\DP8051\DP8051_Keil_951\Debug\Status.obj', '.\DP8051\DP8051_Keil_951\Debug\FracN_api.obj', '.\DP8051\DP8051_Keil_951\Debug\RxI2S_Buff_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\RxI2S_Stage_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\Control.obj', '.\DP8051\DP8051_Keil_951\Debug\Control_PM.obj', '.\DP8051\DP8051_Keil_951\Debug\SyncSOF_api.obj', '.\DP8051\DP8051_Keil_951\Debug\TxI2S_Buff_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\TxI2S_Stage_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\EEPROM.obj', '.\DP8051\DP8051_Keil_951\Debug\TxI2S_Zero_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\P_DMA_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\FRAC_CLK.obj', '.\DP8051\DP8051_Keil_951\Debug\Bootloadable.obj', '.\DP8051\DP8051_Keil_951\Debug\CW_Control.obj', '.\DP8051\DP8051_Keil_951\Debug\CW_Control_PM.obj', '.\DP8051\DP8051_Keil_951\Debug\CW_Clock.obj', '.\DP8051\DP8051_Keil_951\Debug\CW_Hold_Timer.obj', '.\DP8051\DP8051_Keil_951\Debug\CW_Hold_Timer_PM.obj', '.\DP8051\DP8051_Keil_951\Debug\Iambic_Clock_1.obj', '.\DP8051\DP8051_Keil_951\Debug\Iambic_Counter.obj', '.\DP8051\DP8051_Keil_951\Debug\Iambic_Counter_PM.obj', '.\DP8051\DP8051_Keil_951\Debug\Iambic_Clock_Main.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_ep3_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_EP17_DMA_Done_SR.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_ep2_dma.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_VBUS.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_Dm.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_Dp.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_EP_DMA_Done_isr.obj', '.\DP8051\DP8051_Keil_951\Debug\USBFS_EP8_DMA_Done_SR.obj', '.\DP8051\DP8051_Keil_951\Debug\CyBootAsmKeil.obj', '.\DP8051\DP8051_Keil_951\Debug\CyDmac.obj', '.\DP8051\DP8051_Keil_951\Debug\CyFlash.obj', '.\DP8051\DP8051_Keil_951\Debug\CyLib.obj', '.\DP8051\DP8051_Keil_951\Debug\cymem.obj', '.\DP8051\DP8051_Keil_951\Debug\cyPm.obj', '.\DP8051\DP8051_Keil_951\Debug\CySpc.obj', '.\DP8051\DP8051_Keil_951\Debug\cyutils.obj', '.\DP8051\DP8051_Keil_951\Debug\KeilStart.obj' TO '.\DP8051\DP8051_Keil_951\Debug\peaberry.lib'
+LX51.exe '.\DP8051\DP8051_Keil_951\Debug\main.obj', '.\DP8051\DP8051_Keil_951\Debug\usbvend.obj', '.\DP8051\DP8051_Keil_951\Debug\pcm3060.obj', '.\DP8051\DP8051_Keil_951\Debug\si570.obj', '.\DP8051\DP8051_Keil_951\Debug\settings.obj', '.\DP8051\DP8051_Keil_951\Debug\audio.obj', '.\DP8051\DP8051_Keil_951\Debug\tx.obj', '.\DP8051\DP8051_Keil_951\Debug\morse.obj', '.\DP8051\DP8051_Keil_951\Debug\t1.obj', '.\DP8051\DP8051_Keil_951\Debug\sync.obj', '.\DP8051\DP8051_Keil_951\Debug\band.obj', '.\DP8051\DP8051_Keil_951\Debug\iambic.obj', '.\DP8051\DP8051_Keil_951\Debug\cw.obj', '.\DP8051\DP8051_Keil_951\Debug\peaberry.lib', 'C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\DP8051\DP8051_Keil_951\Debug\CyComponentLibrary.lib' TO '.\DP8051\DP8051_Keil_951\Debug\peaberry.omf' CODE RU RC(10) DW(16) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/peaberry.map) IX CL(XDATA(X:0x0000-X:0x1FFF)) CL(CODE(C:0x4200-C:0xFFBF)) CL(CONST(C:0x4200-C:0xFFBF))
+*** WARNING L15: MULTIPLE CALL TO FUNCTION
+    NAME:    _USBFS_LOADNEXTINEP/USBFS
+    CALLER1: USBFS_ARB_ISR/USBFS_EPISR
+    CALLER2: USBFS_EP_DMA_DONE_ISR/USBFS_EPISR
+Program Size: data=11.0 xdata=3024 const=3284 code=29453
+OHx51.exe peaberry.omf HEXFILE(peaberry.ihx)
+c8051-elf-omf2elf.exe peaberry.omf peaberry.elf
+cysymboladdressfinder.exe -f .\DP8051\DP8051_Keil_951\Debug\peaberry.elf -s STARTUP1 -p .\DP8051\DP8051_Keil_951\Debug\entryaddress.txt -l FF0000
+cyhextool -o .\DP8051\DP8051_Keil_951\Debug\peaberry.cyacd -f .\DP8051\DP8051_Keil_951\Debug\peaberry.ihx -flsLine 256 -arraySize 65536 -id 1E093069 -rev 3 -ecc .\Generated_Source\PSoC3\config.hex -metaRow 0 -blver 000000000000000000000000000000000000 -chksumEcc -blChkType 1 -endian b -a EEPROM=90200000:800,PROGRAM=00000000:10000,CONFIG=80000000:2000,PROTECT=90400000:40 -acd -acdStart 4200 -e .\DP8051\DP8051_Keil_951\Debug\entryaddress.txt
+cyhextool -o .\DP8051\DP8051_Keil_951\Debug\peaberry.hex -flsLine 256 -arraySize 65536 -bl ..\bootloader.cydsn\DP8051\DP8051_Keil_951\Debug\bootloader.hex -blver 000000000000000000000000000000000000 -chksumEcc -blChkType 1 -endian b -prot .\Generated_Source\PSoC3\protect.hex -id 1E093069 -a EEPROM=90200000:800,PROGRAM=00000000:10000,CONFIG=80000000:2000,PROTECT=90400000:40 -meta 0301 -cunv 0800C005 -wonv BC90ACAF -ecc .\Generated_Source\PSoC3\config.hex -ld .\DP8051\DP8051_Keil_951\Debug\peaberry.ihx=4200:BDBF -acdStart 4200 -e .\DP8051\DP8051_Keil_951\Debug\entryaddress.txt
+Flash used: 49920 of 65536 bytes (76.2 %). Bootloader: 16896 bytes. Application: 32768 bytes. Metadata: 256 bytes.
+SRAM used: 3024 of 8192 bytes (36.9 %).
+--------------- Rebuild Succeeded: 10/22/2015 22:07:49 ---------------

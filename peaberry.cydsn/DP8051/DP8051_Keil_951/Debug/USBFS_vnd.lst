@@ -1,0 +1,136 @@
+C51 COMPILER V9.51   USBFS_VND                                                             10/22/2015 22:07:39 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_VND
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_vnd.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\Generated_Source\PSoC3\USBFS_vnd.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) P
+                    -R(.\DP8051\DP8051_Keil_951\Debug/USBFS_vnd.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_vnd.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * File Name: USBFS_vnd.c
+   3          * Version 2.80
+   4          *
+   5          * Description:
+   6          *  USB vendor request handler.
+   7          *
+   8          * Note:
+   9          *
+  10          ********************************************************************************
+  11          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  12          * You may use this file only in accordance with the license, terms, conditions,
+  13          * disclaimers, and limitations in the end user license agreement accompanying
+  14          * the software package with which this file was provided.
+  15          *******************************************************************************/
+  16          
+  17          #include "USBFS.h"
+  18          #include "USBFS_pvt.h"
+  19          
+  20          
+  21          #if(USBFS_EXTERN_VND == USBFS_FALSE)
+              
+              
+              /***************************************
+              * Vendor Specific Declarations
+              ***************************************/
+              
+              /* `#START VENDOR_SPECIFIC_DECLARATIONS` Place your declaration here */
+              
+              /* `#END` */
+              
+              
+              /*******************************************************************************
+              * Function Name: USBFS_HandleVendorRqst
+              ********************************************************************************
+              *
+              * Summary:
+              *  This routine provide users with a method to implement vendor specific
+              *  requests.
+              *
+              *  To implement vendor specific requests, add your code in this function to
+              *  decode and disposition the request.  If the request is handled, your code
+              *  must set the variable "requestHandled" to TRUE, indicating that the
+              *  request has been handled.
+              *
+              * Parameters:
+              *  None.
+              *
+              * Return:
+              *  requestHandled.
+              *
+              * Reentrant:
+              *  No.
+C51 COMPILER V9.51   USBFS_VND                                                             10/22/2015 22:07:39 PAGE 2   
+
+              *
+              *******************************************************************************/
+              uint8 USBFS_HandleVendorRqst(void) 
+              {
+                  uint8 requestHandled = USBFS_FALSE;
+              
+                  if ((CY_GET_REG8(USBFS_bmRequestType) & USBFS_RQST_DIR_MASK) == USBFS_RQST_DIR_D2H)
+                  {
+                      /* Control Read */
+                      switch (CY_GET_REG8(USBFS_bRequest))
+                      {
+                          case USBFS_GET_EXTENDED_CONFIG_DESCRIPTOR:
+                              #if defined(USBFS_ENABLE_MSOS_STRING)
+                                  USBFS_currentTD.pData = (volatile uint8 *)&USBFS_MSOS_CONFIGURATION_DESCR[0u];
+                                  USBFS_currentTD.count = USBFS_MSOS_CONFIGURATION_DESCR[0u];
+                                  requestHandled  = USBFS_InitControlRead();
+                              #endif /*  USBFS_ENABLE_MSOS_STRING */
+                              break;
+                          default:
+                              break;
+                      }
+                  }
+              
+                  /* `#START VENDOR_SPECIFIC_CODE` Place your vendor specific request here */
+              
+                  /* `#END` */
+              
+                  #ifdef USBFS_HANDLE_VENDOR_RQST_CALLBACK
+                      USBFS_HandleVendorRqst_Callback();
+                  #endif /* USBFS_HANDLE_VENDOR_RQST_CALLBACK */
+              
+                  return(requestHandled);
+              }
+              
+              
+              /*******************************************************************************
+              * Additional user functions supporting Vendor Specific Requests
+              ********************************************************************************/
+              
+              /* `#START VENDOR_SPECIFIC_FUNCTIONS` Place any additional functions here */
+              
+              /* `#END` */
+              
+              #endif /* USBFS_EXTERN_VND */
+  98          
+  99          
+ 100          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_VND                                                             10/22/2015 22:07:39 PAGE 3   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

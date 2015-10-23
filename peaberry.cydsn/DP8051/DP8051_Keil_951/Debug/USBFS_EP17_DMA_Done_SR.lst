@@ -1,0 +1,248 @@
+C51 COMPILER V9.51   USBFS_EP17_DMA_DONE_SR                                                10/22/2015 22:07:44 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_EP17_DMA_DONE_SR
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_EP17_DMA_Done_SR.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\Generated_Source\PSoC3\USBFS_EP17_DMA_Done_SR.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(
+                    -3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_EP17_DMA_Done_SR.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debu
+                    -g\USBFS_EP17_DMA_Done_SR.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * File Name: USBFS_EP17_DMA_Done_SR.c  
+   3          * Version 1.80
+   4          *
+   5          * Description:
+   6          *  This file contains API to enable firmware to read the value of a Status 
+   7          *  Register.
+   8          *
+   9          * Note:
+  10          *
+  11          ********************************************************************************
+  12          * Copyright 2008-2012, Cypress Semiconductor Corporation.  All rights reserved.
+  13          * You may use this file only in accordance with the license, terms, conditions, 
+  14          * disclaimers, and limitations in the end user license agreement accompanying 
+  15          * the software package with which this file was provided.
+  16          *******************************************************************************/
+  17          
+  18          #include "USBFS_EP17_DMA_Done_SR.h"
+  19          
+  20          #if !defined(USBFS_EP17_DMA_Done_SR_sts_intr_sts_reg__REMOVED) /* Check for removal by optimization */
+  21          
+  22          
+  23          /*******************************************************************************
+  24          * Function Name: USBFS_EP17_DMA_Done_SR_Read
+  25          ********************************************************************************
+  26          *
+  27          * Summary:
+  28          *  Reads the current value assigned to the Status Register.
+  29          *
+  30          * Parameters:
+  31          *  None.
+  32          *
+  33          * Return:
+  34          *  The current value in the Status Register.
+  35          *
+  36          *******************************************************************************/
+  37          uint8 USBFS_EP17_DMA_Done_SR_Read(void) 
+  38          { 
+  39   1          return USBFS_EP17_DMA_Done_SR_Status;
+  40   1      }
+  41          
+  42          
+  43          /*******************************************************************************
+  44          * Function Name: USBFS_EP17_DMA_Done_SR_InterruptEnable
+  45          ********************************************************************************
+  46          *
+  47          * Summary:
+  48          *  Enables the Status Register interrupt.
+  49          *
+  50          * Parameters:
+  51          *  None.
+  52          *
+C51 COMPILER V9.51   USBFS_EP17_DMA_DONE_SR                                                10/22/2015 22:07:44 PAGE 2   
+
+  53          * Return:
+  54          *  None.
+  55          *
+  56          *******************************************************************************/
+  57          void USBFS_EP17_DMA_Done_SR_InterruptEnable(void) 
+  58          {
+  59   1          uint8 interruptState;
+  60   1          interruptState = CyEnterCriticalSection();
+  61   1          USBFS_EP17_DMA_Done_SR_Status_Aux_Ctrl |= USBFS_EP17_DMA_Done_SR_STATUS_INTR_ENBL;
+  62   1          CyExitCriticalSection(interruptState);
+  63   1      }
+  64          
+  65          
+  66          /*******************************************************************************
+  67          * Function Name: USBFS_EP17_DMA_Done_SR_InterruptDisable
+  68          ********************************************************************************
+  69          *
+  70          * Summary:
+  71          *  Disables the Status Register interrupt.
+  72          *
+  73          * Parameters:
+  74          *  None.
+  75          *
+  76          * Return:
+  77          *  None.
+  78          *
+  79          *******************************************************************************/
+  80          void USBFS_EP17_DMA_Done_SR_InterruptDisable(void) 
+  81          {
+  82   1          uint8 interruptState;
+  83   1          interruptState = CyEnterCriticalSection();
+  84   1          USBFS_EP17_DMA_Done_SR_Status_Aux_Ctrl &= (uint8)(~USBFS_EP17_DMA_Done_SR_STATUS_INTR_ENBL);
+  85   1          CyExitCriticalSection(interruptState);
+  86   1      }
+  87          
+  88          
+  89          /*******************************************************************************
+  90          * Function Name: USBFS_EP17_DMA_Done_SR_WriteMask
+  91          ********************************************************************************
+  92          *
+  93          * Summary:
+  94          *  Writes the current mask value assigned to the Status Register.
+  95          *
+  96          * Parameters:
+  97          *  mask:  Value to write into the mask register.
+  98          *
+  99          * Return:
+ 100          *  None.
+ 101          *
+ 102          *******************************************************************************/
+ 103          void USBFS_EP17_DMA_Done_SR_WriteMask(uint8 mask) 
+ 104          {
+ 105   1          #if(USBFS_EP17_DMA_Done_SR_INPUTS < 8u)
+ 106   1              mask &= (uint8)((((uint8)1u) << USBFS_EP17_DMA_Done_SR_INPUTS) - 1u);
+ 107   1              #endif /* End USBFS_EP17_DMA_Done_SR_INPUTS < 8u */
+ 108   1          USBFS_EP17_DMA_Done_SR_Status_Mask = mask;
+ 109   1      }
+ 110          
+ 111          
+ 112          /*******************************************************************************
+ 113          * Function Name: USBFS_EP17_DMA_Done_SR_ReadMask
+ 114          ********************************************************************************
+C51 COMPILER V9.51   USBFS_EP17_DMA_DONE_SR                                                10/22/2015 22:07:44 PAGE 3   
+
+ 115          *
+ 116          * Summary:
+ 117          *  Reads the current interrupt mask assigned to the Status Register.
+ 118          *
+ 119          * Parameters:
+ 120          *  None.
+ 121          *
+ 122          * Return:
+ 123          *  The value of the interrupt mask of the Status Register.
+ 124          *
+ 125          *******************************************************************************/
+ 126          uint8 USBFS_EP17_DMA_Done_SR_ReadMask(void) 
+ 127          {
+ 128   1          return USBFS_EP17_DMA_Done_SR_Status_Mask;
+ 129   1      }
+ 130          
+ 131          #endif /* End check for removal by optimization */
+ 132          
+ 133          
+ 134          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_EP17_DMA_DONE_SR                                                10/22/2015 22:07:44 PAGE 4   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_Read (BEGIN)
+                                           ; SOURCE LINE # 37
+                                           ; SOURCE LINE # 38
+                                           ; SOURCE LINE # 39
+0000 90646C            MOV     DPTR,#0646CH
+0003 E0                MOVX    A,@DPTR
+0004 FF                MOV     R7,A
+                                           ; SOURCE LINE # 40
+0005         ?C0001:
+0005 22                RET     
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_Read (END)
+
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_InterruptEnable (BEGIN)
+                                           ; SOURCE LINE # 57
+                                           ; SOURCE LINE # 58
+                                           ; SOURCE LINE # 60
+0000 120000      E     LCALL   CyEnterCriticalSection
+;---- Variable 'interruptState' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 61
+0003 90649C            MOV     DPTR,#0649CH
+0006 E0                MOVX    A,@DPTR
+0007 4410              ORL     A,#010H
+0009 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 62
+000A 120000      E     LCALL   _CyExitCriticalSection
+                                           ; SOURCE LINE # 63
+000D 22                RET     
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_InterruptEnable (END)
+
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_InterruptDisable (BEGIN)
+                                           ; SOURCE LINE # 80
+                                           ; SOURCE LINE # 81
+                                           ; SOURCE LINE # 83
+0000 120000      E     LCALL   CyEnterCriticalSection
+;---- Variable 'interruptState' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 84
+0003 90649C            MOV     DPTR,#0649CH
+0006 E0                MOVX    A,@DPTR
+0007 54EF              ANL     A,#0EFH
+0009 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 85
+000A 120000      E     LCALL   _CyExitCriticalSection
+                                           ; SOURCE LINE # 86
+000D 22                RET     
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_InterruptDisable (END)
+
+             ; FUNCTION _USBFS_EP17_DMA_Done_SR_WriteMask (BEGIN)
+                                           ; SOURCE LINE # 103
+;---- Variable 'mask' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 104
+                                           ; SOURCE LINE # 106
+0000 EF                MOV     A,R7
+0001 547F              ANL     A,#07FH
+0003 FF                MOV     R7,A
+                                           ; SOURCE LINE # 108
+0004 90648C            MOV     DPTR,#0648CH
+0007 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 109
+0008 22                RET     
+C51 COMPILER V9.51   USBFS_EP17_DMA_DONE_SR                                                10/22/2015 22:07:44 PAGE 5   
+
+             ; FUNCTION _USBFS_EP17_DMA_Done_SR_WriteMask (END)
+
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_ReadMask (BEGIN)
+                                           ; SOURCE LINE # 126
+                                           ; SOURCE LINE # 127
+                                           ; SOURCE LINE # 128
+0000 90648C            MOV     DPTR,#0648CH
+0003 E0                MOVX    A,@DPTR
+0004 FF                MOV     R7,A
+                                           ; SOURCE LINE # 129
+0005         ?C0005:
+0005 22                RET     
+             ; FUNCTION USBFS_EP17_DMA_Done_SR_ReadMask (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     49    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
