@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 1   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE SYNC
@@ -62,7 +62,7 @@ line level    source
   51   2              p_term = cur_error * SYNC_P_GAIN;
   52   2              d_term = diff * SYNC_D_GAIN;
   53   2              prev_error = cur_error;
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 2   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 2   
 
   54   2              
   55   2              frac += p_term + d_term;
@@ -104,7 +104,7 @@ line level    source
   91   2          }
   92   1      }
   93          
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 3   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -168,7 +168,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0022 900000      R     MOV     DPTR,#cur_error
 0025 F0                MOVX    @DPTR,A
 0026 A3                INC     DPTR
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 4   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 4   
 
 0027 EF                MOV     A,R7
 0028 F0                MOVX    @DPTR,A
@@ -232,7 +232,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0078 E0                MOVX    A,@DPTR
 0079 FD                MOV     R5,A
 007A A3                INC     DPTR
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 5   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 5   
 
 007B E0                MOVX    A,@DPTR
 007C 900000      R     MOV     DPTR,#prev_error
@@ -296,7 +296,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D3 E0                MOVX    A,@DPTR
 00D4 6032              JZ      ?C0006
                                            ; SOURCE LINE # 62
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 6   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 6   
 
 00D6 E4                CLR     A
 00D7 900000      R     MOV     DPTR,#frac
@@ -360,7 +360,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 012E F0                MOVX    @DPTR,A
 012F 8011              SJMP    ?C0010
 0131         ?C0009:
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 7   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 7   
 
                                            ; SOURCE LINE # 72
 0131 900000      R     MOV     DPTR,#diff
@@ -424,7 +424,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0183 E4                CLR     A
 0184 75F001            MOV     B,#01H
 0187 120000      E     LCALL   ?C?IILDX
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 8   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 8   
 
                                            ; SOURCE LINE # 78
 018A         ?C0013:
@@ -488,7 +488,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01D0 22                RET     
              ; FUNCTION Sync_Main (END)
 
-C51 COMPILER V9.51   SYNC                                                                  10/22/2015 22:07:35 PAGE 9   
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 9   
 
 
 

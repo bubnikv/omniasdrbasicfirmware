@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 1   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE IAMBIC
@@ -62,7 +62,7 @@ line level    source
   50          static long cfg_speed_micros;
   51          static long tx_timer;
   52          static uint32 tx_hold;
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 2   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 2   
 
   53          
   54          void get_cw_params(void){
@@ -126,7 +126,7 @@ line level    source
  109   1          error = EEPROM_ByteWrite(spacing,1u,EE_SPACING_REGISTER);
  110   1          error = EEPROM_ByteWrite(lag,1u,EE_LAG_REGISTER);
  111   1          error = EEPROM_ByteWrite(memory,1u,EE_MEMORY_REGISTER);
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 3   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 3   
 
  112   1          error = EEPROM_ByteWrite(l_sound,1u,EE_EXTERNAL_SOUND_REGISTER);
  113   1          error = EEPROM_ByteWrite(l_cw_mode,1u,EE_CW_MODE_REGISTER);
@@ -190,7 +190,7 @@ line level    source
  171   1      }
  172          
  173          uint8_t key_read() {
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 4   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 4   
 
  174   1          uint8_t k0,k1;
  175   1          
@@ -254,7 +254,7 @@ line level    source
  233   3            start_after += DIT * cfg_speed_micros;
  234   3          }
  235   2          break;
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 5   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 5   
 
  236   2        case 4: // debouncing straight/bug down
  237   2          if (start_after - mark < 0) state = 5;
@@ -318,7 +318,7 @@ line level    source
  295   4              ultimatic = 0;
  296   4            }
  297   3          }
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 6   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 6   
 
  298   2          else if (!ultimatic || cfg.mode != CFG_MODE_ULTIMATIC) {
  299   3            if (k0 && (last == DAH || spacing > 0)) {
@@ -382,7 +382,7 @@ line level    source
  357   5                              break;
  358   5                          case SEMI_USE_AMP:
  359   5                              Control_Write((Control_Read()) & ~CONTROL_AMP);
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 7   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 7   
 
  360   5                              break;
  361   5                      }
@@ -395,7 +395,7 @@ line level    source
  368          
  369          
  370          
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 8   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 8   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -422,7 +422,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 62
 001A E0                MOVX    A,@DPTR
-001B 645A              XRL     A,#05AH
+001B 6464              XRL     A,#064H
 001D 6041              JZ      ?C0001
                                            ; SOURCE LINE # 63
 001F E4                CLR     A
@@ -459,7 +459,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0046 FC                MOV     R4,A
 0047 A3                INC     DPTR
 0048 120000      E     LCALL   ?C?LSTXDATA
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 9   
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 9   
 
 004B E4                CLR     A
 004C 900000      R     MOV     DPTR,#?_set_params?BYTE+014H
@@ -523,7 +523,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 009A E0                MOVX    A,@DPTR
 009B 900000      R     MOV     DPTR,#ee_lag
 009E F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 10  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 10  
 
                                            ; SOURCE LINE # 71
 009F 900000      R     MOV     DPTR,#RegPointer
@@ -587,7 +587,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F1 E4                CLR     A
 00F2 3E                ADDC    A,R6
 00F3 F583              MOV     DPH,A
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 11  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 11  
 
 00F5 E0                MOVX    A,@DPTR
 00F6 900000      R     MOV     DPTR,#ee_semi_breakin
@@ -651,7 +651,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0147 F583              MOV     DPH,A
 0149 E0                MOVX    A,@DPTR
 014A 900000      R     MOV     DPTR,#ee_semi_control
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 12  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 12  
 
 014D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 83
@@ -715,7 +715,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01B4 FC                MOV     R4,A
 01B5 E4                CLR     A
 01B6 120000      E     LCALL   ?C?FCASTC
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 13  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 13  
 
 01B9 E4                CLR     A
 01BA FB                MOV     R3,A
@@ -759,7 +759,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0017 E4                CLR     A
 0018 FB                MOV     R3,A
 0019 7D01              MOV     R5,#01H
-001B 7F5A              MOV     R7,#05AH
+001B 7F64              MOV     R7,#064H
 001D 120000      E     LCALL   _EEPROM_ByteWritePos
 0020 900000      R     MOV     DPTR,#error
 0023 EF                MOV     A,R7
@@ -779,7 +779,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0039 E0                MOVX    A,@DPTR
 003A FF                MOV     R7,A
 003B 7B02              MOV     R3,#02H
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 14  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 14  
 
 003D 7D01              MOV     R5,#01H
 003F 120000      E     LCALL   _EEPROM_ByteWritePos
@@ -843,7 +843,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A1 7B09              MOV     R3,#09H
 00A3 7D01              MOV     R5,#01H
 00A5 120000      E     LCALL   _EEPROM_ByteWritePos
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 15  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 15  
 
 00A8 900000      R     MOV     DPTR,#error
 00AB EF                MOV     A,R7
@@ -907,7 +907,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 120
 0114 7B00              MOV     R3,#00H
 0116 7A40              MOV     R2,#040H
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 16  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 16  
 
 0118 791C              MOV     R1,#01CH
 011A 7846              MOV     R0,#046H
@@ -971,7 +971,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _tx_send (BEGIN)
                                            ; SOURCE LINE # 129
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 17  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 17  
 
 0000 900000      R     MOV     DPTR,#mark
 0003 120000      E     LCALL   ?C?LSTXDATA
@@ -1035,7 +1035,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 146
 0052 900000      R     MOV     DPTR,#pa_on
 0055 7401              MOV     A,#01H
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 18  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 18  
 
 0057 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 147
@@ -1099,7 +1099,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003D 900000      R     MOV     DPTR,#pa_on
 0040 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 161
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 19  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 19  
 
 0041 900000      E     MOV     DPTR,#ee_external_sound
 0044 E0                MOVX    A,@DPTR
@@ -1163,7 +1163,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 180
 0015 EF                MOV     A,R7
 0016 25E0              ADD     A,ACC
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 20  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 20  
 
 0018 FF                MOV     R7,A
                                            ; SOURCE LINE # 181
@@ -1227,7 +1227,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0024 24FE              ADD     A,#0FEH
 0026 606D              JZ      ?C0032
 0028 14                DEC     A
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 21  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 21  
 
 0029 7003              JNZ     $ + 5H
 002B 020000      R     LJMP    ?C0035
@@ -1291,7 +1291,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 207
 0095         ?C0032:
                                            ; SOURCE LINE # 208
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 22  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 22  
 
 0095 900000      R     MOV     DPTR,#mark
 0098 120000      E     LCALL   ?C?LLDXDATA0
@@ -1355,7 +1355,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F1         ?C0041:
                                            ; SOURCE LINE # 219
 00F1 900000      R     MOV     DPTR,#mcode
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 23  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 23  
 
 00F4 E0                MOVX    A,@DPTR
 00F5 900000      R     MOV     DPTR,#ret
@@ -1419,7 +1419,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0140 900000      R     MOV     DPTR,#start_after
 0143 120000      E     LCALL   ?C?LLDXDATA
 0146 900000      R     MOV     DPTR,#cfg_speed_micros
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 24  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 24  
 
 0149 120000      E     LCALL   ?C?LLDXDATA0
 014C 120000      E     LCALL   ?C?LADD
@@ -1483,7 +1483,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01A8 120000      E     LCALL   ?C?LADD
 01AB 900000      R     MOV     DPTR,#start_after
 01AE 120000      E     LCALL   ?C?LSTXDATA
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 25  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 25  
 
                                            ; SOURCE LINE # 246
 01B1 E4                CLR     A
@@ -1547,7 +1547,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01FC 900000      R     MOV     DPTR,#i
 01FF 120000      E     LCALL   ?C?LLDXDATA
 0202 900000      R     MOV     DPTR,#start_after
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 26  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 26  
 
 0205 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 263
@@ -1611,7 +1611,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 278
 025D 900000      R     MOV     DPTR,#ret
 0260 7401              MOV     A,#01H
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 27  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 27  
 
 0262 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 279
@@ -1675,7 +1675,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02B7 7401              MOV     A,#01H
 02B9 F0                MOVX    @DPTR,A
 02BA         ?C0071:
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 28  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 28  
 
                                            ; SOURCE LINE # 291
 02BA 900000      R     MOV     DPTR,#ultimatic
@@ -1739,7 +1739,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 030B 7401              MOV     A,#01H
 030D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 302
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 29  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 29  
 
 030E 900000      R     MOV     DPTR,#ultimatic
 0311 F0                MOVX    @DPTR,A
@@ -1803,7 +1803,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0366 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 316
 0369 E4                CLR     A
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 30  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 30  
 
 036A FF                MOV     R7,A
 036B FE                MOV     R6,A
@@ -1867,7 +1867,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03E3 120000      E     LCALL   ?C?LSTXDATA
 03E6 900000      R     MOV     DPTR,#read_after
 03E9 120000      E     LCALL   ?C?LSTXDATA
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 31  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 31  
 
                                            ; SOURCE LINE # 318
 03EC 900000      R     MOV     DPTR,#start_after
@@ -1931,7 +1931,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0462 C3                CLR     C
 0463 9401              SUBB    A,#01H
 0465 4018              JC      ?C0087
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 32  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 32  
 
                                            ; SOURCE LINE # 322
 0467 900000      R     MOV     DPTR,#i
@@ -1995,7 +1995,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 334
 04BF 900000      R     MOV     DPTR,#state
 04C2 04                INC     A
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 33  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 33  
 
 04C3 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 335
@@ -2059,7 +2059,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003A 14                DEC     A
 003B 600E              JZ      ?C0100
 003D 04                INC     A
-C51 COMPILER V9.51   IAMBIC                                                                10/22/2015 22:07:36 PAGE 34  
+C51 COMPILER V9.51   IAMBIC                                                                10/24/2015 08:30:46 PAGE 34  
 
 003E 7015              JNZ     ?C0101
                                            ; SOURCE LINE # 355

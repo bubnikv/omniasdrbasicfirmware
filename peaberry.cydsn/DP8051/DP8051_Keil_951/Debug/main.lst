@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 1   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   51          
   52          // A compliant USB device is required to monitor
   53          // vbus voltage and shut down if it disappears.
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 2   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 2   
 
   54          void main_usb_vbus(void) {
   55   1          if (USBFS_VBusPresent()) {
@@ -126,7 +126,7 @@ line level    source
  113   4                      /*do{
  114   4                          die_status = DieTemp_1_GetTemp(&die_temp);
  115   4                      }while (die_status != CYRET_SUCCESS);*/
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 3   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 3   
 
  116   4                      break;
  117   4                  case 6:
@@ -175,7 +175,7 @@ line level    source
  160   3              }    
  161   2          }
  162   1      }
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 4   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -239,7 +239,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004E 120000      R     LCALL   _ERROR
 0051         ?C0002:
                                            ; SOURCE LINE # 46
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 5   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 5   
 
 0051 900000      R     MOV     DPTR,#si_err
 0054 E0                MOVX    A,@DPTR
@@ -303,7 +303,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 900000      E     MOV     DPTR,#USBFS_initVar
 001C E0                MOVX    A,@DPTR
 001D 600B              JZ      ?C0011
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 6   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 6   
 
                                            ; SOURCE LINE # 63
 001F E4                CLR     A
@@ -367,7 +367,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0039 0000        R     DW      ?C0026
 003B 06                DB      06H
 003C 0000              DW      00H
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 7   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 7   
 
 003E 0000        R     DW      ?C0029
                                            ; SOURCE LINE # 90
@@ -431,7 +431,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 007C         ?C0026:
                                            ; SOURCE LINE # 118
 007C 900000      R     MOV     DPTR,#ee_cw_mode
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 8   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 8   
 
 007F E0                MOVX    A,@DPTR
 0080 6003              JZ      ?C0027
@@ -495,7 +495,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0033 120000      E     LCALL   ?C?XBPOFF
 0036 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 137
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 9   
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 9   
 
 0039 900003            MOV     DPTR,#03H
 003C 120000      E     LCALL   ?C?XBPOFF
@@ -559,7 +559,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A5 FA                MOV     R2,A
 00A6 EF                MOV     A,R7
 00A7 120000      E     LCALL   ?C?CSTPTR
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 10  
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 10  
 
                                            ; SOURCE LINE # 140
 00AA 900003            MOV     DPTR,#03H
@@ -623,7 +623,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002E EF                MOV     A,R7
 002F 5408              ANL     A,#08H
 0031 FF                MOV     R7,A
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:07:31 PAGE 11  
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 11  
 
 ;---- Variable 'i' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 154

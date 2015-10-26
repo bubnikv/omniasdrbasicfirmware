@@ -3,7 +3,7 @@ The modified firmware now supports very low latency CW and Iambic code generatio
 
 ## Building Firmware
 
-The project was built with PSoC Creator 3.1
+The project was built with PSoC Creator 3.3
 http://www.cypress.com/
 
 It is normal to get errors about missing files until you have built

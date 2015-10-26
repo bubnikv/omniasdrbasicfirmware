@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 1   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE BAND
@@ -62,7 +62,7 @@ line level    source
   50   2              l_mode = ee_mode; 
   51   2              l_spacing = ee_spacing;
   52   2              l_memory = ee_memory;
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 2   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 2   
 
   53   2              l_wpm = (float) ee_wpm;
   54   2              l_weight = (float) ((float) ee_weight / 100);
@@ -126,7 +126,7 @@ line level    source
  108   3                      l_iambic_tuning = IAMBIC_CALIBRATION_SPEED;l_tx_hold = TX_HOLD_DEFAULT;l_semi_control = SE
              -MI_USE_ATU;
  109   3                      Control_Write(Control_Read() & ~CONTROL_LED);   // Set the LED back to steady on
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 3   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 3   
 
  110   3                      break;     
  111   3                    
@@ -190,7 +190,7 @@ line level    source
              -77775
  163   3                  case 0x11638e2a: l_tx_hold = TX_HOLD_DEFAULT;break;                         //34.777776
  164   3                  case 0x11638e32: l_tx_hold = TX_HOLD_DEFAULT + (uint8)(TX_HOLD_DEFAULT * .10);break;    //34.7
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 4   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 4   
 
              -77777
  165   3                  case 0x11638e3b: l_tx_hold = TX_HOLD_DEFAULT + (uint8)(TX_HOLD_DEFAULT * .20);break;    //34.7
@@ -254,7 +254,7 @@ line level    source
  207   3                  else if (i > 0x1800000) T1_Band_Number = 2; // 3.000 MHz
  208   3                  else if (i > 0x0C00000) T1_Band_Number = 1; // 1.500 MHz
  209   3                  else T1_Band_Number = 0;
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 5   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 5   
 
  210   3                          
  211   3                  // Set relay to correct filter
@@ -286,7 +286,7 @@ line level    source
  235   1      }
  236          
  237          
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 6   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 6   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -350,7 +350,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 53
 005D 900000      E     MOV     DPTR,#ee_wpm
 0060 E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 7   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 7   
 
 0061 FC                MOV     R4,A
 0062 E4                CLR     A
@@ -414,7 +414,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00CA E0                MOVX    A,@DPTR
 00CB 900000      R     MOV     DPTR,#l_semi_control
 00CE F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 8   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 8   
 
                                            ; SOURCE LINE # 65
 00CF 7FA8              MOV     R7,#0A8H
@@ -478,7 +478,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0143 10FF              DW      010FFH
 0145 FFF8              DW      0FFF8H
 0147 0000        R     DW      ?C0030
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 9   
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 9   
 
 0149 111C              DW      0111CH
 014B 71B4              DW      071B4H
@@ -542,7 +542,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01BF 0000        R     DW      ?C0028
 01C1 1147              DW      01147H
 01C3 1C5C              DW      01C5CH
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 10  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 10  
 
 01C5 0000        R     DW      ?C0029
 01C7 1147              DW      01147H
@@ -606,7 +606,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 023B C70D              DW      0C70DH
 023D 0000        R     DW      ?C0058
 023F 1171              DW      01171H
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 11  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 11  
 
 0241 C715              DW      0C715H
 0243 0000        R     DW      ?C0059
@@ -670,7 +670,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02A6 020000      R     LJMP    ?C0005
                                            ; SOURCE LINE # 76
 02A9         ?C0009:
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 12  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 12  
 
 02A9 900000      E     MOV     DPTR,#Audio_IQ_Channels
 02AC 7403              MOV     A,#03H
@@ -734,7 +734,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 105
 02EF         ?C0016:
                                            ; SOURCE LINE # 106
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 13  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 13  
 
 02EF E4                CLR     A
 02F0 900000      R     MOV     DPTR,#l_paddle
@@ -798,7 +798,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0347 900000      R     MOV     DPTR,#l_paddle
 034A F0                MOVX    @DPTR,A
 034B 020000      R     LJMP    ?C0005
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 14  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 14  
 
                                            ; SOURCE LINE # 116
 034E         ?C0018:
@@ -862,7 +862,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03A3 020000      R     LJMP    ?C0005
                                            ; SOURCE LINE # 132
 03A6         ?C0028:
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 15  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 15  
 
 03A6 E4                CLR     A
 03A7 900000      R     MOV     DPTR,#l_spacing
@@ -926,7 +926,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 040C 7ECC              MOV     R6,#0CCH
 040E 7D0C              MOV     R5,#0CH
 0410 7C3F              MOV     R4,#03FH
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 16  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 16  
 
 0412 900000      R     MOV     DPTR,#l_weight
 0415 120000      E     LCALL   ?C?LSTXDATA
@@ -990,7 +990,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 156
 0472         ?C0041:
 0472 E4                CLR     A
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 17  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 17  
 
 0473 900000      R     MOV     DPTR,#l_semi_control
 0476 F0                MOVX    @DPTR,A
@@ -1054,7 +1054,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 04CC 120000      E     LCALL   ?C?LSTXDATA
 04CF 020000      R     LJMP    ?C0005
                                            ; SOURCE LINE # 170
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 18  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 18  
 
 04D2         ?C0051:
 04D2 E4                CLR     A
@@ -1118,7 +1118,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 176
 0532         ?C0057:
 0532 E4                CLR     A
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 19  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 19  
 
 0533 FF                MOV     R7,A
 0534 FE                MOV     R6,A
@@ -1182,7 +1182,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 059A 7C49              MOV     R4,#049H
 059C 900000      R     MOV     DPTR,#l_iambic_tuning
 059F 120000      E     LCALL   ?C?LSTXDATA
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 20  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 20  
 
 05A2 806E              SJMP    ?C0005
                                            ; SOURCE LINE # 185
@@ -1246,7 +1246,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0608 7DA1              MOV     R5,#0A1H
 060A 7C49              MOV     R4,#049H
 060C 900000      R     MOV     DPTR,#l_iambic_tuning
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 21  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 21  
 
 060F 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 193
@@ -1310,7 +1310,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0670 FD                MOV     R5,A
 0671 7C0B              MOV     R4,#0BH
 0673 900000      R     MOV     DPTR,#i
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 22  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 22  
 
 0676 120000      E     LCALL   ?C?LLDXDATA0
 0679 D3                SETB    C
@@ -1374,7 +1374,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 06DB FF                MOV     R7,A
 06DC FE                MOV     R6,A
 06DD 7D80              MOV     R5,#080H
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 23  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 23  
 
 06DF 7C04              MOV     R4,#04H
 06E1 900000      R     MOV     DPTR,#i
@@ -1438,7 +1438,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 208
 0745 E4                CLR     A
 0746 FF                MOV     R7,A
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 24  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 24  
 
 0747 FE                MOV     R6,A
 0748 7DC0              MOV     R5,#0C0H
@@ -1502,7 +1502,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 07A5 120000      E     LCALL   ?C?ULCMP
 07A8 4007              JC      ?C0100
 07AA E4                CLR     A
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 25  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 25  
 
 07AB 900000      R     MOV     DPTR,#relay
 07AE F0                MOVX    @DPTR,A
@@ -1566,7 +1566,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0808 EF                MOV     A,R7
 0809 4410              ORL     A,#010H
 080B FF                MOV     R7,A
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 26  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 26  
 
 080C 120000      E     LCALL   _Control_Write
                                            ; SOURCE LINE # 223
@@ -1630,7 +1630,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 226
 0887 120000      E     LCALL   get_cw_params
                                            ; SOURCE LINE # 227
-C51 COMPILER V9.51   BAND                                                                  10/22/2015 22:07:35 PAGE 27  
+C51 COMPILER V9.51   BAND                                                                  10/24/2015 08:30:46 PAGE 27  
 
 088A 900000      E     MOV     DPTR,#E_cw_message_toggle
 088D 7401              MOV     A,#01H

@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 1   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE T1
@@ -62,7 +62,7 @@ line level    source
   51   4                  }
   52   3                  else {
   53   4                      timer = 0;
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 2   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 2   
 
   54   4                      if (band_request || T1_Tune_Request) {
   55   5                          Control_Write(Control_Read() | CONTROL_ATU_1);
@@ -101,7 +101,7 @@ line level    source
   88   2          }   
   89   1      
   90   1      }
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 3   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -165,7 +165,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 39
 0048         ?C0004:
                                            ; SOURCE LINE # 41
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 4   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 4   
 
 0048 900000      R     MOV     DPTR,#state
 004B E0                MOVX    A,@DPTR
@@ -229,7 +229,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 009D FF                MOV     R7,A
 009E 120000      E     LCALL   _Control_Write
                                            ; SOURCE LINE # 51
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 5   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 5   
 
 00A1 22                RET     
 00A2         ?C0010:
@@ -293,7 +293,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00EA F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 65
 00EB E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 6   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 6   
 
 00EC 7075              JNZ     ?C0026
                                            ; SOURCE LINE # 66
@@ -357,7 +357,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 80
 0136 900000      R     MOV     DPTR,#timer
 0139 E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   T1                                                                    10/22/2015 22:07:34 PAGE 7   
+C51 COMPILER V9.51   T1                                                                    10/24/2015 08:30:45 PAGE 7   
 
 013A 14                DEC     A
 013B F0                MOVX    @DPTR,A

@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 1   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MORSE
@@ -62,7 +62,7 @@ line level    source
   51              /* 0x27 ' */ MCODE(133331),
   52              /* 0x28 ( */ MCODE(31331),
   53              /* 0x29 ) */ MCODE(313313),
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 2   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 2   
 
   54              /* 0x2A * */ MCODE(0),
   55              /* 0x2B + */ MCODE(13131),
@@ -126,7 +126,7 @@ line level    source
  113   1          static uint8 pos, codes, len, state, timer, *message;
  114   1          uint8 i;
  115   1      
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 3   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 3   
 
  116   1          if (msg) {
  117   2              state = pos = 0;
@@ -173,7 +173,7 @@ line level    source
  158   2              else timer--;
  159   2          }
  160   1      }
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 4   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -237,7 +237,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0053 E0                MOVX    A,@DPTR
 0054 FF                MOV     R7,A
 0055 04                INC     A
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 5   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 5   
 
 0056 F0                MOVX    @DPTR,A
 0057 E9                MOV     A,R1
@@ -301,7 +301,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 130
 009F 900000      R     MOV     DPTR,#timer
 00A2 7402              MOV     A,#02H
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 6   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 6   
 
 00A4 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 131
@@ -365,7 +365,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 145
 00EC 900000      R     MOV     DPTR,#len
 00EF E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 7   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 7   
 
 00F0 7008              JNZ     ?C0017
 00F2 900000      R     MOV     DPTR,#timer
@@ -429,7 +429,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _Morse_Main (END)
 
 
-C51 COMPILER V9.51   MORSE                                                                 10/22/2015 22:07:34 PAGE 8   
+C51 COMPILER V9.51   MORSE                                                                 10/24/2015 08:30:45 PAGE 8   
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

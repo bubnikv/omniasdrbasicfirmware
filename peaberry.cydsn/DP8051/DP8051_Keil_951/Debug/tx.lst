@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 1   
+C51 COMPILER V9.51   TX                                                                    10/24/2015 08:30:44 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE TX
@@ -62,7 +62,7 @@ line level    source
   51   3                  }
   52   2                  state = 10;
   53   2                  blink = 1;
-C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 2   
+C51 COMPILER V9.51   TX                                                                    10/24/2015 08:30:44 PAGE 2   
 
   54   2                  break;
   55   2              case 10: // transmitting
@@ -86,7 +86,7 @@ line level    source
   73   2          }
   74   1          
   75   1      }
-C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 3   
+C51 COMPILER V9.51   TX                                                                    10/24/2015 08:30:44 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -150,7 +150,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0050 120000      E     LCALL   _Control_Write
                                            ; SOURCE LINE # 41
 0053         ?C0005:
-C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 4   
+C51 COMPILER V9.51   TX                                                                    10/24/2015 08:30:44 PAGE 4   
 
                                            ; SOURCE LINE # 42
 0053 900000      R     MOV     DPTR,#state
@@ -214,7 +214,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 59
 0098 120000      E     LCALL   Control_Read
 ;---- Variable 'i' assigned to Register 'R7' ----
-C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 5   
+C51 COMPILER V9.51   TX                                                                    10/24/2015 08:30:44 PAGE 5   
 
                                            ; SOURCE LINE # 60
 009B EF                MOV     A,R7
@@ -278,7 +278,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      4       1
    PDATA SIZE       =   ----    ----
-C51 COMPILER V9.51   TX                                                                    10/22/2015 22:07:33 PAGE 6   
+C51 COMPILER V9.51   TX                                                                    10/24/2015 08:30:44 PAGE 6   
 
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

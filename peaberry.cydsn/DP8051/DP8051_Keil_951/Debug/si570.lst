@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 1   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE SI570
@@ -62,7 +62,7 @@ line level    source
   51   3                  state++;
   52   3                  break;
   53   3              case 2: // prepare to read registers
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 2   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 2   
 
   54   3                  Si570_Buf[0] = 7;
   55   3                  I2C_MasterWriteBuf(SI570_ADDR, Si570_Buf, 1, I2C_MODE_NO_STOP);
@@ -126,7 +126,7 @@ line level    source
  113   1      }
  114          
  115          // CFGSR requests a reset in order to determine the xtal frequency.
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 3   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 3   
 
  116          // This enables its calibration tab to fully work.
  117          void Si570_Fake_Reset(void) {
@@ -190,7 +190,7 @@ line level    source
  175   2              i = n1 - 1;
  176   2              Si570_Buf[2] |= i >> 2;
  177   2              Si570_Buf[3] = i << 6;
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 4   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 4   
 
  178   2              Si570_Buf[3] |= rfreqint >> 4;
  179   2              *(uint32*)&Si570_Buf[4] = rfreqfrac;
@@ -237,7 +237,7 @@ line level    source
  220   2          }
  221   1      
  222   1      }
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 5   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 5   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -301,7 +301,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0049 7F55              MOV     R7,#055H
 004B 120000      E     LCALL   _I2C_MasterWriteBuf
                                            ; SOURCE LINE # 51
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 6   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 6   
 
 004E 900000      R     MOV     DPTR,#state
 0051 E0                MOVX    A,@DPTR
@@ -365,7 +365,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 66
 0094 900000      R     MOV     DPTR,#err
 0097 74FF              MOV     A,#0FFH
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 7   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 7   
 
 0099 F5F0              MOV     B,A
 009B 120000      E     LCALL   ?C?IILDX
@@ -429,7 +429,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E9 020000      R     LJMP    ?C0001
 00EC         ?C0002:
                                            ; SOURCE LINE # 82
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 8   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 8   
 
 00EC 900000      R     MOV     DPTR,#Si570_Xtal
 00EF 120000      E     LCALL   ?C?LLDXDATA
@@ -493,7 +493,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 013F FF                MOV     R7,A
 0140 900000      R     MOV     DPTR,#rfreqint
 0143 EE                MOV     A,R6
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 9   
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 9   
 
 0144 F0                MOVX    @DPTR,A
 0145 A3                INC     DPTR
@@ -557,7 +557,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01A8 FC                MOV     R4,A
 01A9 E4                CLR     A
 01AA 120000      E     LCALL   ?C?FCASTC
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 10  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 10  
 
 01AD D003              POP     AR3
 01AF D002              POP     AR2
@@ -621,7 +621,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 94
 020C         ?C0012:
 020C 22                RET     
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 11  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 11  
 
              ; FUNCTION Si570_Init (END)
 
@@ -685,7 +685,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004A A3                INC     DPTR
 004B EF                MOV     A,R7
 004C F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 12  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 12  
 
                                            ; SOURCE LINE # 107
 004D 900000      R     MOV     DPTR,#Si570_OLD+02H
@@ -749,7 +749,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B0 D001              POP     AR1
 00B2 D000              POP     AR0
 00B4 120000      E     LCALL   ?C?FPMUL
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 13  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 13  
 
 00B7 C004              PUSH    AR4
 00B9 C005              PUSH    AR5
@@ -813,7 +813,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0023         ?C0026:
 0023 22                RET     
              ; FUNCTION Si570_Fake_Reset (END)
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 14  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 14  
 
 
              ; FUNCTION Si570_Main (BEGIN)
@@ -877,7 +877,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0062 120000      E     LCALL   CyEnterCriticalSection
 0065 900000      R     MOV     DPTR,#i
 0068 EF                MOV     A,R7
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 15  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 15  
 
 0069 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 136
@@ -941,7 +941,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D9 E4                CLR     A
 00DA FF                MOV     R7,A
 00DB FE                MOV     R6,A
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 16  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 16  
 
 00DC 7D20              MOV     R5,#020H
 00DE 7C43              MOV     R4,#043H
@@ -1005,7 +1005,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 014F 120000      E     LCALL   ?C?FPSUB
 0152 120000      E     LCALL   _fabs
 0155 900000      R     MOV     DPTR,#smooth_diff
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 17  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 17  
 
 0158 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 149
@@ -1069,7 +1069,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 159
 01C6         ?C0037:
                                            ; SOURCE LINE # 161
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 18  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 18  
 
 01C6 900000      R     MOV     DPTR,#Si570_Buf
 01C9 7487              MOV     A,#087H
@@ -1133,7 +1133,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 169
 022A FD                MOV     R5,A
 022B AC06              MOV     R4,AR6
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 19  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 19  
 
 022D E4                CLR     A
 022E 120000      E     LCALL   ?C?FCASTI
@@ -1197,7 +1197,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0294 14                DEC     A
 0295 900000      R     MOV     DPTR,#i
 0298 F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 20  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 20  
 
                                            ; SOURCE LINE # 176
 0299 E0                MOVX    A,@DPTR
@@ -1261,7 +1261,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02E5 4F                ORL     A,R7
 02E6 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 181
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 21  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 21  
 
 02E7 7B01              MOV     R3,#01H
 02E9 7A00        R     MOV     R2,#HIGH Si570_Buf+01H
@@ -1325,7 +1325,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 193
 0336         ?C0045:
                                            ; SOURCE LINE # 194
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 22  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 22  
 
 0336 120000      E     LCALL   I2C_MasterStatus
 0339 900000      R     MOV     DPTR,#i
@@ -1389,7 +1389,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0383 7DA4              MOV     R5,#0A4H
 0385 7C45              MOV     R4,#045H
 0387 120000      E     LCALL   ?C?FPDIV
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 23  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 23  
 
 038A 120000      E     LCALL   ?C?CASTF
 038D 900000      R     MOV     DPTR,#i
@@ -1453,7 +1453,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03F3 402E              JC      ?C0056
 03F5 900000      R     MOV     DPTR,#dco
 03F8 120000      E     LCALL   ?C?LLDXDATA
-C51 COMPILER V9.51   SI570                                                                 10/22/2015 22:07:32 PAGE 24  
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 24  
 
 03FB 900000      R     MOV     DPTR,#testdco
 03FE 120000      E     LCALL   ?C?LLDXDATA0

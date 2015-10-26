@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 1   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE CW
@@ -62,7 +62,7 @@ line level    source
   51   1          switch(E_cw_message_toggle) {
   52   2              case FALSE:
   53   2                  i = Status_Read() & STATUS_BEAT;
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 2   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 2   
 
   54   2                  if (beat != i) {
   55   3                      beat = i;
@@ -126,7 +126,7 @@ line level    source
  111   1                
  112   1          switch (state){
  113   2              case 0:   //Initial state   No key press No TX_Request TX line not active.  Now check for key pres
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 3   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 3   
 
              -s
  114   2                  if(!E_key_0 || !E_key_1){ //A Key is pressed. Turn on TX Mode.  Wait for next state to check k
@@ -190,7 +190,7 @@ line level    source
  169          {
  170   1          uint8 key;
  171   1          uint8 paddles_section;
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 4   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 4   
 
  172   1          
  173   1          paddles_section = CyEnterCriticalSection();
@@ -214,7 +214,7 @@ line level    source
  191          
  192          
  193             
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 5   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 5   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -278,7 +278,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 45
 0016 7A00        R     MOV     R2,#HIGH ?SC_10
 0018 7900        R     MOV     R1,#LOW ?SC_10
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 6   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 6   
 
 001A 900000      R     MOV     DPTR,#cw_and_semi
 001D 120000      E     LCALL   ?C?PSTXDATA
@@ -342,7 +342,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 62
 0072         ?C0010:
                                            ; SOURCE LINE # 63
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 7   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 7   
 
 0072 900000      E     MOV     DPTR,#ee_cw_mode
 0075 E0                MOVX    A,@DPTR
@@ -406,7 +406,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D8 120000      E     LCALL   ?C?PLDXDATA
 00DB 120000      E     LCALL   _Morse_Main
                                            ; SOURCE LINE # 78
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 8   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 8   
 
 00DE         ?C0014:
                                            ; SOURCE LINE # 79
@@ -470,7 +470,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003D 900000      R     MOV     DPTR,#cw_transmit
 0040 E0                MOVX    A,@DPTR
 0041 7020              JNZ     ?C0025
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 9   
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 9   
 
                                            ; SOURCE LINE # 96
 0043 120000      E     LCALL   Control_Read
@@ -534,7 +534,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002E 04                INC     A
 002F 7016              JNZ     ?C0030
                                            ; SOURCE LINE # 116
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 10  
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 10  
 
 0031         ?C0031:
                                            ; SOURCE LINE # 117
@@ -598,7 +598,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 133
 007C 900000      E     MOV     DPTR,#ee_external_sound
 007F E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 11  
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 11  
 
 0080 600A              JZ      ?C0035
 0082 120000      E     LCALL   Control_Read
@@ -662,7 +662,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C7 120000      R     LCALL   _cw_timer
 00CA 900000      R     MOV     DPTR,#cw_timer_status
 00CD EF                MOV     A,R7
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 12  
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 12  
 
 00CE F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 151
@@ -726,7 +726,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0008 120000      E     LCALL   Status_Read
 000B 900000      R     MOV     DPTR,#key
 000E EF                MOV     A,R7
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 13  
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 13  
 
 000F F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 175
@@ -790,7 +790,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-C51 COMPILER V9.51   CW                                                                    10/22/2015 22:07:36 PAGE 14  
+C51 COMPILER V9.51   CW                                                                    10/24/2015 08:30:47 PAGE 14  
 
    CODE SIZE        =    707    ----
    CONSTANT SIZE    =     24    ----
