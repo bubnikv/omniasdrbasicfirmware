@@ -9,4 +9,5 @@
 *.cydsn/DP8051
 *.cydsn/Generated_Source
 *.Archive.*
-*PSoC Programmer*
+*PSoC Programmer 3.21.0*
+*peaberry-iambic.cywrk.Ron*
