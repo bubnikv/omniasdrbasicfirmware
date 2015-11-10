@@ -1,0 +1,476 @@
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\main.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\main.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DEBUG) WL(2) PR(.\DP8051\DP8051_
+                    -Keil_951\Debug/main.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\main.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          
+  15          #include <device.h>
+  16          
+  17          #define FALSE 0
+  18          #define CONTROL_LED   0x01
+  19          #define STATUS_BOOT   0x01
+  20          
+  21          #define MORSE_DOT  1
+  22          #define MORSE_DASH 3
+  23          #define MORSE_CHAR 3
+  24          #define MORSE_WORD 7
+  25          
+  26          #define MCODE_L(x) (((x&0x0000000FLU)?1:0)\
+  27          +((x&0x000000F0LU)?1:0)\
+  28          +((x&0x00000F00LU)?1:0)\
+  29          +((x&0x0000F000LU)?1:0)\
+  30          +((x&0x000F0000LU)?1:0)\
+  31          +((x&0x00F00000LU)?1:0))
+  32          #define MCODE_C(x) (((x&0x00000002LU)?1:0)\
+  33          +((x&0x00000020LU)?2:0)\
+  34          +((x&0x00000200LU)?4:0)\
+  35          +((x&0x00002000LU)?8:0)\
+  36          +((x&0x00020000LU)?16:0)\
+  37          +((x&0x00200000LU)?32:0))
+  38          #define MCODE_6(x) (((x&0x00F00000LU)?4:0)\
+  39          + ((((x&0x00F00000LU)?1:0) & ((x&0x00000002LU)?0:1))?2:0))
+  40          #define MCODE(d)((uint8) (d==0)?7:MCODE_L(0x##d##LU)\
+  41          + (MCODE_C(0x##d##LU) << 8 - MCODE_L(0x##d##LU))\
+  42          - MCODE_6(0x##d##LU))
+  43          
+  44          const uint8 code MORSE_BOOT[] = {
+  45              /* 0x4C L */ MCODE(1311),
+  46              /* 0x4F O */ MCODE(333),
+  47              /* 0x41 A */ MCODE(13),
+  48              /* 0x44 D */ MCODE(311),
+  49              0
+  50          };
+  51          
+  52          const uint8 code MORSE_XTAL[] = {
+  53              /* 0x58 X */ MCODE(3113),
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 2   
+
+  54              /* 0x54 T */ MCODE(3),
+  55              /* 0x41 A */ MCODE(13),
+  56              /* 0x4C L */ MCODE(1311),
+  57              0
+  58          };
+  59          
+  60          uint8 *message;
+  61          //CY_ISR_PROTO(morse_interrupt);    
+  62          CY_ISR(morse_interrupt)
+  63          {
+  64   1          static uint8 pos = 0, state = 0, codes, len, timer;
+  65   1      
+  66   1          switch (state) {
+  67   2          case 0:
+  68   2              codes = message[pos++];
+  69   2              len = codes & 0x07;
+  70   2              if (!codes) {
+  71   3                  pos = 0;
+  72   3                  timer = MORSE_WORD - MORSE_CHAR - 2;
+  73   3                  len = 0;
+  74   3                  state = 3;
+  75   3                  break;
+  76   3              }
+  77   2          case 1:
+  78   2              if (codes & 0x80) timer = MORSE_DASH;
+  79   2              else timer = MORSE_DOT;
+  80   2              codes <<= 1;
+  81   2              len--;
+  82   2              Control_Write(Control_Read() & ~CONTROL_LED);
+  83   2              state = 2;
+  84   2          case 2:
+  85   2              if (!timer) {
+  86   3                  state = 3;
+  87   3                  if (!len) timer = MORSE_CHAR - 1;
+  88   3                  else timer = MORSE_DOT - 1;
+  89   3                  Control_Write(Control_Read() | CONTROL_LED);
+  90   3              }
+  91   2              else {
+  92   3                  timer--;
+  93   3                  break;
+  94   3              }
+  95   2          case 3:
+  96   2              if (!timer) {
+  97   3                  if (!len) state = 0;
+  98   3                  else state = 1;
+  99   3              }
+ 100   2              else timer--;
+ 101   2          }
+ 102   1      }
+ 103              
+ 104          void main()
+ 105          {
+ 106   1          uint8 boot_pin;
+ 107   1          uint8 crystal_status = FALSE;
+ 108   1          
+ 109   1          CyDelay(100);  // Let things settle down after a power on    
+ 110   1          //message = MORSE_BOOT;
+ 111   1          //boot_pin = BOOT_Read;
+ 112   1          //if (!boot_pin) {//User will place a "boot" jumper on this pin to ground taking this pin to a "low" s
+             -tate 
+ 113   1                          //to enable firmware upload.
+ 114   1              //if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 3   
+
+ 115   1              //else {
+ 116   1                  //if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
+ 117   1                     // Bootloader_Exit(Bootloader_EXIT_TO_BTLDB);
+ 118   1                  //}
+ 119   1              //}
+ 120   1          //}
+ 121   1         // morse_isr_StartEx(&morse_interrupt);
+ 122   1          //Morse_Counter_Start();
+ 123   1          //CyGlobalIntEnable;
+ 124   1          //Bootloader_Start();
+ 125   1            
+ 126   1          
+ 127   1          crystal_status = CyXTAL_ReadStatus();
+ 128   1          if (crystal_status) message = MORSE_XTAL; else message = MORSE_BOOT;
+ 129   1          boot_pin = BOOT_Read();
+ 130   1          if (!boot_pin){      
+ 131   2              //User will place a "boot" jumper on this pin to ground taking this pin to a "low" state to enable
+             - firmware upload.
+ 132   2              morse_isr_StartEx(&morse_interrupt); //This blinks a LED morse code message.  
+ 133   2              Morse_Counter_Start();
+ 134   2              CyGlobalIntEnable;
+ 135   2              if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader compo
+             -nent.
+ 136   2                  }else {Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); // Testing new beta version of Bootloader_Ex
+             -it
+ 137   2                  Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
+ 138   2                  CySoftwareReset();
+ 139   2              }
+ 140   1          for(;;) {}
+ 141   1      }
+ 142          
+ 143          /* [] END OF FILE */
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 4   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION morse_interrupt (BEGIN)
+0000 C0E0              PUSH    ACC
+0002 C0F0              PUSH    B
+0004 C083              PUSH    DPH
+0006 C082              PUSH    DPL
+0008 C085              PUSH    DPH1
+000A C084              PUSH    DPL1
+000C C086              PUSH    DPS
+000E 758600            MOV     DPS,#00H
+0011 C000        E     PUSH    ?C?XPAGE1SFR
+0013 750000      E     MOV     ?C?XPAGE1SFR,#?C?XPAGE1RST
+0016 C0D0              PUSH    PSW
+0018 75D000            MOV     PSW,#00H
+001B C000              PUSH    AR0
+001D C001              PUSH    AR1
+001F C002              PUSH    AR2
+0021 C003              PUSH    AR3
+0023 C004              PUSH    AR4
+0025 C005              PUSH    AR5
+0027 C006              PUSH    AR6
+0029 C007              PUSH    AR7
+                                           ; SOURCE LINE # 62
+                                           ; SOURCE LINE # 66
+002B 900000      R     MOV     DPTR,#state
+002E E0                MOVX    A,@DPTR
+002F 14                DEC     A
+0030 604B              JZ      ?C0004
+0032 14                DEC     A
+0033 6079              JZ      ?C0007
+0035 14                DEC     A
+0036 7003              JNZ     $ + 5H
+0038 020000      R     LJMP    ?C0012
+003B 2403              ADD     A,#03H
+003D 6003              JZ      $ + 5H
+003F 020000      R     LJMP    ?C0017
+                                           ; SOURCE LINE # 67
+0042         ?C0002:
+                                           ; SOURCE LINE # 68
+0042 900000      R     MOV     DPTR,#message
+0045 120000      E     LCALL   ?C?PLDXDATA
+0048 900000      R     MOV     DPTR,#pos
+004B E0                MOVX    A,@DPTR
+004C FF                MOV     R7,A
+004D 04                INC     A
+004E F0                MOVX    @DPTR,A
+004F E9                MOV     A,R1
+0050 2F                ADD     A,R7
+0051 F9                MOV     R1,A
+0052 E4                CLR     A
+0053 3A                ADDC    A,R2
+0054 FA                MOV     R2,A
+0055 120000      E     LCALL   ?C?CLDPTR
+0058 900000      R     MOV     DPTR,#codes
+005B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 69
+005C E0                MOVX    A,@DPTR
+005D FE                MOV     R6,A
+005E 5407              ANL     A,#07H
+0060 A3                INC     DPTR
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 5   
+
+0061 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 70
+0062 EE                MOV     A,R6
+0063 7018              JNZ     ?C0004
+                                           ; SOURCE LINE # 71
+0065 900000      R     MOV     DPTR,#pos
+0068 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 72
+0069 900000      R     MOV     DPTR,#timer
+006C 7402              MOV     A,#02H
+006E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 73
+006F 900000      R     MOV     DPTR,#len
+0072 E4                CLR     A
+0073 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 74
+0074 900000      R     MOV     DPTR,#state
+0077 7403              MOV     A,#03H
+0079 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 75
+007A 020000      R     LJMP    ?C0017
+                                           ; SOURCE LINE # 76
+                                           ; SOURCE LINE # 77
+007D         ?C0004:
+                                           ; SOURCE LINE # 78
+007D 900000      R     MOV     DPTR,#codes
+0080 E0                MOVX    A,@DPTR
+0081 FF                MOV     R7,A
+0082 30E708            JNB     ACC.7,?C0005
+0085 900000      R     MOV     DPTR,#timer
+0088 7403              MOV     A,#03H
+008A F0                MOVX    @DPTR,A
+008B 8006              SJMP    ?C0006
+008D         ?C0005:
+                                           ; SOURCE LINE # 79
+008D 900000      R     MOV     DPTR,#timer
+0090 7401              MOV     A,#01H
+0092 F0                MOVX    @DPTR,A
+0093         ?C0006:
+                                           ; SOURCE LINE # 80
+0093 EF                MOV     A,R7
+0094 25E0              ADD     A,ACC
+0096 900000      R     MOV     DPTR,#codes
+0099 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 81
+009A A3                INC     DPTR
+009B E0                MOVX    A,@DPTR
+009C 14                DEC     A
+009D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 82
+009E 120000      E     LCALL   Control_Read
+00A1 EF                MOV     A,R7
+00A2 54FE              ANL     A,#0FEH
+00A4 FF                MOV     R7,A
+00A5 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 83
+00A8 900000      R     MOV     DPTR,#state
+00AB 7402              MOV     A,#02H
+00AD F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 84
+00AE         ?C0007:
+                                           ; SOURCE LINE # 85
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 6   
+
+00AE 900000      R     MOV     DPTR,#timer
+00B1 E0                MOVX    A,@DPTR
+00B2 7023              JNZ     ?C0008
+                                           ; SOURCE LINE # 86
+00B4 900000      R     MOV     DPTR,#state
+00B7 7403              MOV     A,#03H
+00B9 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 87
+00BA 900000      R     MOV     DPTR,#len
+00BD E0                MOVX    A,@DPTR
+00BE 7006              JNZ     ?C0009
+00C0 A3                INC     DPTR
+00C1 7402              MOV     A,#02H
+00C3 F0                MOVX    @DPTR,A
+00C4 8005              SJMP    ?C0010
+00C6         ?C0009:
+                                           ; SOURCE LINE # 88
+00C6 900000      R     MOV     DPTR,#timer
+00C9 E4                CLR     A
+00CA F0                MOVX    @DPTR,A
+00CB         ?C0010:
+                                           ; SOURCE LINE # 89
+00CB 120000      E     LCALL   Control_Read
+00CE EF                MOV     A,R7
+00CF 4401              ORL     A,#01H
+00D1 FF                MOV     R7,A
+00D2 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 90
+00D5 8008              SJMP    ?C0012
+00D7         ?C0008:
+                                           ; SOURCE LINE # 91
+                                           ; SOURCE LINE # 92
+00D7 900000      R     MOV     DPTR,#timer
+00DA E0                MOVX    A,@DPTR
+00DB 14                DEC     A
+00DC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 93
+00DD 8020              SJMP    ?C0017
+                                           ; SOURCE LINE # 94
+                                           ; SOURCE LINE # 95
+00DF         ?C0012:
+                                           ; SOURCE LINE # 96
+00DF 900000      R     MOV     DPTR,#timer
+00E2 E0                MOVX    A,@DPTR
+00E3 7014              JNZ     ?C0013
+                                           ; SOURCE LINE # 97
+00E5 900000      R     MOV     DPTR,#len
+00E8 E0                MOVX    A,@DPTR
+00E9 7006              JNZ     ?C0014
+00EB 900000      R     MOV     DPTR,#state
+00EE F0                MOVX    @DPTR,A
+00EF 800E              SJMP    ?C0017
+00F1         ?C0014:
+                                           ; SOURCE LINE # 98
+00F1 900000      R     MOV     DPTR,#state
+00F4 7401              MOV     A,#01H
+00F6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 99
+00F7 8006              SJMP    ?C0017
+00F9         ?C0013:
+                                           ; SOURCE LINE # 100
+00F9 900000      R     MOV     DPTR,#timer
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 7   
+
+00FC E0                MOVX    A,@DPTR
+00FD 14                DEC     A
+00FE F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 101
+                                           ; SOURCE LINE # 102
+00FF         ?C0017:
+00FF D007              POP     AR7
+0101 D006              POP     AR6
+0103 D005              POP     AR5
+0105 D004              POP     AR4
+0107 D003              POP     AR3
+0109 D002              POP     AR2
+010B D001              POP     AR1
+010D D000              POP     AR0
+010F D0D0              POP     PSW
+0111 D000        E     POP     ?C?XPAGE1SFR
+0113 D086              POP     DPS
+0115 D084              POP     DPL1
+0117 D085              POP     DPH1
+0119 D082              POP     DPL
+011B D083              POP     DPH
+011D D0F0              POP     B
+011F D0E0              POP     ACC
+0121 32                RETI    
+             ; FUNCTION morse_interrupt (END)
+
+             ; FUNCTION main (BEGIN)
+                                           ; SOURCE LINE # 104
+                                           ; SOURCE LINE # 105
+                                           ; SOURCE LINE # 107
+0000 E4                CLR     A
+0001 900000      R     MOV     DPTR,#crystal_status
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 109
+0005 7F64              MOV     R7,#064H
+0007 FE                MOV     R6,A
+0008 FD                MOV     R5,A
+0009 FC                MOV     R4,A
+000A 120000      E     LCALL   _?CyDelay
+                                           ; SOURCE LINE # 127
+000D 120000      E     LCALL   CyXTAL_ReadStatus
+0010 900000      R     MOV     DPTR,#crystal_status
+0013 EF                MOV     A,R7
+0014 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 128
+0015 600E              JZ      ?C0018
+0017 7BFF              MOV     R3,#0FFH
+0019 7A00        R     MOV     R2,#HIGH MORSE_XTAL
+001B 7900        R     MOV     R1,#LOW MORSE_XTAL
+001D 900000      R     MOV     DPTR,#message
+0020 120000      E     LCALL   ?C?PSTXDATA
+0023 800C              SJMP    ?C0019
+0025         ?C0018:
+0025 7BFF              MOV     R3,#0FFH
+0027 7A00        R     MOV     R2,#HIGH MORSE_BOOT
+0029 7900        R     MOV     R1,#LOW MORSE_BOOT
+002B 900000      R     MOV     DPTR,#message
+002E 120000      E     LCALL   ?C?PSTXDATA
+0031         ?C0019:
+                                           ; SOURCE LINE # 129
+0031 120000      E     LCALL   BOOT_Read
+;---- Variable 'boot_pin' assigned to Register 'R7' ----
+C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 8   
+
+                                           ; SOURCE LINE # 130
+0034 EF                MOV     A,R7
+0035 701D              JNZ     ?C0020
+                                           ; SOURCE LINE # 132
+0037 7E00        R     MOV     R6,#HIGH morse_interrupt
+0039 7F00        R     MOV     R7,#LOW morse_interrupt
+003B 120000      E     LCALL   _morse_isr_StartEx
+                                           ; SOURCE LINE # 133
+003E 120000      E     LCALL   Morse_Counter_Start
+                                           ; SOURCE LINE # 134
+0041 D2AF              SETB    EA
+0043 9044F4            MOV     DPTR,#044F4H
+0046 74FD              MOV     A,#0FDH
+0048 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 135
+0049 900000      R     MOV     DPTR,#crystal_status
+004C E0                MOVX    A,@DPTR
+004D 7013              JNZ     ?C0023
+004F 120000      E     LCALL   Bootloader_Start
+                                           ; SOURCE LINE # 136
+0052 800E              SJMP    ?C0023
+0054         ?C0020:
+0054 E4                CLR     A
+0055 FF                MOV     R7,A
+0056 120000      E     LCALL   _Bootloader_Exit
+                                           ; SOURCE LINE # 137
+0059 9046FA            MOV     DPTR,#046FAH
+005C 7480              MOV     A,#080H
+005E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 138
+005F 120000      E     LCALL   CySoftwareReset
+                                           ; SOURCE LINE # 139
+                                           ; SOURCE LINE # 140
+0062         ?C0023:
+0062 80FE              SJMP    ?C0023
+0064 22                RET     
+             ; FUNCTION main (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    391    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =      8       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,597 @@
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_BOOT
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_boot.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\Generated_Source\PSoC3\USBFS_boot.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DEB
+                    -UG) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_boot.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_boot.o
+                    -bj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * File Name: USBFS_boot.c
+   3          * Version 2.80
+   4          *
+   5          * Description:
+   6          *  Boot loader API for USBFS Component.
+   7          *
+   8          *  Note:
+   9          *
+  10          ********************************************************************************
+  11          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  12          * You may use this file only in accordance with the license, terms, conditions,
+  13          * disclaimers, and limitations in the end user license agreement accompanying
+  14          * the software package with which this file was provided.
+  15          *******************************************************************************/
+  16          
+  17          #include "USBFS.h"
+  18          
+  19          #if defined(CYDEV_BOOTLOADER_IO_COMP) && ((CYDEV_BOOTLOADER_IO_COMP == CyBtldr_USBFS) || \
+  20                                                    (CYDEV_BOOTLOADER_IO_COMP == CyBtldr_Custom_Interface))
+  21          
+  22          
+  23          /***************************************
+  24          *    Bootloader Variables
+  25          ***************************************/
+  26          
+  27          static uint8  USBFS_started = 0u;
+  28          
+  29          
+  30          /*******************************************************************************
+  31          * Function Name: USBFS_CyBtldrCommStart
+  32          ********************************************************************************
+  33          *
+  34          * Summary:
+  35          *  Starts the component and enables the interrupt.
+  36          *
+  37          * Parameters:
+  38          *  None.
+  39          *
+  40          * Return:
+  41          *  None.
+  42          *
+  43          * Side Effects:
+  44          *  This function starts the USB with 3V or 5V operation.
+  45          *
+  46          * Reentrant:
+  47          *  No.
+  48          *
+  49          *******************************************************************************/
+  50          void USBFS_CyBtldrCommStart(void) 
+  51          {
+  52   1          CyGlobalIntEnable;      /* Enable Global Interrupts */
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 2   
+
+  53   1      
+  54   1          /*Start USBFS Operation/device 0 and with 5V or 3V operation depend on Voltage Configuration in DWR */
+  55   1          USBFS_Start(0u, USBFS_DWR_VDDD_OPERATION);
+  56   1      
+  57   1          /* USB component started, the correct enumeration will be checked in first Read operation */
+  58   1          USBFS_started = 1u;
+  59   1      }
+  60          
+  61          
+  62          /*******************************************************************************
+  63          * Function Name: USBFS_CyBtldrCommStop.
+  64          ********************************************************************************
+  65          *
+  66          * Summary:
+  67          *  Disable the component and disable the interrupt.
+  68          *
+  69          * Parameters:
+  70          *  None.
+  71          *
+  72          * Return:
+  73          *  None.
+  74          *
+  75          *******************************************************************************/
+  76          void USBFS_CyBtldrCommStop(void) 
+  77          {
+  78   1          USBFS_Stop();
+  79   1      }
+  80          
+  81          
+  82          /*******************************************************************************
+  83          * Function Name: USBFS_CyBtldrCommReset.
+  84          ********************************************************************************
+  85          *
+  86          * Summary:
+  87          *  Resets the receive and transmit communication Buffers.
+  88          *
+  89          * Parameters:
+  90          *  None
+  91          *
+  92          * Return:
+  93          *  None
+  94          *
+  95          * Reentrant:
+  96          *  No
+  97          *
+  98          *******************************************************************************/
+  99          void USBFS_CyBtldrCommReset(void) 
+ 100          {
+ 101   1          USBFS_EnableOutEP(USBFS_BTLDR_OUT_EP);  /* Enable the OUT endpoint */
+ 102   1      }
+ 103          
+ 104          
+ 105          /*******************************************************************************
+ 106          * Function Name: USBFS_CyBtldrCommWrite.
+ 107          ********************************************************************************
+ 108          *
+ 109          * Summary:
+ 110          *  Allows the caller to write data to the boot loader host. The function will
+ 111          *  handle polling to allow a block of data to be completely sent to the host
+ 112          *  device.
+ 113          *
+ 114          * Parameters:
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 3   
+
+ 115          *  pData:    A pointer to the block of data to send to the device
+ 116          *  size:     The number of bytes to write.
+ 117          *  count:    Pointer to an unsigned short variable to write the number of
+ 118          *             bytes actually written.
+ 119          *  timeOut:  Number of units to wait before returning because of a timeout.
+ 120          *
+ 121          * Return:
+ 122          *  Returns the value that best describes the problem.
+ 123          *
+ 124          * Reentrant:
+ 125          *  No
+ 126          *
+ 127          *******************************************************************************/
+ 128          cystatus USBFS_CyBtldrCommWrite(const uint8 pData[], uint16 size, uint16 *count, uint8 timeOut) CYSMALL
+ 129                                                                      
+ 130          {
+ 131   1          cystatus retCode;
+ 132   1          uint16 timeoutMs;
+ 133   1      
+ 134   1          timeoutMs = ((uint16) 10u * timeOut);  /* Convert from 10mS check to number 1mS checks */
+ 135   1      
+ 136   1          /* Enable IN transfer */
+ 137   1          USBFS_LoadInEP(USBFS_BTLDR_IN_EP, pData, USBFS_BTLDR_SIZEOF_READ_BUFFER);
+ 138   1      
+ 139   1          /* Wait for the master to read it. */
+ 140   1          while ((USBFS_GetEPState(USBFS_BTLDR_IN_EP) == USBFS_IN_BUFFER_FULL) &&
+ 141   1                 (0u != timeoutMs))
+ 142   1          {
+ 143   2              CyDelay(USBFS_BTLDR_WAIT_1_MS);
+ 144   2              timeoutMs--;
+ 145   2          }
+ 146   1      
+ 147   1          if (USBFS_GetEPState(USBFS_BTLDR_IN_EP) == USBFS_IN_BUFFER_FULL)
+ 148   1          {
+ 149   2              retCode = CYRET_TIMEOUT;
+ 150   2          }
+ 151   1          else
+ 152   1          {
+ 153   2              *count = size;
+ 154   2              retCode = CYRET_SUCCESS;
+ 155   2          }
+ 156   1      
+ 157   1          return(retCode);
+ 158   1      }
+ 159          
+ 160          
+ 161          /*******************************************************************************
+ 162          * Function Name: USBFS_CyBtldrCommRead.
+ 163          ********************************************************************************
+ 164          *
+ 165          * Summary:
+ 166          *  Allows the caller to read data from the boot loader host. The function will
+ 167          *  handle polling to allow a block of data to be completely received from the
+ 168          *  host device.
+ 169          *
+ 170          * Parameters:
+ 171          *  pData:    A pointer to the area to store the block of data received
+ 172          *             from the device.
+ 173          *  size:     The number of bytes to read.
+ 174          *  count:    Pointer to an unsigned short variable to write the number
+ 175          *             of bytes actually read.
+ 176          *  timeOut:  Number of units to wait before returning because of a timeOut.
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 4   
+
+ 177          *            Timeout is measured in 10s of ms.
+ 178          *
+ 179          * Return:
+ 180          *  Returns the value that best describes the problem.
+ 181          *
+ 182          * Reentrant:
+ 183          *  No
+ 184          *
+ 185          *******************************************************************************/
+ 186          cystatus USBFS_CyBtldrCommRead(uint8 pData[], uint16 size, uint16 *count, uint8 timeOut) CYSMALL
+ 187                                                                      
+ 188          {
+ 189   1          cystatus retCode;
+ 190   1          uint16 timeoutMs;
+ 191   1      
+ 192   1          timeoutMs = ((uint16) 10u * timeOut);  /* Convert from 10mS check to number 1mS checks */
+ 193   1      
+ 194   1          if (size > USBFS_BTLDR_SIZEOF_WRITE_BUFFER)
+ 195   1          {
+ 196   2              size = USBFS_BTLDR_SIZEOF_WRITE_BUFFER;
+ 197   2          }
+ 198   1      
+ 199   1          /* Wait on enumeration in first time */
+ 200   1          if (0u != USBFS_started)
+ 201   1          {
+ 202   2              /* Wait for Device to enumerate */
+ 203   2              while ((0u ==USBFS_GetConfiguration()) && (0u != timeoutMs))
+ 204   2              {
+ 205   3                  CyDelay(USBFS_BTLDR_WAIT_1_MS);
+ 206   3                  timeoutMs--;
+ 207   3              }
+ 208   2      
+ 209   2              /* Enable first OUT, if enumeration complete */
+ 210   2              if (0u != USBFS_GetConfiguration())
+ 211   2              {
+ 212   3                  (void) USBFS_IsConfigurationChanged();  /* Clear configuration changes state status */
+ 213   3                  USBFS_CyBtldrCommReset();
+ 214   3                  USBFS_started = 0u;
+ 215   3              }
+ 216   2          }
+ 217   1          else /* Check for configuration changes, has been done by Host */
+ 218   1          {
+ 219   2              if (0u != USBFS_IsConfigurationChanged()) /* Host could send double SET_INTERFACE request or RESET
+             - */
+ 220   2              {
+ 221   3                  if (0u != USBFS_GetConfiguration())   /* Init OUT endpoints when device reconfigured */
+ 222   3                  {
+ 223   4                      USBFS_CyBtldrCommReset();
+ 224   4                  }
+ 225   3              }
+ 226   2          }
+ 227   1      
+ 228   1          timeoutMs = ((uint16) 10u * timeOut); /* Re-arm timeout */
+ 229   1      
+ 230   1          /* Wait on next packet */
+ 231   1          while((USBFS_GetEPState(USBFS_BTLDR_OUT_EP) != USBFS_OUT_BUFFER_FULL) && \
+ 232   1                (0u != timeoutMs))
+ 233   1          {
+ 234   2              CyDelay(USBFS_BTLDR_WAIT_1_MS);
+ 235   2              timeoutMs--;
+ 236   2          }
+ 237   1      
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 5   
+
+ 238   1          /* OUT EP has completed */
+ 239   1          if (USBFS_GetEPState(USBFS_BTLDR_OUT_EP) == USBFS_OUT_BUFFER_FULL)
+ 240   1          {
+ 241   2              *count = USBFS_ReadOutEP(USBFS_BTLDR_OUT_EP, pData, size);
+ 242   2              retCode = CYRET_SUCCESS;
+ 243   2          }
+ 244   1          else
+ 245   1          {
+ 246   2              *count = 0u;
+ 247   2              retCode = CYRET_TIMEOUT;
+ 248   2          }
+ 249   1      
+ 250   1          return(retCode);
+ 251   1      }
+ 252          
+ 253          #endif /*  CYDEV_BOOTLOADER_IO_COMP == CyBtldr_USBFS */
+ 254          
+ 255          
+ 256          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 6   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION USBFS_CyBtldrCommStart (BEGIN)
+                                           ; SOURCE LINE # 50
+                                           ; SOURCE LINE # 51
+                                           ; SOURCE LINE # 52
+0000 D2AF              SETB    EA
+0002 9044F4            MOV     DPTR,#044F4H
+0005 74FD              MOV     A,#0FDH
+0007 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 55
+0008 7D02              MOV     R5,#02H
+000A E4                CLR     A
+000B FF                MOV     R7,A
+000C 120000      E     LCALL   _USBFS_Start
+                                           ; SOURCE LINE # 58
+000F 900000      R     MOV     DPTR,#USBFS_started
+0012 7401              MOV     A,#01H
+0014 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 59
+0015 22                RET     
+             ; FUNCTION USBFS_CyBtldrCommStart (END)
+
+             ; FUNCTION USBFS_CyBtldrCommStop (BEGIN)
+                                           ; SOURCE LINE # 76
+                                           ; SOURCE LINE # 77
+                                           ; SOURCE LINE # 78
+0000 120000      E     LCALL   USBFS_Stop
+                                           ; SOURCE LINE # 79
+0003 22                RET     
+             ; FUNCTION USBFS_CyBtldrCommStop (END)
+
+             ; FUNCTION USBFS_CyBtldrCommReset (BEGIN)
+                                           ; SOURCE LINE # 99
+                                           ; SOURCE LINE # 100
+                                           ; SOURCE LINE # 101
+0000 7F01              MOV     R7,#01H
+0002 120000      E     LCALL   _USBFS_EnableOutEP
+                                           ; SOURCE LINE # 102
+0005 22                RET     
+             ; FUNCTION USBFS_CyBtldrCommReset (END)
+
+             ; FUNCTION _USBFS_CyBtldrCommWrite (BEGIN)
+                                           ; SOURCE LINE # 128
+0000 8C00        R     MOV     size,R4
+0002 8D00        R     MOV     size+01H,R5
+;---- Variable 'pData' assigned to Register 'R1/R2/R3' ----
+                                           ; SOURCE LINE # 134
+0004 E500        R     MOV     A,timeOut
+0006 75F00A            MOV     B,#0AH
+0009 A4                MUL     AB
+000A 85F000      R     MOV     timeoutMs,B
+000D F500        R     MOV     timeoutMs+01H,A
+                                           ; SOURCE LINE # 137
+000F 900000      E     MOV     DPTR,#?_USBFS_LoadInEP?BYTE+04H
+0012 E4                CLR     A
+0013 F0                MOVX    @DPTR,A
+0014 A3                INC     DPTR
+0015 7440              MOV     A,#040H
+0017 F0                MOVX    @DPTR,A
+0018 7F02              MOV     R7,#02H
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 7   
+
+001A 120000      E     LCALL   _USBFS_LoadInEP
+001D         ?C0004:
+                                           ; SOURCE LINE # 140
+001D 7F02              MOV     R7,#02H
+001F 120000      E     LCALL   _USBFS_GetEPState
+0022 EF                MOV     A,R7
+0023 7019              JNZ     ?C0005
+0025 E500        R     MOV     A,timeoutMs+01H
+0027 4500        R     ORL     A,timeoutMs
+0029 6013              JZ      ?C0005
+                                           ; SOURCE LINE # 142
+                                           ; SOURCE LINE # 143
+002B E4                CLR     A
+002C 7F01              MOV     R7,#01H
+002E FE                MOV     R6,A
+002F FD                MOV     R5,A
+0030 FC                MOV     R4,A
+0031 120000      E     LCALL   _?CyDelay
+                                           ; SOURCE LINE # 144
+0034 E500        R     MOV     A,timeoutMs+01H
+0036 1500        R     DEC     timeoutMs+01H
+0038 7002              JNZ     ?C0022
+003A 1500        R     DEC     timeoutMs
+003C         ?C0022:
+                                           ; SOURCE LINE # 145
+003C 80DF              SJMP    ?C0004
+003E         ?C0005:
+                                           ; SOURCE LINE # 147
+003E 7F02              MOV     R7,#02H
+0040 120000      E     LCALL   _USBFS_GetEPState
+0043 EF                MOV     A,R7
+0044 7005              JNZ     ?C0006
+                                           ; SOURCE LINE # 148
+                                           ; SOURCE LINE # 149
+0046 750010      R     MOV     retCode,#010H
+                                           ; SOURCE LINE # 150
+0049 8011              SJMP    ?C0007
+004B         ?C0006:
+                                           ; SOURCE LINE # 152
+                                           ; SOURCE LINE # 153
+004B AB00        R     MOV     R3,count
+004D AA00        R     MOV     R2,count+01H
+004F A900        R     MOV     R1,count+02H
+0051 E500        R     MOV     A,size
+0053 8500F0      R     MOV     B,size+01H
+0056 120000      E     LCALL   ?C?ISTPTR
+                                           ; SOURCE LINE # 154
+0059 E4                CLR     A
+005A F500        R     MOV     retCode,A
+                                           ; SOURCE LINE # 155
+005C         ?C0007:
+                                           ; SOURCE LINE # 157
+005C AF00        R     MOV     R7,retCode
+                                           ; SOURCE LINE # 158
+005E         ?C0008:
+005E 22                RET     
+             ; FUNCTION _USBFS_CyBtldrCommWrite (END)
+
+             ; FUNCTION _USBFS_CyBtldrCommRead (BEGIN)
+                                           ; SOURCE LINE # 186
+0000 8B00        R     MOV     pData,R3
+0002 8A00        R     MOV     pData+01H,R2
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 8   
+
+0004 8900        R     MOV     pData+02H,R1
+0006 8C00        R     MOV     size,R4
+0008 8D00        R     MOV     size+01H,R5
+                                           ; SOURCE LINE # 192
+000A E500        R     MOV     A,timeOut
+000C 75F00A            MOV     B,#0AH
+000F A4                MUL     AB
+0010 85F000      R     MOV     timeoutMs,B
+0013 F500        R     MOV     timeoutMs+01H,A
+                                           ; SOURCE LINE # 194
+0015 D3                SETB    C
+0016 E500        R     MOV     A,size+01H
+0018 9440              SUBB    A,#040H
+001A E500        R     MOV     A,size
+001C 9400              SUBB    A,#00H
+001E 4006              JC      ?C0009
+                                           ; SOURCE LINE # 195
+                                           ; SOURCE LINE # 196
+0020 750000      R     MOV     size,#00H
+0023 750040      R     MOV     size+01H,#040H
+                                           ; SOURCE LINE # 197
+0026         ?C0009:
+                                           ; SOURCE LINE # 200
+0026 900000      R     MOV     DPTR,#USBFS_started
+0029 E0                MOVX    A,@DPTR
+002A 6032              JZ      ?C0010
+                                           ; SOURCE LINE # 201
+002C         ?C0011:
+                                           ; SOURCE LINE # 203
+002C 120000      E     LCALL   USBFS_GetConfiguration
+002F EF                MOV     A,R7
+0030 7019              JNZ     ?C0012
+0032 E500        R     MOV     A,timeoutMs+01H
+0034 4500        R     ORL     A,timeoutMs
+0036 6013              JZ      ?C0012
+                                           ; SOURCE LINE # 204
+                                           ; SOURCE LINE # 205
+0038 E4                CLR     A
+0039 7F01              MOV     R7,#01H
+003B FE                MOV     R6,A
+003C FD                MOV     R5,A
+003D FC                MOV     R4,A
+003E 120000      E     LCALL   _?CyDelay
+                                           ; SOURCE LINE # 206
+0041 E500        R     MOV     A,timeoutMs+01H
+0043 1500        R     DEC     timeoutMs+01H
+0045 7002              JNZ     ?C0023
+0047 1500        R     DEC     timeoutMs
+0049         ?C0023:
+                                           ; SOURCE LINE # 207
+0049 80E1              SJMP    ?C0011
+004B         ?C0012:
+                                           ; SOURCE LINE # 210
+004B 120000      E     LCALL   USBFS_GetConfiguration
+004E EF                MOV     A,R7
+004F 601C              JZ      ?C0014
+                                           ; SOURCE LINE # 211
+                                           ; SOURCE LINE # 212
+0051 120000      E     LCALL   USBFS_IsConfigurationChanged
+                                           ; SOURCE LINE # 213
+0054 120000      R     LCALL   USBFS_CyBtldrCommReset
+                                           ; SOURCE LINE # 214
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 9   
+
+0057 E4                CLR     A
+0058 900000      R     MOV     DPTR,#USBFS_started
+005B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 215
+                                           ; SOURCE LINE # 216
+005C 800F              SJMP    ?C0014
+005E         ?C0010:
+                                           ; SOURCE LINE # 218
+                                           ; SOURCE LINE # 219
+005E 120000      E     LCALL   USBFS_IsConfigurationChanged
+0061 EF                MOV     A,R7
+0062 6009              JZ      ?C0014
+                                           ; SOURCE LINE # 220
+                                           ; SOURCE LINE # 221
+0064 120000      E     LCALL   USBFS_GetConfiguration
+0067 EF                MOV     A,R7
+0068 6003              JZ      ?C0014
+                                           ; SOURCE LINE # 222
+                                           ; SOURCE LINE # 223
+006A 120000      R     LCALL   USBFS_CyBtldrCommReset
+                                           ; SOURCE LINE # 224
+                                           ; SOURCE LINE # 225
+                                           ; SOURCE LINE # 226
+006D         ?C0014:
+                                           ; SOURCE LINE # 228
+006D E500        R     MOV     A,timeOut
+006F 75F00A            MOV     B,#0AH
+0072 A4                MUL     AB
+0073 85F000      R     MOV     timeoutMs,B
+0076 F500        R     MOV     timeoutMs+01H,A
+0078         ?C0017:
+                                           ; SOURCE LINE # 231
+0078 7F01              MOV     R7,#01H
+007A 120000      E     LCALL   _USBFS_GetEPState
+007D EF                MOV     A,R7
+007E 6401              XRL     A,#01H
+0080 6019              JZ      ?C0018
+0082 E500        R     MOV     A,timeoutMs+01H
+0084 4500        R     ORL     A,timeoutMs
+0086 6013              JZ      ?C0018
+                                           ; SOURCE LINE # 233
+                                           ; SOURCE LINE # 234
+0088 E4                CLR     A
+0089 7F01              MOV     R7,#01H
+008B FE                MOV     R6,A
+008C FD                MOV     R5,A
+008D FC                MOV     R4,A
+008E 120000      E     LCALL   _?CyDelay
+                                           ; SOURCE LINE # 235
+0091 E500        R     MOV     A,timeoutMs+01H
+0093 1500        R     DEC     timeoutMs+01H
+0095 7002              JNZ     ?C0024
+0097 1500        R     DEC     timeoutMs
+0099         ?C0024:
+                                           ; SOURCE LINE # 236
+0099 80DD              SJMP    ?C0017
+009B         ?C0018:
+                                           ; SOURCE LINE # 239
+009B 7F01              MOV     R7,#01H
+009D 120000      E     LCALL   _USBFS_GetEPState
+00A0 EF                MOV     A,R7
+00A1 B40126            CJNE    A,#01H,?C0019
+C51 COMPILER V9.51   USBFS_BOOT                                                            10/22/2015 22:07:00 PAGE 10  
+
+                                           ; SOURCE LINE # 240
+                                           ; SOURCE LINE # 241
+00A4 AB00        R     MOV     R3,pData
+00A6 AA00        R     MOV     R2,pData+01H
+00A8 A900        R     MOV     R1,pData+02H
+00AA 900000      E     MOV     DPTR,#?_USBFS_ReadOutEP?BYTE+04H
+00AD E500        R     MOV     A,size
+00AF F0                MOVX    @DPTR,A
+00B0 A3                INC     DPTR
+00B1 E500        R     MOV     A,size+01H
+00B3 F0                MOVX    @DPTR,A
+00B4 7F01              MOV     R7,#01H
+00B6 120000      E     LCALL   _USBFS_ReadOutEP
+00B9 AB00        R     MOV     R3,count
+00BB AA00        R     MOV     R2,count+01H
+00BD A900        R     MOV     R1,count+02H
+00BF EE                MOV     A,R6
+00C0 8FF0              MOV     B,R7
+00C2 120000      E     LCALL   ?C?ISTPTR
+                                           ; SOURCE LINE # 242
+00C5 E4                CLR     A
+00C6 F500        R     MOV     retCode,A
+                                           ; SOURCE LINE # 243
+00C8 800F              SJMP    ?C0020
+00CA         ?C0019:
+                                           ; SOURCE LINE # 245
+                                           ; SOURCE LINE # 246
+00CA AB00        R     MOV     R3,count
+00CC AA00        R     MOV     R2,count+01H
+00CE A900        R     MOV     R1,count+02H
+00D0 E4                CLR     A
+00D1 F5F0              MOV     B,A
+00D3 120000      E     LCALL   ?C?ISTPTR
+                                           ; SOURCE LINE # 247
+00D6 750010      R     MOV     retCode,#010H
+                                           ; SOURCE LINE # 248
+00D9         ?C0020:
+                                           ; SOURCE LINE # 250
+00D9 AF00        R     MOV     R7,retCode
+                                           ; SOURCE LINE # 251
+00DB         ?C0021:
+00DB 22                RET     
+             ; FUNCTION _USBFS_CyBtldrCommRead (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    347    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      1    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      24
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

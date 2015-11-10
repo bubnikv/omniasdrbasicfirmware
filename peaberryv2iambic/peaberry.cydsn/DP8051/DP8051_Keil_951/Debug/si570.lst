@@ -1,0 +1,1503 @@
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE SI570
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\si570.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\si570.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\
+                    -Debug/si570.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\si570.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          // 09/30/2014 Additions to support low latency CW and Iambic funtionality  Ron Patton / W4MMP
+  15          // 01/01/2015 Added Semi Break-in Support Ron Patton / W4MMP
+  16          
+  17          #include <peaberry.h>
+  18          #include <math.h>
+  19          
+  20          #define STARTUP_LO 0x713D0A07 // 56.32 MHz in byte reversed 11.21 bits (14.080)
+  21          #define MAX_LO 160.0 // maximum for CMOS Si570
+  22          #define MIN_LO 4.0 
+  23          #define SI570_SMOOTH_PPM 3500
+  24          #define SI570_ADDR 0x55
+  25          #define SI570_DCO_MIN 4850.0
+  26          #define SI570_DCO_MAX 5670.0
+  27          #define SI570_DCO_CENTER ((SI570_DCO_MIN + SI570_DCO_MAX) / 2)
+  28          
+  29          volatile uint32 Si570_Xtal, Si570_LO = STARTUP_LO;
+  30          uint32 Current_LO = STARTUP_LO;
+  31          
+  32          // [0-1] for commands, [2-8] retain registers
+  33          uint8 Si570_Buf[8];
+  34          // A copy of the factory registers used for cfgsr calibration.
+  35          uint8 Si570_Factory[6];
+  36          // Emulate old technique of setting of frequency by reg writes
+  37          uint8 Si570_OLD[6];
+  38          
+  39          uint8 Si570_Init(void) {
+  40   1          uint8 hsdiv, n1, i, state = 0;//, err = 0;
+  41   1          uint16 rfreqint, err = 0;
+  42   1          uint32 rfreqfrac;
+  43   1          float rfreq;
+  44   1          
+  45   1          while (state < 6) {
+  46   2              switch (state) {
+  47   3              case 0: // reload Si570 default registers
+  48   3                  Si570_Buf[0] = 135;
+  49   3                  Si570_Buf[1] = 1;
+  50   3                  I2C_MasterWriteBuf(SI570_ADDR, Si570_Buf, 2, I2C_MODE_COMPLETE_XFER);
+  51   3                  state++;
+  52   3                  break;
+  53   3              case 2: // prepare to read registers
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 2   
+
+  54   3                  Si570_Buf[0] = 7;
+  55   3                  I2C_MasterWriteBuf(SI570_ADDR, Si570_Buf, 1, I2C_MODE_NO_STOP);
+  56   3                  state++;
+  57   3                  break;
+  58   3              case 1:
+  59   3              case 3:
+  60   3                  i = I2C_MasterStatus();
+  61   3                  if (i & I2C_MSTAT_ERR_XFER) {
+  62   4                      state--;
+  63   4                  } else if (i & I2C_MSTAT_WR_CMPLT) {
+  64   4                      state++;
+  65   4                  }
+  66   3                  if (!--err) return 1;
+  67   3                  break;
+  68   3              case 4: // do read registers
+  69   3                  I2C_MasterReadBuf(SI570_ADDR, Si570_Buf + 2, 6, I2C_MODE_REPEAT_START);
+  70   3                  state++;
+  71   3                  break;
+  72   3              case 5:
+  73   3                  i = I2C_MasterStatus();
+  74   3                  if (i & I2C_MSTAT_ERR_XFER) {
+  75   4                      state = 2;
+  76   4                  } else if (i & I2C_MSTAT_RD_CMPLT) {
+  77   4                      state++;
+  78   4                  }
+  79   3                  break;
+  80   3              }
+  81   2          }
+  82   1          if (!Si570_Xtal) {
+  83   2              // no eeprom setting, calculate xtal calibration
+  84   2              hsdiv = (Si570_Buf[2] >> 5) + 4;
+  85   2              n1 = (((Si570_Buf[2] & 0x1F) << 2) | (Si570_Buf[3] >> 6)) + 1;
+  86   2              rfreqint = (((uint16)Si570_Buf[3] & 0x3F) << 4) | (Si570_Buf[4] >> 4);
+  87   2              rfreqfrac = ((uint32*)&Si570_Buf[4])[0] & 0x0FFFFFFF;
+  88   2              rfreq = rfreqint + (float)rfreqfrac / 0x10000000;
+  89   2              Si570_Xtal = swap32((uint32)(SI570_STARTUP_FREQ * hsdiv * n1 / rfreq * 0x01000000));
+  90   2          }
+  91   1          for (i = 0; i < 6; i++) Si570_Factory[i] = Si570_Buf[i+2];
+  92   1          Si570_OLD[0]=0;
+  93   1          return 0;
+  94   1      }
+  95          
+  96          // This method of setting frequency is strongly discouraged.
+  97          // It depends on client software managing the calibration data.
+  98          uint32 FreqFromOLD() {
+  99   1          uint8 hsdiv, n1;
+ 100   1          uint16 rfreqint;
+ 101   1          uint32 rfreqfrac;
+ 102   1          float rfreq;
+ 103   1      
+ 104   1          hsdiv = (Si570_OLD[0] >> 5) + 4;
+ 105   1          n1 = (((Si570_OLD[0] & 0x1F) << 2) | (Si570_OLD[1] >> 6)) + 1;
+ 106   1          rfreqint = (((uint16)Si570_OLD[1] & 0x3F) << 4) | (Si570_OLD[2] >> 4);
+ 107   1          rfreqfrac = ((uint32*)&Si570_OLD[2])[0] & 0x0FFFFFFF;
+ 108   1          rfreq = rfreqint + (float)rfreqfrac / 0x10000000;
+ 109   1          
+ 110   1          Si570_OLD[0]=0;
+ 111   1          // Client software typically uses a fixed xtal freq of 114.285.
+ 112   1          return swap32((uint32)(114.285 * rfreq / (hsdiv * n1) * 0x200000));
+ 113   1      }
+ 114          
+ 115          // CFGSR requests a reset in order to determine the xtal frequency.
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 3   
+
+ 116          // This enables its calibration tab to fully work.
+ 117          void Si570_Fake_Reset(void) {
+ 118   1          uint8 i;
+ 119   1          for (i = 0; i < 6; i++) Si570_Buf[i+2] = Si570_Factory[i];
+ 120   1      }
+ 121          
+ 122          void Si570_Main(void) {
+ 123   1          static uint8 smooth, n1, hsdiv = 0, state = 0;
+ 124   1          static float fout, dco;
+ 125   1          static uint32 Current_Si570_Xtal = 0;
+ 126   1          uint8 i;
+ 127   1          uint16 rfreqint;
+ 128   1          uint32 rfreqfrac;
+ 129   1          float rfreq, testdco, smooth_limit, smooth_diff;
+ 130   1      
+ 131   1          switch (state) {
+ 132   2          case 0: // idle
+ 133   2              if (Si570_OLD[0]) Si570_LO = FreqFromOLD();
+ 134   2              if ((Current_Si570_Xtal != Si570_Xtal || Current_LO != Si570_LO)) {
+ 135   3                  i = CyEnterCriticalSection();
+ 136   3                  Current_LO = Si570_LO;
+ 137   3                  Current_Si570_Xtal = Si570_Xtal;
+ 138   3                  CyExitCriticalSection(i);
+ 139   3                  fout = (float)swap32(Current_LO) / 0x200000;
+ 140   3                  if (fout < MIN_LO) fout = MIN_LO;
+ 141   3                  if (fout > MAX_LO) fout = MAX_LO;
+ 142   3                  state = 1;
+ 143   3              }
+ 144   2              break;
+ 145   2          case 1: // attempt smooth tune
+ 146   2              smooth_limit = dco * SI570_SMOOTH_PPM / 1000000;
+ 147   2              testdco = fout * hsdiv * n1;
+ 148   2              smooth_diff = fabs(testdco - dco);
+ 149   2              if (testdco > SI570_DCO_MIN && testdco < SI570_DCO_MAX && smooth_diff < smooth_limit) {
+ 150   3                  smooth = 1;
+ 151   3                  dco = testdco;
+ 152   3                  state = 12;
+ 153   3              } else {
+ 154   3                  smooth = 0;
+ 155   3                  dco = SI570_DCO_MAX;
+ 156   3                  state = 4;
+ 157   3              }
+ 158   2              break;
+ 159   2          case 12: // done with math
+ 160   2              // freeze DSPLL
+ 161   2              Si570_Buf[0] = 135;
+ 162   2              Si570_Buf[1] = 0x20;
+ 163   2              I2C_MasterWriteBuf(SI570_ADDR, Si570_Buf, 2, I2C_MODE_COMPLETE_XFER);
+ 164   2              state++;
+ 165   2              break;
+ 166   2          case 14: // write new DSPLL config
+ 167   2              rfreq = dco / ((float)swap32(Current_Si570_Xtal) / 0x01000000);
+ 168   2              rfreqint = rfreq;
+ 169   2              rfreqfrac = (rfreq - rfreqint) * 0x10000000;
+ 170   2              // don't trust floats
+ 171   2              if (rfreqfrac > 0x0FFFFFFF) rfreqfrac = 0x0FFFFFFF;
+ 172   2              Si570_Buf[1] = 7;
+ 173   2              i = hsdiv - 4;
+ 174   2              Si570_Buf[2] = i << 5;
+ 175   2              i = n1 - 1;
+ 176   2              Si570_Buf[2] |= i >> 2;
+ 177   2              Si570_Buf[3] = i << 6;
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 4   
+
+ 178   2              Si570_Buf[3] |= rfreqint >> 4;
+ 179   2              *(uint32*)&Si570_Buf[4] = rfreqfrac;
+ 180   2              Si570_Buf[4] |= rfreqint << 4;
+ 181   2              I2C_MasterWriteBuf(SI570_ADDR, Si570_Buf + 1, 7, I2C_MODE_COMPLETE_XFER);
+ 182   2              state++;
+ 183   2              break;
+ 184   2          case 16: // release DSPLL
+ 185   2              Si570_Buf[0] = 135;
+ 186   2              if (smooth) Si570_Buf[1] = 0x00;
+ 187   2              else Si570_Buf[1] = 0x40;
+ 188   2              I2C_MasterWriteBuf(SI570_ADDR, Si570_Buf, 2, I2C_MODE_COMPLETE_XFER);
+ 189   2              state++;
+ 190   2              break;
+ 191   2          case 13: // waiting on I2C
+ 192   2          case 15:
+ 193   2          case 17:
+ 194   2              i = I2C_MasterStatus();
+ 195   2              if (i & I2C_MSTAT_ERR_XFER) {
+ 196   3                  state--;
+ 197   3              } else if (i & I2C_MSTAT_WR_CMPLT) {
+ 198   3                  state++;
+ 199   3              }
+ 200   2              break;
+ 201   2          case 18: // all done
+ 202   2              state = 0;
+ 203   2              break;
+ 204   2          case 8:  // invalid for HS_DIV
+ 205   2          case 10:
+ 206   2              state++;
+ 207   2              //nobreak
+ 208   2          default: // try one HS_DIV at a time
+ 209   2              i = SI570_DCO_CENTER / (fout * state);
+ 210   2              if (i > 1 && (i&1)) i++;
+ 211   2              testdco = fout * state * i;
+ 212   2              state++;
+ 213   2              if (i>128) break;
+ 214   2              if (testdco > SI570_DCO_MIN && testdco < dco) {
+ 215   3                  dco = testdco;
+ 216   3                  n1 = i;
+ 217   3                  hsdiv = state - 1;
+ 218   3              }
+ 219   2              break;            
+ 220   2          }
+ 221   1      
+ 222   1      }
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 5   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Si570_Init (BEGIN)
+                                           ; SOURCE LINE # 39
+                                           ; SOURCE LINE # 40
+0000 E4                CLR     A
+0001 900000      R     MOV     DPTR,#state
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 41
+0005 900000      R     MOV     DPTR,#err
+0008 F0                MOVX    @DPTR,A
+0009 A3                INC     DPTR
+000A F0                MOVX    @DPTR,A
+000B         ?C0001:
+                                           ; SOURCE LINE # 45
+000B 900000      R     MOV     DPTR,#state
+000E E0                MOVX    A,@DPTR
+000F FF                MOV     R7,A
+0010 C3                CLR     C
+0011 9406              SUBB    A,#06H
+0013 4003              JC      $ + 5H
+0015 020000      R     LJMP    ?C0002
+                                           ; SOURCE LINE # 46
+0018 EF                MOV     A,R7
+0019 14                DEC     A
+001A 605C              JZ      ?C0007
+001C 14                DEC     A
+001D 6037              JZ      ?C0005
+001F 14                DEC     A
+0020 6056              JZ      ?C0007
+0022 14                DEC     A
+0023 7003              JNZ     $ + 5H
+0025 020000      R     LJMP    ?C0013
+0028 14                DEC     A
+0029 7003              JNZ     $ + 5H
+002B 020000      R     LJMP    ?C0014
+002E 2405              ADD     A,#05H
+0030 70D9              JNZ     ?C0001
+                                           ; SOURCE LINE # 47
+0032         ?C0004:
+                                           ; SOURCE LINE # 48
+0032 900000      R     MOV     DPTR,#Si570_Buf
+0035 7487              MOV     A,#087H
+0037 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 49
+0038 A3                INC     DPTR
+0039 7401              MOV     A,#01H
+003B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 50
+003C FB                MOV     R3,A
+003D 7A00        R     MOV     R2,#HIGH Si570_Buf
+003F 7900        R     MOV     R1,#LOW Si570_Buf
+0041 900000      E     MOV     DPTR,#?_I2C_MasterWriteBuf?BYTE+04H
+0044 04                INC     A
+0045 F0                MOVX    @DPTR,A
+0046 E4                CLR     A
+0047 A3                INC     DPTR
+0048 F0                MOVX    @DPTR,A
+0049 7F55              MOV     R7,#055H
+004B 120000      E     LCALL   _I2C_MasterWriteBuf
+                                           ; SOURCE LINE # 51
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 6   
+
+004E 900000      R     MOV     DPTR,#state
+0051 E0                MOVX    A,@DPTR
+0052 04                INC     A
+0053 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 52
+0054 80B5              SJMP    ?C0001
+                                           ; SOURCE LINE # 53
+0056         ?C0005:
+                                           ; SOURCE LINE # 54
+0056 900000      R     MOV     DPTR,#Si570_Buf
+0059 7407              MOV     A,#07H
+005B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 55
+005C 7B01              MOV     R3,#01H
+005E 7A00        R     MOV     R2,#HIGH Si570_Buf
+0060 7900        R     MOV     R1,#LOW Si570_Buf
+0062 900000      E     MOV     DPTR,#?_I2C_MasterWriteBuf?BYTE+04H
+0065 7401              MOV     A,#01H
+0067 F0                MOVX    @DPTR,A
+0068 A3                INC     DPTR
+0069 04                INC     A
+006A F0                MOVX    @DPTR,A
+006B 7F55              MOV     R7,#055H
+006D 120000      E     LCALL   _I2C_MasterWriteBuf
+                                           ; SOURCE LINE # 56
+0070 900000      R     MOV     DPTR,#state
+0073 E0                MOVX    A,@DPTR
+0074 04                INC     A
+0075 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 57
+0076 8093              SJMP    ?C0001
+                                           ; SOURCE LINE # 58
+                                           ; SOURCE LINE # 59
+0078         ?C0007:
+                                           ; SOURCE LINE # 60
+0078 120000      E     LCALL   I2C_MasterStatus
+007B 900000      R     MOV     DPTR,#i
+007E EF                MOV     A,R7
+007F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 61
+0080 30E706            JNB     ACC.7,?C0008
+                                           ; SOURCE LINE # 62
+0083 A3                INC     DPTR
+0084 E0                MOVX    A,@DPTR
+0085 14                DEC     A
+0086 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 63
+0087 800B              SJMP    ?C0009
+0089         ?C0008:
+0089 900000      R     MOV     DPTR,#i
+008C E0                MOVX    A,@DPTR
+008D 30E104            JNB     ACC.1,?C0009
+                                           ; SOURCE LINE # 64
+0090 A3                INC     DPTR
+0091 E0                MOVX    A,@DPTR
+0092 04                INC     A
+0093 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 65
+0094         ?C0009:
+                                           ; SOURCE LINE # 66
+0094 900000      R     MOV     DPTR,#err
+0097 74FF              MOV     A,#0FFH
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 7   
+
+0099 F5F0              MOV     B,A
+009B 120000      E     LCALL   ?C?IILDX
+009E 45F0              ORL     A,B
+00A0 6003              JZ      $ + 5H
+00A2 020000      R     LJMP    ?C0001
+00A5 7F01              MOV     R7,#01H
+00A7 22                RET     
+                                           ; SOURCE LINE # 67
+                                           ; SOURCE LINE # 68
+00A8         ?C0013:
+                                           ; SOURCE LINE # 69
+00A8 7B01              MOV     R3,#01H
+00AA 7A00        R     MOV     R2,#HIGH Si570_Buf+02H
+00AC 7900        R     MOV     R1,#LOW Si570_Buf+02H
+00AE 900000      E     MOV     DPTR,#?_I2C_MasterReadBuf?BYTE+04H
+00B1 7406              MOV     A,#06H
+00B3 F0                MOVX    @DPTR,A
+00B4 A3                INC     DPTR
+00B5 7401              MOV     A,#01H
+00B7 F0                MOVX    @DPTR,A
+00B8 7F55              MOV     R7,#055H
+00BA 120000      E     LCALL   _I2C_MasterReadBuf
+                                           ; SOURCE LINE # 70
+00BD 900000      R     MOV     DPTR,#state
+00C0 E0                MOVX    A,@DPTR
+00C1 04                INC     A
+00C2 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 71
+00C3 020000      R     LJMP    ?C0001
+                                           ; SOURCE LINE # 72
+00C6         ?C0014:
+                                           ; SOURCE LINE # 73
+00C6 120000      E     LCALL   I2C_MasterStatus
+00C9 900000      R     MOV     DPTR,#i
+00CC EF                MOV     A,R7
+00CD F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 74
+00CE 30E707            JNB     ACC.7,?C0015
+                                           ; SOURCE LINE # 75
+00D1 A3                INC     DPTR
+00D2 7402              MOV     A,#02H
+00D4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 76
+00D5 020000      R     LJMP    ?C0001
+00D8         ?C0015:
+00D8 900000      R     MOV     DPTR,#i
+00DB E0                MOVX    A,@DPTR
+00DC 20E003            JB      ACC.0,$ + 6H
+00DF 020000      R     LJMP    ?C0001
+                                           ; SOURCE LINE # 77
+00E2 A3                INC     DPTR
+00E3 E0                MOVX    A,@DPTR
+00E4 04                INC     A
+00E5 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 78
+                                           ; SOURCE LINE # 79
+00E6 020000      R     LJMP    ?C0001
+                                           ; SOURCE LINE # 80
+                                           ; SOURCE LINE # 81
+00E9 020000      R     LJMP    ?C0001
+00EC         ?C0002:
+                                           ; SOURCE LINE # 82
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 8   
+
+00EC 900000      R     MOV     DPTR,#Si570_Xtal
+00EF 120000      E     LCALL   ?C?LLDXDATA
+00F2 EC                MOV     A,R4
+00F3 4D                ORL     A,R5
+00F4 4E                ORL     A,R6
+00F5 4F                ORL     A,R7
+00F6 6003              JZ      $ + 5H
+00F8 020000      R     LJMP    ?C0018
+                                           ; SOURCE LINE # 84
+00FB 900000      R     MOV     DPTR,#Si570_Buf+02H
+00FE E0                MOVX    A,@DPTR
+00FF FD                MOV     R5,A
+0100 C4                SWAP    A
+0101 13                RRC     A
+0102 5407              ANL     A,#07H
+0104 2404              ADD     A,#04H
+0106 900000      R     MOV     DPTR,#hsdiv
+0109 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 85
+010A ED                MOV     A,R5
+010B 541F              ANL     A,#01FH
+010D FF                MOV     R7,A
+010E 25E0              ADD     A,ACC
+0110 25E0              ADD     A,ACC
+0112 FF                MOV     R7,A
+0113 900000      R     MOV     DPTR,#Si570_Buf+03H
+0116 E0                MOVX    A,@DPTR
+0117 FE                MOV     R6,A
+0118 C4                SWAP    A
+0119 13                RRC     A
+011A 13                RRC     A
+011B 5403              ANL     A,#03H
+011D 4F                ORL     A,R7
+011E 04                INC     A
+011F 900000      R     MOV     DPTR,#n1
+0122 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 86
+0123 EE                MOV     A,R6
+0124 543F              ANL     A,#03FH
+0126 C4                SWAP    A
+0127 F8                MOV     R0,A
+0128 540F              ANL     A,#0FH
+012A C8                XCH     A,R0
+012B 68                XRL     A,R0
+012C FF                MOV     R7,A
+012D E4                CLR     A
+012E C4                SWAP    A
+012F 54F0              ANL     A,#0F0H
+0131 48                ORL     A,R0
+0132 FE                MOV     R6,A
+0133 900000      R     MOV     DPTR,#Si570_Buf+04H
+0136 E0                MOVX    A,@DPTR
+0137 FD                MOV     R5,A
+0138 C4                SWAP    A
+0139 540F              ANL     A,#0FH
+013B FD                MOV     R5,A
+013C EE                MOV     A,R6
+013D EF                MOV     A,R7
+013E 4D                ORL     A,R5
+013F FF                MOV     R7,A
+0140 900000      R     MOV     DPTR,#rfreqint
+0143 EE                MOV     A,R6
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 9   
+
+0144 F0                MOVX    @DPTR,A
+0145 A3                INC     DPTR
+0146 EF                MOV     A,R7
+0147 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 87
+0148 900000      R     MOV     DPTR,#Si570_Buf+04H
+014B 120000      E     LCALL   ?C?LLDXDATA
+014E EF                MOV     A,R7
+014F EE                MOV     A,R6
+0150 ED                MOV     A,R5
+0151 EC                MOV     A,R4
+0152 540F              ANL     A,#0FH
+0154 FC                MOV     R4,A
+;---- Variable 'rfreqfrac' assigned to Register 'R4/R5/R6/R7' ----
+                                           ; SOURCE LINE # 88
+0155 E4                CLR     A
+0156 120000      E     LCALL   ?C?FCASTL
+0159 E4                CLR     A
+015A FB                MOV     R3,A
+015B FA                MOV     R2,A
+015C 7980              MOV     R1,#080H
+015E 784D              MOV     R0,#04DH
+0160 120000      E     LCALL   ?C?FPDIV
+0163 C004              PUSH    AR4
+0165 C005              PUSH    AR5
+0167 C006              PUSH    AR6
+0169 C007              PUSH    AR7
+016B 900000      R     MOV     DPTR,#rfreqint
+016E E0                MOVX    A,@DPTR
+016F FC                MOV     R4,A
+0170 A3                INC     DPTR
+0171 E0                MOVX    A,@DPTR
+0172 FD                MOV     R5,A
+0173 E4                CLR     A
+0174 120000      E     LCALL   ?C?FCASTI
+0177 D003              POP     AR3
+0179 D002              POP     AR2
+017B D001              POP     AR1
+017D D000              POP     AR0
+017F 120000      E     LCALL   ?C?FPADD
+0182 900000      R     MOV     DPTR,#rfreq
+0185 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 89
+0188 900000      R     MOV     DPTR,#hsdiv
+018B E0                MOVX    A,@DPTR
+018C FC                MOV     R4,A
+018D E4                CLR     A
+018E 120000      E     LCALL   ?C?FCASTC
+0191 7BAE              MOV     R3,#0AEH
+0193 7A47              MOV     R2,#047H
+0195 7961              MOV     R1,#061H
+0197 7842              MOV     R0,#042H
+0199 120000      E     LCALL   ?C?FPMUL
+019C C004              PUSH    AR4
+019E C005              PUSH    AR5
+01A0 C006              PUSH    AR6
+01A2 C007              PUSH    AR7
+01A4 900000      R     MOV     DPTR,#n1
+01A7 E0                MOVX    A,@DPTR
+01A8 FC                MOV     R4,A
+01A9 E4                CLR     A
+01AA 120000      E     LCALL   ?C?FCASTC
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 10  
+
+01AD D003              POP     AR3
+01AF D002              POP     AR2
+01B1 D001              POP     AR1
+01B3 D000              POP     AR0
+01B5 120000      E     LCALL   ?C?FPMUL
+01B8 900000      R     MOV     DPTR,#rfreq
+01BB 120000      E     LCALL   ?C?LLDXDATA0
+01BE 120000      E     LCALL   ?C?FPDIV
+01C1 E4                CLR     A
+01C2 FB                MOV     R3,A
+01C3 FA                MOV     R2,A
+01C4 7980              MOV     R1,#080H
+01C6 784B              MOV     R0,#04BH
+01C8 120000      E     LCALL   ?C?FPMUL
+01CB 120000      E     LCALL   ?C?CASTF
+01CE 120000      E     LCALL   _?swap32
+01D1 900000      R     MOV     DPTR,#Si570_Xtal
+01D4 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 90
+01D7         ?C0018:
+                                           ; SOURCE LINE # 91
+01D7 E4                CLR     A
+01D8 900000      R     MOV     DPTR,#i
+01DB F0                MOVX    @DPTR,A
+01DC         ?C0019:
+01DC 900000      R     MOV     DPTR,#i
+01DF E0                MOVX    A,@DPTR
+01E0 C3                CLR     C
+01E1 9406              SUBB    A,#06H
+01E3 5021              JNC     ?C0020
+01E5 E0                MOVX    A,@DPTR
+01E6 FF                MOV     R7,A
+01E7 2400        R     ADD     A,#LOW Si570_Buf+02H
+01E9 F582              MOV     DPL,A
+01EB E4                CLR     A
+01EC 3400        R     ADDC    A,#HIGH Si570_Buf+02H
+01EE F583              MOV     DPH,A
+01F0 E0                MOVX    A,@DPTR
+01F1 FE                MOV     R6,A
+01F2 7400        R     MOV     A,#LOW Si570_Factory
+01F4 2F                ADD     A,R7
+01F5 F582              MOV     DPL,A
+01F7 E4                CLR     A
+01F8 3400        R     ADDC    A,#HIGH Si570_Factory
+01FA F583              MOV     DPH,A
+01FC EE                MOV     A,R6
+01FD F0                MOVX    @DPTR,A
+01FE 900000      R     MOV     DPTR,#i
+0201 E0                MOVX    A,@DPTR
+0202 04                INC     A
+0203 F0                MOVX    @DPTR,A
+0204 80D6              SJMP    ?C0019
+0206         ?C0020:
+                                           ; SOURCE LINE # 92
+0206 E4                CLR     A
+0207 900000      R     MOV     DPTR,#Si570_OLD
+020A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 93
+020B FF                MOV     R7,A
+                                           ; SOURCE LINE # 94
+020C         ?C0012:
+020C 22                RET     
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 11  
+
+             ; FUNCTION Si570_Init (END)
+
+             ; FUNCTION FreqFromOLD (BEGIN)
+                                           ; SOURCE LINE # 98
+                                           ; SOURCE LINE # 104
+0000 900000      R     MOV     DPTR,#Si570_OLD
+0003 E0                MOVX    A,@DPTR
+0004 FD                MOV     R5,A
+0005 C4                SWAP    A
+0006 13                RRC     A
+0007 5407              ANL     A,#07H
+0009 2404              ADD     A,#04H
+000B 900000      R     MOV     DPTR,#hsdiv
+000E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 105
+000F ED                MOV     A,R5
+0010 541F              ANL     A,#01FH
+0012 FF                MOV     R7,A
+0013 25E0              ADD     A,ACC
+0015 25E0              ADD     A,ACC
+0017 FF                MOV     R7,A
+0018 900000      R     MOV     DPTR,#Si570_OLD+01H
+001B E0                MOVX    A,@DPTR
+001C FE                MOV     R6,A
+001D C4                SWAP    A
+001E 13                RRC     A
+001F 13                RRC     A
+0020 5403              ANL     A,#03H
+0022 4F                ORL     A,R7
+0023 04                INC     A
+0024 900000      R     MOV     DPTR,#n1
+0027 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 106
+0028 EE                MOV     A,R6
+0029 543F              ANL     A,#03FH
+002B C4                SWAP    A
+002C F8                MOV     R0,A
+002D 540F              ANL     A,#0FH
+002F C8                XCH     A,R0
+0030 68                XRL     A,R0
+0031 FF                MOV     R7,A
+0032 E4                CLR     A
+0033 C4                SWAP    A
+0034 54F0              ANL     A,#0F0H
+0036 48                ORL     A,R0
+0037 FE                MOV     R6,A
+0038 900000      R     MOV     DPTR,#Si570_OLD+02H
+003B E0                MOVX    A,@DPTR
+003C FD                MOV     R5,A
+003D C4                SWAP    A
+003E 540F              ANL     A,#0FH
+0040 FD                MOV     R5,A
+0041 EE                MOV     A,R6
+0042 EF                MOV     A,R7
+0043 4D                ORL     A,R5
+0044 FF                MOV     R7,A
+0045 900000      R     MOV     DPTR,#rfreqint
+0048 EE                MOV     A,R6
+0049 F0                MOVX    @DPTR,A
+004A A3                INC     DPTR
+004B EF                MOV     A,R7
+004C F0                MOVX    @DPTR,A
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 12  
+
+                                           ; SOURCE LINE # 107
+004D 900000      R     MOV     DPTR,#Si570_OLD+02H
+0050 120000      E     LCALL   ?C?LLDXDATA
+0053 EF                MOV     A,R7
+0054 EE                MOV     A,R6
+0055 ED                MOV     A,R5
+0056 EC                MOV     A,R4
+0057 540F              ANL     A,#0FH
+0059 FC                MOV     R4,A
+;---- Variable 'rfreqfrac' assigned to Register 'R4/R5/R6/R7' ----
+                                           ; SOURCE LINE # 108
+005A E4                CLR     A
+005B 120000      E     LCALL   ?C?FCASTL
+005E E4                CLR     A
+005F FB                MOV     R3,A
+0060 FA                MOV     R2,A
+0061 7980              MOV     R1,#080H
+0063 784D              MOV     R0,#04DH
+0065 120000      E     LCALL   ?C?FPDIV
+0068 C004              PUSH    AR4
+006A C005              PUSH    AR5
+006C C006              PUSH    AR6
+006E C007              PUSH    AR7
+0070 900000      R     MOV     DPTR,#rfreqint
+0073 E0                MOVX    A,@DPTR
+0074 FC                MOV     R4,A
+0075 A3                INC     DPTR
+0076 E0                MOVX    A,@DPTR
+0077 FD                MOV     R5,A
+0078 E4                CLR     A
+0079 120000      E     LCALL   ?C?FCASTI
+007C D003              POP     AR3
+007E D002              POP     AR2
+0080 D001              POP     AR1
+0082 D000              POP     AR0
+0084 120000      E     LCALL   ?C?FPADD
+0087 900000      R     MOV     DPTR,#rfreq
+008A 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 110
+008D E4                CLR     A
+008E 900000      R     MOV     DPTR,#Si570_OLD
+0091 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 112
+0092 900000      R     MOV     DPTR,#n1
+0095 E0                MOVX    A,@DPTR
+0096 FC                MOV     R4,A
+0097 E4                CLR     A
+0098 120000      E     LCALL   ?C?FCASTC
+009B C004              PUSH    AR4
+009D C005              PUSH    AR5
+009F C006              PUSH    AR6
+00A1 C007              PUSH    AR7
+00A3 900000      R     MOV     DPTR,#hsdiv
+00A6 E0                MOVX    A,@DPTR
+00A7 FC                MOV     R4,A
+00A8 E4                CLR     A
+00A9 120000      E     LCALL   ?C?FCASTC
+00AC D003              POP     AR3
+00AE D002              POP     AR2
+00B0 D001              POP     AR1
+00B2 D000              POP     AR0
+00B4 120000      E     LCALL   ?C?FPMUL
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 13  
+
+00B7 C004              PUSH    AR4
+00B9 C005              PUSH    AR5
+00BB C006              PUSH    AR6
+00BD C007              PUSH    AR7
+00BF 7FEC              MOV     R7,#0ECH
+00C1 7E91              MOV     R6,#091H
+00C3 7DE4              MOV     R5,#0E4H
+00C5 7C42              MOV     R4,#042H
+00C7 900000      R     MOV     DPTR,#rfreq
+00CA 120000      E     LCALL   ?C?LLDXDATA0
+00CD 120000      E     LCALL   ?C?FPMUL
+00D0 D003              POP     AR3
+00D2 D002              POP     AR2
+00D4 D001              POP     AR1
+00D6 D000              POP     AR0
+00D8 120000      E     LCALL   ?C?FPDIV
+00DB E4                CLR     A
+00DC FB                MOV     R3,A
+00DD FA                MOV     R2,A
+00DE F9                MOV     R1,A
+00DF 784A              MOV     R0,#04AH
+00E1 120000      E     LCALL   ?C?FPMUL
+00E4 120000      E     LCALL   ?C?CASTF
+00E7 120000      E     LCALL   _?swap32
+                                           ; SOURCE LINE # 113
+00EA         ?C0022:
+00EA 22                RET     
+             ; FUNCTION FreqFromOLD (END)
+
+             ; FUNCTION Si570_Fake_Reset (BEGIN)
+                                           ; SOURCE LINE # 117
+                                           ; SOURCE LINE # 119
+;---- Variable 'i' assigned to Register 'R7' ----
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0023:
+0002 EF                MOV     A,R7
+0003 C3                CLR     C
+0004 9406              SUBB    A,#06H
+0006 501B              JNC     ?C0026
+0008 7400        R     MOV     A,#LOW Si570_Factory
+000A 2F                ADD     A,R7
+000B F582              MOV     DPL,A
+000D E4                CLR     A
+000E 3400        R     ADDC    A,#HIGH Si570_Factory
+0010 F583              MOV     DPH,A
+0012 E0                MOVX    A,@DPTR
+0013 FE                MOV     R6,A
+0014 7400        R     MOV     A,#LOW Si570_Buf+02H
+0016 2F                ADD     A,R7
+0017 F582              MOV     DPL,A
+0019 E4                CLR     A
+001A 3400        R     ADDC    A,#HIGH Si570_Buf+02H
+001C F583              MOV     DPH,A
+001E EE                MOV     A,R6
+001F F0                MOVX    @DPTR,A
+0020 0F                INC     R7
+0021 80DF              SJMP    ?C0023
+                                           ; SOURCE LINE # 120
+0023         ?C0026:
+0023 22                RET     
+             ; FUNCTION Si570_Fake_Reset (END)
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 14  
+
+
+             ; FUNCTION Si570_Main (BEGIN)
+                                           ; SOURCE LINE # 122
+                                           ; SOURCE LINE # 131
+0000 900000      R     MOV     DPTR,#state
+0003 E0                MOVX    A,@DPTR
+0004 120000      E     LCALL   ?C?CCASE
+0007 0000        R     DW      ?C0028
+0009 00                DB      00H
+000A 0000        R     DW      ?C0034
+000C 01                DB      01H
+000D 0000        R     DW      ?C0051
+000F 08                DB      08H
+0010 0000        R     DW      ?C0051
+0012 0A                DB      0AH
+0013 0000        R     DW      ?C0037
+0015 0C                DB      0CH
+0016 0000        R     DW      ?C0045
+0018 0D                DB      0DH
+0019 0000        R     DW      ?C0038
+001B 0E                DB      0EH
+001C 0000        R     DW      ?C0045
+001E 0F                DB      0FH
+001F 0000        R     DW      ?C0040
+0021 10                DB      010H
+0022 0000        R     DW      ?C0045
+0024 11                DB      011H
+0025 0000        R     DW      ?C0049
+0027 12                DB      012H
+0028 0000              DW      00H
+002A 0000        R     DW      ?C0052
+                                           ; SOURCE LINE # 132
+002C         ?C0028:
+                                           ; SOURCE LINE # 133
+002C 900000      R     MOV     DPTR,#Si570_OLD
+002F E0                MOVX    A,@DPTR
+0030 6009              JZ      ?C0029
+0032 120000      R     LCALL   FreqFromOLD
+0035 900000      R     MOV     DPTR,#Si570_LO
+0038 120000      E     LCALL   ?C?LSTXDATA
+003B         ?C0029:
+                                           ; SOURCE LINE # 134
+003B 900000      R     MOV     DPTR,#Si570_Xtal
+003E 120000      E     LCALL   ?C?LLDXDATA
+0041 900000      R     MOV     DPTR,#Current_Si570_Xtal
+0044 120000      E     LCALL   ?C?LLDXDATA0
+0047 C3                CLR     C
+0048 120000      E     LCALL   ?C?ULCMP
+004B 7015              JNZ     ?C0031
+004D 900000      R     MOV     DPTR,#Si570_LO
+0050 120000      E     LCALL   ?C?LLDXDATA
+0053 900000      R     MOV     DPTR,#Current_LO
+0056 120000      E     LCALL   ?C?LLDXDATA0
+0059 C3                CLR     C
+005A 120000      E     LCALL   ?C?ULCMP
+005D 7003              JNZ     $ + 5H
+005F 020000      R     LJMP    ?C0056
+0062         ?C0031:
+                                           ; SOURCE LINE # 135
+0062 120000      E     LCALL   CyEnterCriticalSection
+0065 900000      R     MOV     DPTR,#i
+0068 EF                MOV     A,R7
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 15  
+
+0069 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 136
+006A 900000      R     MOV     DPTR,#Si570_LO
+006D 120000      E     LCALL   ?C?LLDXDATA
+0070 900000      R     MOV     DPTR,#Current_LO
+0073 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 137
+0076 900000      R     MOV     DPTR,#Si570_Xtal
+0079 120000      E     LCALL   ?C?LLDXDATA
+007C 900000      R     MOV     DPTR,#Current_Si570_Xtal
+007F 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 138
+0082 900000      R     MOV     DPTR,#i
+0085 E0                MOVX    A,@DPTR
+0086 FF                MOV     R7,A
+0087 120000      E     LCALL   _CyExitCriticalSection
+                                           ; SOURCE LINE # 139
+008A 900000      R     MOV     DPTR,#Current_LO
+008D 120000      E     LCALL   ?C?LLDXDATA
+0090 120000      E     LCALL   _?swap32
+0093 E4                CLR     A
+0094 120000      E     LCALL   ?C?FCASTL
+0097 E4                CLR     A
+0098 FB                MOV     R3,A
+0099 FA                MOV     R2,A
+009A F9                MOV     R1,A
+009B 784A              MOV     R0,#04AH
+009D 120000      E     LCALL   ?C?FPDIV
+00A0 900000      R     MOV     DPTR,#fout
+00A3 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 140
+00A6 E4                CLR     A
+00A7 FF                MOV     R7,A
+00A8 FE                MOV     R6,A
+00A9 7D80              MOV     R5,#080H
+00AB 7C40              MOV     R4,#040H
+00AD 900000      R     MOV     DPTR,#fout
+00B0 120000      E     LCALL   ?C?LLDXDATA0
+00B3 120000      E     LCALL   ?C?FPCMP3
+00B6 500D              JNC     ?C0032
+00B8 E4                CLR     A
+00B9 FF                MOV     R7,A
+00BA FE                MOV     R6,A
+00BB 7D80              MOV     R5,#080H
+00BD 7C40              MOV     R4,#040H
+00BF 900000      R     MOV     DPTR,#fout
+00C2 120000      E     LCALL   ?C?LSTXDATA
+00C5         ?C0032:
+                                           ; SOURCE LINE # 141
+00C5 E4                CLR     A
+00C6 FF                MOV     R7,A
+00C7 FE                MOV     R6,A
+00C8 7D20              MOV     R5,#020H
+00CA 7C43              MOV     R4,#043H
+00CC 900000      R     MOV     DPTR,#fout
+00CF 120000      E     LCALL   ?C?LLDXDATA0
+00D2 120000      E     LCALL   ?C?FPCMP3
+00D5 600F              JZ      ?C0033
+00D7 400D              JC      ?C0033
+00D9 E4                CLR     A
+00DA FF                MOV     R7,A
+00DB FE                MOV     R6,A
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 16  
+
+00DC 7D20              MOV     R5,#020H
+00DE 7C43              MOV     R4,#043H
+00E0 900000      R     MOV     DPTR,#fout
+00E3 120000      E     LCALL   ?C?LSTXDATA
+00E6         ?C0033:
+                                           ; SOURCE LINE # 142
+00E6 900000      R     MOV     DPTR,#state
+00E9 7401              MOV     A,#01H
+00EB F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 143
+                                           ; SOURCE LINE # 144
+00EC 22                RET     
+                                           ; SOURCE LINE # 145
+00ED         ?C0034:
+                                           ; SOURCE LINE # 146
+00ED 7F00              MOV     R7,#00H
+00EF 7EC0              MOV     R6,#0C0H
+00F1 7D5A              MOV     R5,#05AH
+00F3 7C45              MOV     R4,#045H
+00F5 900000      R     MOV     DPTR,#dco
+00F8 120000      E     LCALL   ?C?LLDXDATA0
+00FB 120000      E     LCALL   ?C?FPMUL
+00FE 7B00              MOV     R3,#00H
+0100 7A24              MOV     R2,#024H
+0102 7974              MOV     R1,#074H
+0104 7849              MOV     R0,#049H
+0106 120000      E     LCALL   ?C?FPDIV
+0109 900000      R     MOV     DPTR,#smooth_limit
+010C 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 147
+010F 900000      R     MOV     DPTR,#hsdiv
+0112 E0                MOVX    A,@DPTR
+0113 FC                MOV     R4,A
+0114 E4                CLR     A
+0115 120000      E     LCALL   ?C?FCASTC
+0118 900000      R     MOV     DPTR,#fout
+011B 120000      E     LCALL   ?C?LLDXDATA0
+011E 120000      E     LCALL   ?C?FPMUL
+0121 C004              PUSH    AR4
+0123 C005              PUSH    AR5
+0125 C006              PUSH    AR6
+0127 C007              PUSH    AR7
+0129 900000      R     MOV     DPTR,#n1
+012C E0                MOVX    A,@DPTR
+012D FC                MOV     R4,A
+012E E4                CLR     A
+012F 120000      E     LCALL   ?C?FCASTC
+0132 D003              POP     AR3
+0134 D002              POP     AR2
+0136 D001              POP     AR1
+0138 D000              POP     AR0
+013A 120000      E     LCALL   ?C?FPMUL
+013D 900000      R     MOV     DPTR,#testdco
+0140 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 148
+0143 900000      R     MOV     DPTR,#dco
+0146 120000      E     LCALL   ?C?LLDXDATA0
+0149 900000      R     MOV     DPTR,#testdco
+014C 120000      E     LCALL   ?C?LLDXDATA
+014F 120000      E     LCALL   ?C?FPSUB
+0152 120000      E     LCALL   _fabs
+0155 900000      R     MOV     DPTR,#smooth_diff
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 17  
+
+0158 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 149
+015B 7F00              MOV     R7,#00H
+015D 7E90              MOV     R6,#090H
+015F 7D97              MOV     R5,#097H
+0161 7C45              MOV     R4,#045H
+0163 900000      R     MOV     DPTR,#testdco
+0166 120000      E     LCALL   ?C?LLDXDATA0
+0169 120000      E     LCALL   ?C?FPCMP3
+016C 603F              JZ      ?C0035
+016E 403D              JC      ?C0035
+0170 7F00              MOV     R7,#00H
+0172 7E30              MOV     R6,#030H
+0174 7DB1              MOV     R5,#0B1H
+0176 7C45              MOV     R4,#045H
+0178 900000      R     MOV     DPTR,#testdco
+017B 120000      E     LCALL   ?C?LLDXDATA0
+017E 120000      E     LCALL   ?C?FPCMP3
+0181 502A              JNC     ?C0035
+0183 900000      R     MOV     DPTR,#smooth_limit
+0186 120000      E     LCALL   ?C?LLDXDATA
+0189 900000      R     MOV     DPTR,#smooth_diff
+018C 120000      E     LCALL   ?C?LLDXDATA0
+018F 120000      E     LCALL   ?C?FPCMP3
+0192 5019              JNC     ?C0035
+                                           ; SOURCE LINE # 150
+0194 900000      R     MOV     DPTR,#smooth
+0197 7401              MOV     A,#01H
+0199 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 151
+019A 900000      R     MOV     DPTR,#testdco
+019D 120000      E     LCALL   ?C?LLDXDATA
+01A0 900000      R     MOV     DPTR,#dco
+01A3 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 152
+01A6 900000      R     MOV     DPTR,#state
+01A9 740C              MOV     A,#0CH
+01AB F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 153
+01AC 22                RET     
+01AD         ?C0035:
+                                           ; SOURCE LINE # 154
+01AD E4                CLR     A
+01AE 900000      R     MOV     DPTR,#smooth
+01B1 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 155
+01B2 FF                MOV     R7,A
+01B3 7E30              MOV     R6,#030H
+01B5 7DB1              MOV     R5,#0B1H
+01B7 7C45              MOV     R4,#045H
+01B9 900000      R     MOV     DPTR,#dco
+01BC 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 156
+01BF 900000      R     MOV     DPTR,#state
+01C2 7404              MOV     A,#04H
+01C4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 157
+                                           ; SOURCE LINE # 158
+01C5 22                RET     
+                                           ; SOURCE LINE # 159
+01C6         ?C0037:
+                                           ; SOURCE LINE # 161
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 18  
+
+01C6 900000      R     MOV     DPTR,#Si570_Buf
+01C9 7487              MOV     A,#087H
+01CB F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 162
+01CC A3                INC     DPTR
+01CD 7420              MOV     A,#020H
+01CF F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 163
+01D0 7B01              MOV     R3,#01H
+01D2 7A00        R     MOV     R2,#HIGH Si570_Buf
+01D4 7900        R     MOV     R1,#LOW Si570_Buf
+01D6 900000      E     MOV     DPTR,#?_I2C_MasterWriteBuf?BYTE+04H
+01D9 7402              MOV     A,#02H
+01DB F0                MOVX    @DPTR,A
+01DC E4                CLR     A
+01DD A3                INC     DPTR
+01DE F0                MOVX    @DPTR,A
+01DF 7F55              MOV     R7,#055H
+01E1 120000      E     LCALL   _I2C_MasterWriteBuf
+                                           ; SOURCE LINE # 164
+01E4 900000      R     MOV     DPTR,#state
+01E7 E0                MOVX    A,@DPTR
+01E8 04                INC     A
+01E9 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 165
+01EA 22                RET     
+                                           ; SOURCE LINE # 166
+01EB         ?C0038:
+                                           ; SOURCE LINE # 167
+01EB 900000      R     MOV     DPTR,#Current_Si570_Xtal
+01EE 120000      E     LCALL   ?C?LLDXDATA
+01F1 120000      E     LCALL   _?swap32
+01F4 E4                CLR     A
+01F5 120000      E     LCALL   ?C?FCASTL
+01F8 E4                CLR     A
+01F9 FB                MOV     R3,A
+01FA FA                MOV     R2,A
+01FB 7980              MOV     R1,#080H
+01FD 784B              MOV     R0,#04BH
+01FF 120000      E     LCALL   ?C?FPDIV
+0202 A804              MOV     R0,AR4
+0204 A905              MOV     R1,AR5
+0206 AA06              MOV     R2,AR6
+0208 AB07              MOV     R3,AR7
+020A 900000      R     MOV     DPTR,#dco
+020D 120000      E     LCALL   ?C?LLDXDATA
+0210 120000      E     LCALL   ?C?FPDIV
+0213 900000      R     MOV     DPTR,#rfreq
+0216 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 168
+0219 900000      R     MOV     DPTR,#rfreq
+021C 120000      E     LCALL   ?C?LLDXDATA
+021F 120000      E     LCALL   ?C?CASTF
+0222 900000      R     MOV     DPTR,#rfreqint
+0225 EE                MOV     A,R6
+0226 F0                MOVX    @DPTR,A
+0227 A3                INC     DPTR
+0228 EF                MOV     A,R7
+0229 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 169
+022A FD                MOV     R5,A
+022B AC06              MOV     R4,AR6
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 19  
+
+022D E4                CLR     A
+022E 120000      E     LCALL   ?C?FCASTI
+0231 A804              MOV     R0,AR4
+0233 A905              MOV     R1,AR5
+0235 AA06              MOV     R2,AR6
+0237 AB07              MOV     R3,AR7
+0239 900000      R     MOV     DPTR,#rfreq
+023C 120000      E     LCALL   ?C?LLDXDATA
+023F 120000      E     LCALL   ?C?FPSUB
+0242 E4                CLR     A
+0243 FB                MOV     R3,A
+0244 FA                MOV     R2,A
+0245 7980              MOV     R1,#080H
+0247 784D              MOV     R0,#04DH
+0249 120000      E     LCALL   ?C?FPMUL
+024C 120000      E     LCALL   ?C?CASTF
+024F 900000      R     MOV     DPTR,#rfreqfrac
+0252 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 171
+0255 74FF              MOV     A,#0FFH
+0257 FF                MOV     R7,A
+0258 FE                MOV     R6,A
+0259 FD                MOV     R5,A
+025A 7C0F              MOV     R4,#0FH
+025C 900000      R     MOV     DPTR,#rfreqfrac
+025F 120000      E     LCALL   ?C?LLDXDATA0
+0262 D3                SETB    C
+0263 120000      E     LCALL   ?C?ULCMP
+0266 400D              JC      ?C0039
+0268 74FF              MOV     A,#0FFH
+026A FF                MOV     R7,A
+026B FE                MOV     R6,A
+026C FD                MOV     R5,A
+026D 7C0F              MOV     R4,#0FH
+026F 900000      R     MOV     DPTR,#rfreqfrac
+0272 120000      E     LCALL   ?C?LSTXDATA
+0275         ?C0039:
+                                           ; SOURCE LINE # 172
+0275 900000      R     MOV     DPTR,#Si570_Buf+01H
+0278 7407              MOV     A,#07H
+027A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 173
+027B 900000      R     MOV     DPTR,#hsdiv
+027E E0                MOVX    A,@DPTR
+027F 24FC              ADD     A,#0FCH
+0281 900000      R     MOV     DPTR,#i
+0284 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 174
+0285 E0                MOVX    A,@DPTR
+0286 FF                MOV     R7,A
+0287 C4                SWAP    A
+0288 33                RLC     A
+0289 54E0              ANL     A,#0E0H
+028B F9                MOV     R1,A
+028C 900000      R     MOV     DPTR,#Si570_Buf+02H
+028F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 175
+0290 900000      R     MOV     DPTR,#n1
+0293 E0                MOVX    A,@DPTR
+0294 14                DEC     A
+0295 900000      R     MOV     DPTR,#i
+0298 F0                MOVX    @DPTR,A
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 20  
+
+                                           ; SOURCE LINE # 176
+0299 E0                MOVX    A,@DPTR
+029A FD                MOV     R5,A
+029B 13                RRC     A
+029C 13                RRC     A
+029D 543F              ANL     A,#03FH
+029F 49                ORL     A,R1
+02A0 900000      R     MOV     DPTR,#Si570_Buf+02H
+02A3 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 177
+02A4 ED                MOV     A,R5
+02A5 C4                SWAP    A
+02A6 33                RLC     A
+02A7 33                RLC     A
+02A8 54C0              ANL     A,#0C0H
+02AA F9                MOV     R1,A
+02AB A3                INC     DPTR
+02AC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 178
+02AD 900000      R     MOV     DPTR,#rfreqint
+02B0 E0                MOVX    A,@DPTR
+02B1 FA                MOV     R2,A
+02B2 A3                INC     DPTR
+02B3 E0                MOVX    A,@DPTR
+02B4 FB                MOV     R3,A
+02B5 EA                MOV     A,R2
+02B6 C4                SWAP    A
+02B7 F8                MOV     R0,A
+02B8 54F0              ANL     A,#0F0H
+02BA C8                XCH     A,R0
+02BB 68                XRL     A,R0
+02BC EB                MOV     A,R3
+02BD C4                SWAP    A
+02BE 540F              ANL     A,#0FH
+02C0 48                ORL     A,R0
+02C1 49                ORL     A,R1
+02C2 900000      R     MOV     DPTR,#Si570_Buf+03H
+02C5 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 179
+02C6 900000      R     MOV     DPTR,#rfreqfrac
+02C9 120000      E     LCALL   ?C?LLDXDATA
+02CC 900000      R     MOV     DPTR,#Si570_Buf+04H
+02CF 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 180
+02D2 900000      R     MOV     DPTR,#Si570_Buf+04H
+02D5 E0                MOVX    A,@DPTR
+02D6 FD                MOV     R5,A
+02D7 EB                MOV     A,R3
+02D8 C4                SWAP    A
+02D9 F8                MOV     R0,A
+02DA 540F              ANL     A,#0FH
+02DC C8                XCH     A,R0
+02DD 68                XRL     A,R0
+02DE FF                MOV     R7,A
+02DF EA                MOV     A,R2
+02E0 C4                SWAP    A
+02E1 54F0              ANL     A,#0F0H
+02E3 48                ORL     A,R0
+02E4 ED                MOV     A,R5
+02E5 4F                ORL     A,R7
+02E6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 181
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 21  
+
+02E7 7B01              MOV     R3,#01H
+02E9 7A00        R     MOV     R2,#HIGH Si570_Buf+01H
+02EB 7900        R     MOV     R1,#LOW Si570_Buf+01H
+02ED 900000      E     MOV     DPTR,#?_I2C_MasterWriteBuf?BYTE+04H
+02F0 7407              MOV     A,#07H
+02F2 F0                MOVX    @DPTR,A
+02F3 E4                CLR     A
+02F4 A3                INC     DPTR
+02F5 F0                MOVX    @DPTR,A
+02F6 7F55              MOV     R7,#055H
+02F8 120000      E     LCALL   _I2C_MasterWriteBuf
+                                           ; SOURCE LINE # 182
+02FB 900000      R     MOV     DPTR,#state
+02FE E0                MOVX    A,@DPTR
+02FF 04                INC     A
+0300 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 183
+0301 22                RET     
+                                           ; SOURCE LINE # 184
+0302         ?C0040:
+                                           ; SOURCE LINE # 185
+0302 900000      R     MOV     DPTR,#Si570_Buf
+0305 7487              MOV     A,#087H
+0307 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 186
+0308 900000      R     MOV     DPTR,#smooth
+030B E0                MOVX    A,@DPTR
+030C 6007              JZ      ?C0041
+030E E4                CLR     A
+030F 900000      R     MOV     DPTR,#Si570_Buf+01H
+0312 F0                MOVX    @DPTR,A
+0313 8006              SJMP    ?C0042
+0315         ?C0041:
+                                           ; SOURCE LINE # 187
+0315 900000      R     MOV     DPTR,#Si570_Buf+01H
+0318 7440              MOV     A,#040H
+031A F0                MOVX    @DPTR,A
+031B         ?C0042:
+                                           ; SOURCE LINE # 188
+031B 7B01              MOV     R3,#01H
+031D 7A00        R     MOV     R2,#HIGH Si570_Buf
+031F 7900        R     MOV     R1,#LOW Si570_Buf
+0321 900000      E     MOV     DPTR,#?_I2C_MasterWriteBuf?BYTE+04H
+0324 7402              MOV     A,#02H
+0326 F0                MOVX    @DPTR,A
+0327 E4                CLR     A
+0328 A3                INC     DPTR
+0329 F0                MOVX    @DPTR,A
+032A 7F55              MOV     R7,#055H
+032C 120000      E     LCALL   _I2C_MasterWriteBuf
+                                           ; SOURCE LINE # 189
+032F 900000      R     MOV     DPTR,#state
+0332 E0                MOVX    A,@DPTR
+0333 04                INC     A
+0334 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 190
+0335 22                RET     
+                                           ; SOURCE LINE # 191
+                                           ; SOURCE LINE # 192
+                                           ; SOURCE LINE # 193
+0336         ?C0045:
+                                           ; SOURCE LINE # 194
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 22  
+
+0336 120000      E     LCALL   I2C_MasterStatus
+0339 900000      R     MOV     DPTR,#i
+033C EF                MOV     A,R7
+033D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 195
+033E 30E707            JNB     ACC.7,?C0046
+                                           ; SOURCE LINE # 196
+0341 900000      R     MOV     DPTR,#state
+0344 E0                MOVX    A,@DPTR
+0345 14                DEC     A
+0346 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 197
+0347 22                RET     
+0348         ?C0046:
+0348 900000      R     MOV     DPTR,#i
+034B E0                MOVX    A,@DPTR
+034C 20E103            JB      ACC.1,$ + 6H
+034F 020000      R     LJMP    ?C0056
+                                           ; SOURCE LINE # 198
+0352 900000      R     MOV     DPTR,#state
+0355 E0                MOVX    A,@DPTR
+0356 04                INC     A
+0357 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 199
+                                           ; SOURCE LINE # 200
+0358 22                RET     
+                                           ; SOURCE LINE # 201
+0359         ?C0049:
+                                           ; SOURCE LINE # 202
+0359 E4                CLR     A
+035A 900000      R     MOV     DPTR,#state
+035D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 203
+035E 22                RET     
+                                           ; SOURCE LINE # 204
+                                           ; SOURCE LINE # 205
+035F         ?C0051:
+                                           ; SOURCE LINE # 206
+035F 900000      R     MOV     DPTR,#state
+0362 E0                MOVX    A,@DPTR
+0363 04                INC     A
+0364 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 208
+0365         ?C0052:
+                                           ; SOURCE LINE # 209
+0365 900000      R     MOV     DPTR,#state
+0368 E0                MOVX    A,@DPTR
+0369 FC                MOV     R4,A
+036A E4                CLR     A
+036B 120000      E     LCALL   ?C?FCASTC
+036E 900000      R     MOV     DPTR,#fout
+0371 120000      E     LCALL   ?C?LLDXDATA0
+0374 120000      E     LCALL   ?C?FPMUL
+0377 A804              MOV     R0,AR4
+0379 A905              MOV     R1,AR5
+037B AA06              MOV     R2,AR6
+037D AB07              MOV     R3,AR7
+037F 7F00              MOV     R7,#00H
+0381 7E60              MOV     R6,#060H
+0383 7DA4              MOV     R5,#0A4H
+0385 7C45              MOV     R4,#045H
+0387 120000      E     LCALL   ?C?FPDIV
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 23  
+
+038A 120000      E     LCALL   ?C?CASTF
+038D 900000      R     MOV     DPTR,#i
+0390 EF                MOV     A,R7
+0391 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 210
+0392 D3                SETB    C
+0393 9401              SUBB    A,#01H
+0395 4006              JC      ?C0053
+0397 E0                MOVX    A,@DPTR
+0398 30E002            JNB     ACC.0,?C0053
+039B 04                INC     A
+039C F0                MOVX    @DPTR,A
+039D         ?C0053:
+                                           ; SOURCE LINE # 211
+039D 900000      R     MOV     DPTR,#state
+03A0 E0                MOVX    A,@DPTR
+03A1 FC                MOV     R4,A
+03A2 E4                CLR     A
+03A3 120000      E     LCALL   ?C?FCASTC
+03A6 900000      R     MOV     DPTR,#fout
+03A9 120000      E     LCALL   ?C?LLDXDATA0
+03AC 120000      E     LCALL   ?C?FPMUL
+03AF C004              PUSH    AR4
+03B1 C005              PUSH    AR5
+03B3 C006              PUSH    AR6
+03B5 C007              PUSH    AR7
+03B7 900000      R     MOV     DPTR,#i
+03BA E0                MOVX    A,@DPTR
+03BB FC                MOV     R4,A
+03BC E4                CLR     A
+03BD 120000      E     LCALL   ?C?FCASTC
+03C0 D003              POP     AR3
+03C2 D002              POP     AR2
+03C4 D001              POP     AR1
+03C6 D000              POP     AR0
+03C8 120000      E     LCALL   ?C?FPMUL
+03CB 900000      R     MOV     DPTR,#testdco
+03CE 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 212
+03D1 900000      R     MOV     DPTR,#state
+03D4 E0                MOVX    A,@DPTR
+03D5 04                INC     A
+03D6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 213
+03D7 900000      R     MOV     DPTR,#i
+03DA E0                MOVX    A,@DPTR
+03DB D3                SETB    C
+03DC 9480              SUBB    A,#080H
+03DE 5043              JNC     ?C0056
+03E0         ?C0054:
+                                           ; SOURCE LINE # 214
+03E0 7F00              MOV     R7,#00H
+03E2 7E90              MOV     R6,#090H
+03E4 7D97              MOV     R5,#097H
+03E6 7C45              MOV     R4,#045H
+03E8 900000      R     MOV     DPTR,#testdco
+03EB 120000      E     LCALL   ?C?LLDXDATA0
+03EE 120000      E     LCALL   ?C?FPCMP3
+03F1 6030              JZ      ?C0056
+03F3 402E              JC      ?C0056
+03F5 900000      R     MOV     DPTR,#dco
+03F8 120000      E     LCALL   ?C?LLDXDATA
+C51 COMPILER V9.51   SI570                                                                 10/24/2015 08:30:43 PAGE 24  
+
+03FB 900000      R     MOV     DPTR,#testdco
+03FE 120000      E     LCALL   ?C?LLDXDATA0
+0401 120000      E     LCALL   ?C?FPCMP3
+0404 501D              JNC     ?C0056
+                                           ; SOURCE LINE # 215
+0406 900000      R     MOV     DPTR,#testdco
+0409 120000      E     LCALL   ?C?LLDXDATA
+040C 900000      R     MOV     DPTR,#dco
+040F 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 216
+0412 900000      R     MOV     DPTR,#i
+0415 E0                MOVX    A,@DPTR
+0416 900000      R     MOV     DPTR,#n1
+0419 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 217
+041A 900000      R     MOV     DPTR,#state
+041D E0                MOVX    A,@DPTR
+041E 14                DEC     A
+041F 900000      R     MOV     DPTR,#hsdiv
+0422 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 218
+                                           ; SOURCE LINE # 219
+                                           ; SOURCE LINE # 220
+                                           ; SOURCE LINE # 222
+0423         ?C0056:
+0423 22                RET     
+             ; FUNCTION Si570_Main (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1856    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     48      43
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

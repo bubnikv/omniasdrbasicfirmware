@@ -1,0 +1,207 @@
+dont_use_io iocell 1 0
+dont_use_io iocell 1 1
+dont_use_io iocell 1 2
+dont_use_io iocell 1 3
+dont_use_io iocell 15 0
+dont_use_io iocell 15 1
+dont_use_location comparatorcell -1 -1 2
+dont_use_location comparatorcell -1 -1 3
+dont_use_location sccell -1 -1 0
+dont_use_location sccell -1 -1 1
+dont_use_location sccell -1 -1 2
+dont_use_location sccell -1 -1 3
+dont_use_location vidaccell -1 -1 1
+dont_use_location vidaccell -1 -1 2
+dont_use_location vidaccell -1 -1 3
+dont_use_location abufcell -1 -1 0
+dont_use_location abufcell -1 -1 2
+dont_use_location abufcell -1 -1 1
+dont_use_location abufcell -1 -1 3
+set_location "\SyncSOF:frame_pos_hi_1\" macrocell 3 1 1 1
+set_location "\SyncSOF:frame_pos_lo_2\" macrocell 3 5 1 2
+set_location "\I2S:bI2S:rx_overflow_0\" macrocell 2 5 1 2
+set_location "\SyncSOF:frame_pos_ready\" macrocell 3 1 0 3
+set_location "\USBFS:EP17_DMA_Done_SR:sts_intr:sts_reg\" statusicell 1 4 4 
+set_location "\I2S:bI2S:rx_overflow_sticky\" macrocell 2 5 0 3
+set_location "\SyncSOF:sof_sync\" macrocell 3 4 0 1
+set_location "\I2S:bI2S:BitCounter\" count7cell 2 5 7 
+set_location "\Iambic_Counter:CounterUDB:sSTSReg:stsreg\" statusicell 0 5 4 
+set_location "\SyncSOF:frame_pos_hi_3\" macrocell 3 1 1 2
+set_location "\SyncSOF:frame_pos_lo_0\" macrocell 2 0 0 0
+set_location "\SyncSOF:Counter0\" count7cell 2 1 7 
+set_location "\FracN:MODULE_4:g1:a0:s_6\" macrocell 2 2 1 2
+set_location "\FracN:MODULE_4:g1:a0:s_3\" macrocell 2 2 0 3
+set_location "\FracN:MODULE_4:g1:a0:s_5\" macrocell 2 2 1 1
+set_location "\FracN:MODULE_4:g1:a0:s_4\" macrocell 2 2 1 0
+set_location "\Iambic_Counter:CounterUDB:prevCompare\" macrocell 0 5 0 2
+set_location "\FracN:MODULE_4:g1:a0:s_0\" macrocell 2 2 0 0
+set_location "\FracN:adder1_14\" macrocell 3 3 1 2
+set_location "\SyncSOF:sof_prev\" macrocell 3 5 0 1
+set_location "Net_217" macrocell 2 1 1 0
+set_location "\FracN:MODULE_5:g1:a0:s_4\" macrocell 3 2 1 0
+set_location "\I2S:bI2S:rx_f0_load\" macrocell 2 5 0 0
+set_location "\I2S:bI2S:tx_underflow_sticky\" macrocell 2 4 0 0
+set_location "\SyncSOF:frame_pos_lo_4\" macrocell 2 0 1 2
+set_location "\FracN:MODULE_5:g1:a0:s_0\" macrocell 3 2 0 0
+set_location "\SyncSOF:MODULE_7:g1:a0:xneq\" macrocell 3 4 0 2
+set_location "\I2S:bI2S:rxenable\" macrocell 2 5 1 0
+set_location "\SyncSOF:buffer_1\" macrocell 3 0 1 1
+set_location "\I2S:bI2S:tx_state_2\" macrocell 1 4 1 1
+set_location "\FracN:adder1_0\" macrocell 2 3 0 0
+set_location "\FracN:adder1_4\" macrocell 2 3 1 0
+set_location "\FracN:adder1_12\" macrocell 3 3 1 0
+set_location "\I2S:bI2S:rx_state_1\" macrocell 1 5 0 0
+set_location "\SyncSOF:frame_pos_lo_6\" macrocell 3 1 0 0
+set_location "\FracN:adder1_13\" macrocell 3 3 1 1
+set_location "\FracN:adder1_5\" macrocell 2 3 1 1
+set_location "\SyncSOF:frame_pos_lo_5\" macrocell 3 5 1 3
+set_location "\I2S:bI2S:rx_data_in_0\" macrocell 3 4 1 1
+set_location "\SyncSOF:frame_pos_hi_2\" macrocell 3 1 0 1
+set_location "\FracN:adder1_10\" macrocell 3 3 0 2
+set_location "\FracN:adder1_2\" macrocell 2 3 0 2
+set_location "\FracN:adder2_10\" macrocell 1 3 0 2
+set_location "\FracN:adder2_13\" macrocell 1 3 1 1
+set_location "\FracN:adder2_12\" macrocell 1 3 1 0
+set_location "\FracN:adder2_11\" macrocell 1 3 0 3
+set_location "\FracN:adder2_1\" macrocell 0 3 0 1
+set_location "\FracN:MODULE_4:g1:a0:s_1\" macrocell 2 2 0 1
+set_location "\Iambic_Counter:CounterUDB:status_0\" macrocell 0 5 1 0
+set_location "\USBFS:EP8_DMA_Done_SR:sts_intr:sts_reg\" statusicell 1 3 4 
+set_location "\SyncSOF:frame_pos_lo_3\" macrocell 2 0 1 0
+set_location "\SyncSOF:buffer_0\" macrocell 3 0 1 0
+set_location "Key_wire_0" macrocell 0 4 0 1
+set_location "\FracN:MODULE_5:g1:a0:g0:u0:gof:g_arith(0):ga:tmpadd_7\" macrocell 3 2 1 3
+set_location "\SyncSOF:frame_pos_hi_7\" macrocell 3 0 0 2
+set_location "\FracN:adder1_6\" macrocell 2 3 1 2
+set_location "\SyncSOF:Counter1\" count7cell 3 1 7 
+set_location "\SyncSOF:frame_pos_hi_0\" macrocell 3 1 1 0
+set_location "cy_tff_1" macrocell 0 5 1 1
+set_location "\SyncSOF:frame_pos_lo_1\" macrocell 2 0 0 1
+set_location "\Iambic_Counter:CounterUDB:count_enable\" macrocell 0 5 1 3
+set_location "\I2S:bI2S:txenable\" macrocell 2 4 1 0
+set_location "\I2S:bI2S:tx_state_1\" macrocell 1 4 1 3
+set_location "\Iambic_Counter:CounterUDB:status_2\" macrocell 0 4 1 2
+set_location "\I2S:bI2S:Rx:CH[0]:dpRx:u0\" datapathcell 2 4 2 
+set_location "\FracN:adder2_3\" macrocell 0 3 0 3
+set_location "\FracN:adder2_8\" macrocell 1 3 0 0
+set_location "\FracN:adder2_4\" macrocell 0 3 1 0
+set_location "\FracN:adder2_9\" macrocell 1 3 0 1
+set_location "\FracN:adder2_5\" macrocell 0 3 1 1
+set_location "\FracN:adder2_6\" macrocell 0 3 1 2
+set_location "\FracN:adder2_2\" macrocell 0 3 0 2
+set_location "\I2S:bI2S:rx_state_0\" macrocell 1 5 1 0
+set_location "__ONE__" macrocell 0 2 0 1
+set_location "\FracN:MODULE_5:g1:a0:s_3\" macrocell 3 2 0 3
+set_location "\FracN:MODULE_5:g1:a0:s_6\" macrocell 3 2 1 2
+set_location "\FracN:MODULE_5:g1:a0:s_5\" macrocell 3 2 1 1
+set_location "\FracN:MODULE_5:g1:a0:s_2\" macrocell 3 2 0 2
+set_location "\FracN:MODULE_5:g1:a0:s_1\" macrocell 3 2 0 1
+set_location "\FracN:minus1\" macrocell 2 1 0 2
+set_location "\SyncSOF:frame_pos_hi_5\" macrocell 3 0 0 1
+set_location "\FracN:adder1_3\" macrocell 2 3 0 3
+set_location "\Iambic_Counter:CounterUDB:sC32:counterdp:u2\" datapathcell 0 5 2 
+set_location "\FracN:adder1_11\" macrocell 3 3 0 3
+set_location "\I2S:bI2S:Tx:STS[0]:Sts\" statusicell 2 2 4 
+set_location "\I2S:bI2S:Rx:STS[0]:Sts\" statusicell 3 5 4 
+set_location "\I2S:bI2S:reset\" macrocell 2 4 0 3
+set_location "\Iambic_Counter:CounterUDB:overflow_reg_i\" macrocell 0 4 1 3
+set_location "Net_6748" macrocell 2 4 0 1
+set_location "Net_6655_0" macrocell 3 4 1 3
+set_location "\FracN:adder1_1\" macrocell 2 3 0 1
+set_location "\FracN:adder1_9\" macrocell 3 3 0 1
+set_location "\FracN:MODULE_4:g1:a0:s_7\" macrocell 2 2 1 3
+set_location "\Iambic_Counter:CounterUDB:sC32:counterdp:u0\" datapathcell 1 4 2 
+set_location "\SyncSOF:Counter2\" count7cell 3 0 7 
+set_location "\FracN:adder2_14\" macrocell 1 3 1 2
+set_location "\I2S:bI2S:Tx:CH[0]:dpTx:u0\" datapathcell 2 2 2 
+set_location "\I2S:bI2S:rx_state_2\" macrocell 2 5 0 2
+set_location "\SyncSOF:frame_pos_hi_4\" macrocell 3 0 0 0
+set_location "\FracN:adder2_0\" macrocell 0 3 0 0
+set_location "\I2S:bI2S:tx_state_0\" macrocell 1 4 0 0
+set_location "\Iambic_Counter:CounterUDB:sC32:counterdp:u3\" datapathcell 1 5 2 
+set_location "\FracN:adder1_8\" macrocell 3 3 0 0
+set_location "\FracN:adder1_7\" macrocell 2 3 1 3
+set_location "\Iambic_Counter:CounterUDB:count_stored_i\" macrocell 0 5 0 3
+set_location "\FracN:adder2_7\" macrocell 0 3 1 3
+set_location "\I2S:bI2S:tx_underflow_0\" macrocell 2 1 1 2
+set_location "Key_wire_1" macrocell 0 4 0 0
+set_location "\FracN:MODULE_4:g1:a0:s_2\" macrocell 2 2 0 2
+set_location "\SyncSOF:frame_pos_hi_6\" macrocell 3 0 0 3
+set_location "\Iambic_Counter:CounterUDB:sC32:counterdp:u1\" datapathcell 0 4 2 
+set_io "RX(0)" iocell 1 6
+set_location "\SyncSOF:BUFFER\" statuscell 3 0 3 
+set_io "BCK2(0)" iocell 0 1
+set_location "\CW_Hold_Timer:TimerHW\" timercell -1 -1 0
+# Note: port 12 is the logical name for port 7
+set_io "XK(0)" iocell 12 0
+set_location "\Control:Sync:ctrl_reg\" controlcell 3 2 6 
+set_location "\I2C:I2C_FF\" i2ccell -1 -1 0
+set_location "\I2S:bI2S:CtlReg\" controlcell 3 5 6 
+set_location "ClockBlock" clockblockcell -1 -1 0
+set_io "KEY_1(0)" iocell 2 4
+set_location "\USBFS:ep_0\" interrupt -1 -1 24
+set_location "\USBFS:ep_2\" interrupt -1 -1 1
+set_location "\USBFS:ep_3\" interrupt -1 -1 2
+set_io "LRCK1(0)" iocell 0 4
+set_location "\I2C:I2C_IRQ\" interrupt -1 -1 15
+set_location "\USBFS:dp_int\" interrupt -1 -1 12
+set_location "\USBFS:EP_DMA_Done_isr\" interrupt -1 -1 0
+set_location "\USBFS:Dp\" logicalport -1 -1 8
+set_location "\FracN:FRAC_HI\" controlcell 3 3 6 
+set_io "KEY_0(0)" iocell 2 3
+set_location "TxI2S_Buff" drqcell -1 -1 5
+set_location "RxI2S_Buff" drqcell -1 -1 3
+set_location "TxI2S_Zero" drqcell -1 -1 7
+set_location "\USBFS:bus_reset\" interrupt -1 -1 23
+set_io "LED1(0)" iocell 2 5
+set_io "DOUT(0)" iocell 0 5
+set_location "\CW_Control:Sync:ctrl_reg\" controlcell 1 5 6 
+set_location "\FracN:PLL_P\" statuscell 3 2 3 
+# Note: port 12 is the logical name for port 7
+set_io "BCK1(0)" iocell 12 2
+# Note: port 15 is the logical name for port 8
+set_io "ATU_1(0)" iocell 15 2
+set_location "P_DMA" drqcell -1 -1 0
+set_location "\USBFS:USB\" usbcell -1 -1 0
+set_location "\USBFS:ep3\" drqcell -1 -1 2
+set_location "\SyncSOF:FRAME_POS_HI\" statuscell 3 1 3 
+set_location "\USBFS:arb_int\" interrupt -1 -1 22
+set_location "\USBFS:sof_int\" interrupt -1 -1 21
+set_location "TxI2S_Stage" drqcell -1 -1 6
+set_location "RxI2S_Stage" drqcell -1 -1 4
+# Note: port 15 is the logical name for port 8
+set_io "TX(0)" iocell 15 3
+# Note: port 12 is the logical name for port 7
+set_io "ATU_0(0)" iocell 12 1
+set_io "AMP(0)" iocell 2 7
+set_io "LRCK2(0)" iocell 0 2
+set_location "\SyncSOF:FRAME_POS_LO\" statuscell 2 0 3 
+set_io "SDA(0)" iocell 0 6
+set_location "\USBFS:nrqSync:genblk1[1]:INST\" synccell 0 4 5 0
+set_location "\USBFS:nrqSync:genblk1[2]:INST\" synccell 0 4 5 1
+set_location "\FracN:FRAC_LO\" controlcell 2 3 6 
+set_location "\USBFS:ep2\" drqcell -1 -1 1
+# Note: port 12 is the logical name for port 7
+set_io "SCK1(0)" iocell 12 3
+set_location "\Iambic_Counter:CounterUDB:sCTRLReg:ctrlreg\" controlcell 0 5 6 
+set_io "DIN(0)" iocell 0 3
+set_io "\USBFS:VBUS(0)\" iocell 1 7
+# Note: port 15 is the logical name for port 8
+set_io "\USBFS:Dm(0)\" iocell 15 7
+set_io "BOOT(0)" iocell 1 5
+set_location "ATU_0(0)_SYNC" synccell 3 4 5 0
+set_io "SCK2(0)" iocell 0 0
+set_location "SCL(0)_SYNC" synccell 3 4 5 1
+set_location "SDA(0)_SYNC" synccell 3 4 5 2
+set_location "\USBFS:nrqSync:genblk1[5]:INST\" synccell 2 4 5 0
+set_location "\USBFS:nrqSync:genblk1[4]:INST\" synccell 2 4 5 1
+set_location "\USBFS:nrqSync:genblk1[6]:INST\" synccell 0 4 5 2
+set_location "\USBFS:nrqSync:genblk1[0]:INST\" synccell 2 4 5 2
+set_location "\USBFS:nrqSync:genblk1[3]:INST\" synccell 0 4 5 3
+set_location "\USBFS:nrqSync:genblk1[7]:INST\" synccell 2 4 5 3
+set_location "\Status:sts:sts_reg\" statuscell 0 3 3 
+set_location "\Sync_1:genblk1[0]:INST\" synccell 2 3 5 0
+# Note: port 15 is the logical name for port 8
+set_io "\USBFS:Dp(0)\" iocell 15 6
+set_io "SCL(0)" iocell 0 7
+set_io "LED2(0)" iocell 2 6

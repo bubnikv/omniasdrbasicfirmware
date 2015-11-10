@@ -1,0 +1,636 @@
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_EP_DMA_DONE_ISR
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_EP_DMA_Done_isr.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\Generated_Source\PSoC3\USBFS_EP_DMA_Done_isr.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3
+                    -) DB WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_EP_DMA_Done_isr.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\
+                    -USBFS_EP_DMA_Done_isr.obj)
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * File Name: USBFS_EP_DMA_Done_isr.c  
+   3          * Version 1.70
+   4          *
+   5          *  Description:
+   6          *   API for controlling the state of an interrupt.
+   7          *
+   8          *
+   9          *  Note:
+  10          *
+  11          ********************************************************************************
+  12          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+  13          * You may use this file only in accordance with the license, terms, conditions, 
+  14          * disclaimers, and limitations in the end user license agreement accompanying 
+  15          * the software package with which this file was provided.
+  16          *******************************************************************************/
+  17          
+  18          
+  19          #include <cydevice_trm.h>
+  20          #include <CyLib.h>
+  21          #include <USBFS_EP_DMA_Done_isr.h>
+  22          
+  23          
+  24          #if !defined(USBFS_EP_DMA_Done_isr__REMOVED) /* Check for removal by optimization */
+  25          
+  26          /*******************************************************************************
+  27          *  Place your includes, defines and code here 
+  28          ********************************************************************************/
+  29          /* `#START USBFS_EP_DMA_Done_isr_intc` */
+  30          
+  31          /* `#END` */
+  32          
+  33          
+  34          /*******************************************************************************
+  35          * Function Name: USBFS_EP_DMA_Done_isr_Start
+  36          ********************************************************************************
+  37          *
+  38          * Summary:
+  39          *  Set up the interrupt and enable it. This function disables the interrupt, 
+  40          *  sets the default interrupt vector, sets the priority from the value in the
+  41          *  Design Wide Resources Interrupt Editor, then enables the interrupt to the 
+  42          *  interrupt controller.
+  43          *
+  44          * Parameters:  
+  45          *   None
+  46          *
+  47          * Return:
+  48          *   None
+  49          *
+  50          *******************************************************************************/
+  51          void USBFS_EP_DMA_Done_isr_Start(void) 
+  52          {
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 2   
+
+  53   1          /* For all we know the interrupt is active. */
+  54   1          USBFS_EP_DMA_Done_isr_Disable();
+  55   1      
+  56   1          /* Set the ISR to point to the USBFS_EP_DMA_Done_isr Interrupt. */
+  57   1          USBFS_EP_DMA_Done_isr_SetVector(&USBFS_EP_DMA_Done_isr_Interrupt);
+  58   1      
+  59   1          /* Set the priority. */
+  60   1          USBFS_EP_DMA_Done_isr_SetPriority((uint8)USBFS_EP_DMA_Done_isr_INTC_PRIOR_NUMBER);
+  61   1      
+  62   1          /* Enable it. */
+  63   1          USBFS_EP_DMA_Done_isr_Enable();
+  64   1      }
+  65          
+  66          
+  67          /*******************************************************************************
+  68          * Function Name: USBFS_EP_DMA_Done_isr_StartEx
+  69          ********************************************************************************
+  70          *
+  71          * Summary:
+  72          *  Sets up the interrupt and enables it. This function disables the interrupt,
+  73          *  sets the interrupt vector based on the address passed in, sets the priority 
+  74          *  from the value in the Design Wide Resources Interrupt Editor, then enables 
+  75          *  the interrupt to the interrupt controller.
+  76          *  
+  77          *  When defining ISR functions, the CY_ISR and CY_ISR_PROTO macros should be 
+  78          *  used to provide consistent definition across compilers:
+  79          *  
+  80          *  Function definition example:
+  81          *   CY_ISR(MyISR)
+  82          *   {
+  83          *   }
+  84          *   Function prototype example:
+  85          *   CY_ISR_PROTO(MyISR);
+  86          *
+  87          * Parameters:  
+  88          *   address: Address of the ISR to set in the interrupt vector table.
+  89          *
+  90          * Return:
+  91          *   None
+  92          *
+  93          *******************************************************************************/
+  94          void USBFS_EP_DMA_Done_isr_StartEx(cyisraddress address) 
+  95          {
+  96   1          /* For all we know the interrupt is active. */
+  97   1          USBFS_EP_DMA_Done_isr_Disable();
+  98   1      
+  99   1          /* Set the ISR to point to the USBFS_EP_DMA_Done_isr Interrupt. */
+ 100   1          USBFS_EP_DMA_Done_isr_SetVector(address);
+ 101   1      
+ 102   1          /* Set the priority. */
+ 103   1          USBFS_EP_DMA_Done_isr_SetPriority((uint8)USBFS_EP_DMA_Done_isr_INTC_PRIOR_NUMBER);
+ 104   1      
+ 105   1          /* Enable it. */
+ 106   1          USBFS_EP_DMA_Done_isr_Enable();
+ 107   1      }
+ 108          
+ 109          
+ 110          /*******************************************************************************
+ 111          * Function Name: USBFS_EP_DMA_Done_isr_Stop
+ 112          ********************************************************************************
+ 113          *
+ 114          * Summary:
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 3   
+
+ 115          *   Disables and removes the interrupt.
+ 116          *
+ 117          * Parameters:  
+ 118          *   None
+ 119          *
+ 120          * Return:
+ 121          *   None
+ 122          *
+ 123          *******************************************************************************/
+ 124          void USBFS_EP_DMA_Done_isr_Stop(void) 
+ 125          {
+ 126   1          /* Disable this interrupt. */
+ 127   1          USBFS_EP_DMA_Done_isr_Disable();
+ 128   1      }
+ 129          
+ 130          
+ 131          /*******************************************************************************
+ 132          * Function Name: USBFS_EP_DMA_Done_isr_Interrupt
+ 133          ********************************************************************************
+ 134          *
+ 135          * Summary:
+ 136          *   The default Interrupt Service Routine for USBFS_EP_DMA_Done_isr.
+ 137          *
+ 138          *   Add custom code between the START and END comments to keep the next version
+ 139          *   of this file from over-writing your code.
+ 140          *
+ 141          *   Note You may use either the default ISR by using this API, or you may define
+ 142          *   your own separate ISR through ISR_StartEx().
+ 143          *
+ 144          * Parameters:  
+ 145          *   None
+ 146          *
+ 147          * Return:
+ 148          *   None
+ 149          *
+ 150          *******************************************************************************/
+ 151          CY_ISR(USBFS_EP_DMA_Done_isr_Interrupt)
+ 152          {
+ 153   1          #ifdef USBFS_EP_DMA_Done_isr_INTERRUPT_INTERRUPT_CALLBACK
+                      USBFS_EP_DMA_Done_isr_Interrupt_InterruptCallback();
+                  #endif /* USBFS_EP_DMA_Done_isr_INTERRUPT_INTERRUPT_CALLBACK */
+ 156   1      
+ 157   1          /*  Place your Interrupt code here. */
+ 158   1          /* `#START USBFS_EP_DMA_Done_isr_Interrupt` */
+ 159   1      
+ 160   1          /* `#END` */
+ 161   1      
+ 162   1          /* PSoC3 ES1, ES2 RTC ISR PATCH  */ 
+ 163   1          #if(CYDEV_CHIP_FAMILY_USED == CYDEV_CHIP_FAMILY_PSOC3)
+ 164   1              #if((CYDEV_CHIP_REVISION_USED <= CYDEV_CHIP_REVISION_3A_ES2) && (USBFS_EP_DMA_Done_isr__ES2_PATCH 
+             -))      
+                          USBFS_EP_DMA_Done_isr_ISR_PATCH();
+                      #endif /* CYDEV_CHIP_REVISION_USED */
+ 167   1          #endif /* (CYDEV_CHIP_FAMILY_USED == CYDEV_CHIP_FAMILY_PSOC3) */
+ 168   1      }
+ 169          
+ 170          
+ 171          /*******************************************************************************
+ 172          * Function Name: USBFS_EP_DMA_Done_isr_SetVector
+ 173          ********************************************************************************
+ 174          *
+ 175          * Summary:
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 4   
+
+ 176          *   Change the ISR vector for the Interrupt. Note calling USBFS_EP_DMA_Done_isr_Start
+ 177          *   will override any effect this method would have had. To set the vector 
+ 178          *   before the component has been started use USBFS_EP_DMA_Done_isr_StartEx instead.
+ 179          * 
+ 180          *   When defining ISR functions, the CY_ISR and CY_ISR_PROTO macros should be 
+ 181          *   used to provide consistent definition across compilers:
+ 182          *
+ 183          *   Function definition example:
+ 184          *   CY_ISR(MyISR)
+ 185          *   {
+ 186          *   }
+ 187          *
+ 188          *   Function prototype example:
+ 189          *     CY_ISR_PROTO(MyISR);
+ 190          *
+ 191          * Parameters:
+ 192          *   address: Address of the ISR to set in the interrupt vector table.
+ 193          *
+ 194          * Return:
+ 195          *   None
+ 196          *
+ 197          *******************************************************************************/
+ 198          void USBFS_EP_DMA_Done_isr_SetVector(cyisraddress address) 
+ 199          {
+ 200   1          CY_SET_REG16(USBFS_EP_DMA_Done_isr_INTC_VECTOR, (uint16) address);
+ 201   1      }
+ 202          
+ 203          
+ 204          /*******************************************************************************
+ 205          * Function Name: USBFS_EP_DMA_Done_isr_GetVector
+ 206          ********************************************************************************
+ 207          *
+ 208          * Summary:
+ 209          *   Gets the "address" of the current ISR vector for the Interrupt.
+ 210          *
+ 211          * Parameters:
+ 212          *   None
+ 213          *
+ 214          * Return:
+ 215          *   Address of the ISR in the interrupt vector table.
+ 216          *
+ 217          *******************************************************************************/
+ 218          cyisraddress USBFS_EP_DMA_Done_isr_GetVector(void) 
+ 219          {
+ 220   1          return (cyisraddress) CY_GET_REG16(USBFS_EP_DMA_Done_isr_INTC_VECTOR);
+ 221   1      }
+ 222          
+ 223          
+ 224          /*******************************************************************************
+ 225          * Function Name: USBFS_EP_DMA_Done_isr_SetPriority
+ 226          ********************************************************************************
+ 227          *
+ 228          * Summary:
+ 229          *   Sets the Priority of the Interrupt. 
+ 230          *
+ 231          *   Note calling USBFS_EP_DMA_Done_isr_Start or USBFS_EP_DMA_Done_isr_StartEx will 
+ 232          *   override any effect this API would have had. This API should only be called
+ 233          *   after USBFS_EP_DMA_Done_isr_Start or USBFS_EP_DMA_Done_isr_StartEx has been called. 
+ 234          *   To set the initial priority for the component, use the Design-Wide Resources
+ 235          *   Interrupt Editor.
+ 236          *
+ 237          *   Note This API has no effect on Non-maskable interrupt NMI).
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 5   
+
+ 238          *
+ 239          * Parameters:
+ 240          *   priority: Priority of the interrupt, 0 being the highest priority
+ 241          *             PSoC 3 and PSoC 5LP: Priority is from 0 to 7.
+ 242          *             PSoC 4: Priority is from 0 to 3.
+ 243          *
+ 244          * Return:
+ 245          *   None
+ 246          *
+ 247          *******************************************************************************/
+ 248          void USBFS_EP_DMA_Done_isr_SetPriority(uint8 priority) 
+ 249          {
+ 250   1          *USBFS_EP_DMA_Done_isr_INTC_PRIOR = priority << 5;
+ 251   1      }
+ 252          
+ 253          
+ 254          /*******************************************************************************
+ 255          * Function Name: USBFS_EP_DMA_Done_isr_GetPriority
+ 256          ********************************************************************************
+ 257          *
+ 258          * Summary:
+ 259          *   Gets the Priority of the Interrupt.
+ 260          *
+ 261          * Parameters:
+ 262          *   None
+ 263          *
+ 264          * Return:
+ 265          *   Priority of the interrupt, 0 being the highest priority
+ 266          *    PSoC 3 and PSoC 5LP: Priority is from 0 to 7.
+ 267          *    PSoC 4: Priority is from 0 to 3.
+ 268          *
+ 269          *******************************************************************************/
+ 270          uint8 USBFS_EP_DMA_Done_isr_GetPriority(void) 
+ 271          {
+ 272   1          uint8 priority;
+ 273   1      
+ 274   1      
+ 275   1          priority = *USBFS_EP_DMA_Done_isr_INTC_PRIOR >> 5;
+ 276   1      
+ 277   1          return priority;
+ 278   1      }
+ 279          
+ 280          
+ 281          /*******************************************************************************
+ 282          * Function Name: USBFS_EP_DMA_Done_isr_Enable
+ 283          ********************************************************************************
+ 284          *
+ 285          * Summary:
+ 286          *   Enables the interrupt to the interrupt controller. Do not call this function
+ 287          *   unless ISR_Start() has been called or the functionality of the ISR_Start() 
+ 288          *   function, which sets the vector and the priority, has been called.
+ 289          *
+ 290          * Parameters:
+ 291          *   None
+ 292          *
+ 293          * Return:
+ 294          *   None
+ 295          *
+ 296          *******************************************************************************/
+ 297          void USBFS_EP_DMA_Done_isr_Enable(void) 
+ 298          {
+ 299   1          /* Enable the general interrupt. */
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 6   
+
+ 300   1          *USBFS_EP_DMA_Done_isr_INTC_SET_EN = USBFS_EP_DMA_Done_isr__INTC_MASK;
+ 301   1      }
+ 302          
+ 303          
+ 304          /*******************************************************************************
+ 305          * Function Name: USBFS_EP_DMA_Done_isr_GetState
+ 306          ********************************************************************************
+ 307          *
+ 308          * Summary:
+ 309          *   Gets the state (enabled, disabled) of the Interrupt.
+ 310          *
+ 311          * Parameters:
+ 312          *   None
+ 313          *
+ 314          * Return:
+ 315          *   1 if enabled, 0 if disabled.
+ 316          *
+ 317          *******************************************************************************/
+ 318          uint8 USBFS_EP_DMA_Done_isr_GetState(void) 
+ 319          {
+ 320   1          /* Get the state of the general interrupt. */
+ 321   1          return ((*USBFS_EP_DMA_Done_isr_INTC_SET_EN & (uint8)USBFS_EP_DMA_Done_isr__INTC_MASK) != 0u) ? 1u:0u;
+ 322   1      }
+ 323          
+ 324          
+ 325          /*******************************************************************************
+ 326          * Function Name: USBFS_EP_DMA_Done_isr_Disable
+ 327          ********************************************************************************
+ 328          *
+ 329          * Summary:
+ 330          *   Disables the Interrupt in the interrupt controller.
+ 331          *
+ 332          * Parameters:
+ 333          *   None
+ 334          *
+ 335          * Return:
+ 336          *   None
+ 337          *
+ 338          *******************************************************************************/
+ 339          void USBFS_EP_DMA_Done_isr_Disable(void) 
+ 340          {
+ 341   1          /* Disable the general interrupt. */
+ 342   1          *USBFS_EP_DMA_Done_isr_INTC_CLR_EN = USBFS_EP_DMA_Done_isr__INTC_MASK;
+ 343   1      }
+ 344          
+ 345          
+ 346          /*******************************************************************************
+ 347          * Function Name: USBFS_EP_DMA_Done_isr_SetPending
+ 348          ********************************************************************************
+ 349          *
+ 350          * Summary:
+ 351          *   Causes the Interrupt to enter the pending state, a software method of
+ 352          *   generating the interrupt.
+ 353          *
+ 354          * Parameters:
+ 355          *   None
+ 356          *
+ 357          * Return:
+ 358          *   None
+ 359          *
+ 360          * Side Effects:
+ 361          *   If interrupts are enabled and the interrupt is set up properly, the ISR is
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 7   
+
+ 362          *   entered (depending on the priority of this interrupt and other pending 
+ 363          *   interrupts).
+ 364          *
+ 365          *******************************************************************************/
+ 366          void USBFS_EP_DMA_Done_isr_SetPending(void) 
+ 367          {
+ 368   1          *USBFS_EP_DMA_Done_isr_INTC_SET_PD = USBFS_EP_DMA_Done_isr__INTC_MASK;
+ 369   1      }
+ 370          
+ 371          
+ 372          /*******************************************************************************
+ 373          * Function Name: USBFS_EP_DMA_Done_isr_ClearPending
+ 374          ********************************************************************************
+ 375          *
+ 376          * Summary:
+ 377          *   Clears a pending interrupt in the interrupt controller.
+ 378          *
+ 379          *   Note Some interrupt sources are clear-on-read and require the block 
+ 380          *   interrupt/status register to be read/cleared with the appropriate block API 
+ 381          *   (GPIO, UART, and so on). Otherwise the ISR will continue to remain in 
+ 382          *   pending state even though the interrupt itself is cleared using this API.
+ 383          *
+ 384          * Parameters:
+ 385          *   None
+ 386          *
+ 387          * Return:
+ 388          *   None
+ 389          *
+ 390          *******************************************************************************/
+ 391          void USBFS_EP_DMA_Done_isr_ClearPending(void) 
+ 392          {
+ 393   1          *USBFS_EP_DMA_Done_isr_INTC_CLR_PD = USBFS_EP_DMA_Done_isr__INTC_MASK;
+ 394   1      }
+ 395          
+ 396          #endif /* End check for removal by optimization */
+ 397          
+ 398          
+ 399          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 8   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Start (BEGIN)
+                                           ; SOURCE LINE # 51
+                                           ; SOURCE LINE # 52
+                                           ; SOURCE LINE # 54
+0000 120000      R     LCALL   USBFS_EP_DMA_Done_isr_Disable
+                                           ; SOURCE LINE # 57
+0003 7E00        R     MOV     R6,#HIGH USBFS_EP_DMA_Done_isr_Interrupt
+0005 7F00        R     MOV     R7,#LOW USBFS_EP_DMA_Done_isr_Interrupt
+0007 120000      R     LCALL   _USBFS_EP_DMA_Done_isr_SetVector
+                                           ; SOURCE LINE # 60
+000A 7F07              MOV     R7,#07H
+000C 120000      R     LCALL   _USBFS_EP_DMA_Done_isr_SetPriority
+                                           ; SOURCE LINE # 63
+000F 120000      R     LCALL   USBFS_EP_DMA_Done_isr_Enable
+                                           ; SOURCE LINE # 64
+0012 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Start (END)
+
+             ; FUNCTION _USBFS_EP_DMA_Done_isr_StartEx (BEGIN)
+                                           ; SOURCE LINE # 94
+0000 900000      R     MOV     DPTR,#address
+0003 EE                MOV     A,R6
+0004 F0                MOVX    @DPTR,A
+0005 A3                INC     DPTR
+0006 EF                MOV     A,R7
+0007 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 95
+                                           ; SOURCE LINE # 97
+0008 120000      R     LCALL   USBFS_EP_DMA_Done_isr_Disable
+                                           ; SOURCE LINE # 100
+000B 900000      R     MOV     DPTR,#address
+000E E0                MOVX    A,@DPTR
+000F FE                MOV     R6,A
+0010 A3                INC     DPTR
+0011 E0                MOVX    A,@DPTR
+0012 FF                MOV     R7,A
+0013 120000      R     LCALL   _USBFS_EP_DMA_Done_isr_SetVector
+                                           ; SOURCE LINE # 103
+0016 7F07              MOV     R7,#07H
+0018 120000      R     LCALL   _USBFS_EP_DMA_Done_isr_SetPriority
+                                           ; SOURCE LINE # 106
+001B 120000      R     LCALL   USBFS_EP_DMA_Done_isr_Enable
+                                           ; SOURCE LINE # 107
+001E 22                RET     
+             ; FUNCTION _USBFS_EP_DMA_Done_isr_StartEx (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Stop (BEGIN)
+                                           ; SOURCE LINE # 124
+                                           ; SOURCE LINE # 125
+                                           ; SOURCE LINE # 127
+0000 120000      R     LCALL   USBFS_EP_DMA_Done_isr_Disable
+                                           ; SOURCE LINE # 128
+0003 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Stop (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Interrupt (BEGIN)
+                                           ; SOURCE LINE # 151
+                                           ; SOURCE LINE # 168
+0000 32                RETI    
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 9   
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Interrupt (END)
+
+             ; FUNCTION _USBFS_EP_DMA_Done_isr_SetVector (BEGIN)
+                                           ; SOURCE LINE # 198
+;---- Variable 'address' assigned to Register 'R6/R7' ----
+                                           ; SOURCE LINE # 199
+                                           ; SOURCE LINE # 200
+0000 7B02              MOV     R3,#02H
+0002 7A44              MOV     R2,#044H
+0004 7900              MOV     R1,#00H
+0006 AD07              MOV     R5,AR7
+0008 AC06              MOV     R4,AR6
+000A 120000      E     LCALL   _cywrite16_nodpx
+                                           ; SOURCE LINE # 201
+000D 22                RET     
+             ; FUNCTION _USBFS_EP_DMA_Done_isr_SetVector (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_GetVector (BEGIN)
+                                           ; SOURCE LINE # 218
+                                           ; SOURCE LINE # 219
+                                           ; SOURCE LINE # 220
+0000 7B02              MOV     R3,#02H
+0002 7A44              MOV     R2,#044H
+0004 7900              MOV     R1,#00H
+0006 120000      E     LCALL   _cyread16_nodpx
+                                           ; SOURCE LINE # 221
+0009         ?C0006:
+0009 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_GetVector (END)
+
+             ; FUNCTION _USBFS_EP_DMA_Done_isr_SetPriority (BEGIN)
+                                           ; SOURCE LINE # 248
+;---- Variable 'priority' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 249
+                                           ; SOURCE LINE # 250
+0000 EF                MOV     A,R7
+0001 C4                SWAP    A
+0002 33                RLC     A
+0003 54E0              ANL     A,#0E0H
+0005 904480            MOV     DPTR,#04480H
+0008 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 251
+0009 22                RET     
+             ; FUNCTION _USBFS_EP_DMA_Done_isr_SetPriority (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_GetPriority (BEGIN)
+                                           ; SOURCE LINE # 270
+                                           ; SOURCE LINE # 271
+                                           ; SOURCE LINE # 275
+0000 904480            MOV     DPTR,#04480H
+0003 E0                MOVX    A,@DPTR
+0004 FF                MOV     R7,A
+0005 C4                SWAP    A
+0006 13                RRC     A
+0007 5407              ANL     A,#07H
+0009 FF                MOV     R7,A
+;---- Variable 'priority' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 277
+                                           ; SOURCE LINE # 278
+000A         ?C0008:
+000A 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_GetPriority (END)
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 10  
+
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Enable (BEGIN)
+                                           ; SOURCE LINE # 297
+                                           ; SOURCE LINE # 298
+                                           ; SOURCE LINE # 300
+0000 9044C0            MOV     DPTR,#044C0H
+0003 7401              MOV     A,#01H
+0005 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 301
+0006 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Enable (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_GetState (BEGIN)
+                                           ; SOURCE LINE # 318
+                                           ; SOURCE LINE # 319
+                                           ; SOURCE LINE # 321
+0000 9044C0            MOV     DPTR,#044C0H
+0003 E0                MOVX    A,@DPTR
+0004 30E004            JNB     ACC.0,?C0010
+0007 7F01              MOV     R7,#01H
+0009 8002              SJMP    ?C0011
+000B         ?C0010:
+000B 7F00              MOV     R7,#00H
+000D         ?C0011:
+                                           ; SOURCE LINE # 322
+000D         ?C0012:
+000D 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_GetState (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Disable (BEGIN)
+                                           ; SOURCE LINE # 339
+                                           ; SOURCE LINE # 340
+                                           ; SOURCE LINE # 342
+0000 9044C8            MOV     DPTR,#044C8H
+0003 7401              MOV     A,#01H
+0005 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 343
+0006 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_Disable (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_SetPending (BEGIN)
+                                           ; SOURCE LINE # 366
+                                           ; SOURCE LINE # 367
+                                           ; SOURCE LINE # 368
+0000 9044D0            MOV     DPTR,#044D0H
+0003 7401              MOV     A,#01H
+0005 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 369
+0006 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_SetPending (END)
+
+             ; FUNCTION USBFS_EP_DMA_Done_isr_ClearPending (BEGIN)
+                                           ; SOURCE LINE # 391
+                                           ; SOURCE LINE # 392
+                                           ; SOURCE LINE # 393
+0000 9044D8            MOV     DPTR,#044D8H
+0003 7401              MOV     A,#01H
+0005 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 394
+0006 22                RET     
+             ; FUNCTION USBFS_EP_DMA_Done_isr_ClearPending (END)
+
+C51 COMPILER V9.51   USBFS_EP_DMA_DONE_ISR                                                 10/22/2015 22:07:45 PAGE 11  
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    142    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

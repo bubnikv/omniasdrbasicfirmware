@@ -1,0 +1,680 @@
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\main.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\main.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\D
+                    -ebug/main.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\main.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          // 09/30/2014 Additions to support low latency CW and Iambic funtionality  Ron Patton / W4MMP
+  15          // 01/01/2015 Added Semi Break-in Support Ron Patton / W4MMP
+  16          
+  17          #include <peaberry.h>
+  18          #include <iambino.h>
+  19          
+  20          uint8 ee_external_sound;
+  21          uint8 ee_cw_mode;
+  22          uint8 ee_iambic_mode;
+  23          uint8 E_cw_message_toggle = TRUE; 
+  24          
+  25          
+  26          
+  27          void main_init() {
+  28   1          uint8 si_err, pcm_err;
+  29   1      
+  30   1          EEPROM_Start();
+  31   1          CW_Hold_Timer_Start();
+  32   1          Iambic_Counter_Start();
+  33   1          CyGlobalIntEnable;
+  34   1          CyDelay(100);
+  35   1          Sync_Start();
+  36   1          I2C_Start();
+  37   1          Settings_Init();
+  38   1          si_err = Si570_Init();
+  39   1          if (si_err) {
+  40   2              I2C_Stop();
+  41   2              I2C_Start();
+  42   2              I2C_MasterClearStatus();
+  43   2          }
+  44   1          pcm_err = PCM3060_Init();
+  45   1          if (si_err && pcm_err) ERROR("I2C ");
+  46   1          if (si_err) ERROR("Si570 ");
+  47   1          if (pcm_err) ERROR("PCM3060 ");
+  48   1          if (CyXTAL_ReadStatus()) ERROR("XTAL ");
+  49   1          Control_Write(Control_Read() & ~CONTROL_LED);
+  50   1      }
+  51          
+  52          // A compliant USB device is required to monitor
+  53          // vbus voltage and shut down if it disappears.
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 2   
+
+  54          void main_usb_vbus(void) {
+  55   1          if (USBFS_VBusPresent()) {
+  56   2              if(!USBFS_initVar) {
+  57   3                  USBFS_Start(0, USBFS_DWR_VDDD_OPERATION);
+  58   3                  Audio_Start();
+  59   3                  PCM3060_Start();
+  60   3              }
+  61   2          } else {
+  62   2              if(USBFS_initVar) {
+  63   3                  TX_Request = 0;
+  64   3                  PCM3060_Stop();
+  65   3                  USBFS_Stop();
+  66   3              }
+  67   2          }
+  68   1      }
+  69          
+  70          int main(){
+  71   1          uint8 i;
+  72   1          static uint8 beat = 0, beater = 0;
+  73   1              
+  74   1          //uint8 die_status;
+  75   1          //int16 die_temp;
+  76   1             
+  77   1          main_init();
+  78   1          get_cw_params();
+  79   1              
+  80   1           for(;;) {
+  81   2              // USB Audio is very high priority
+  82   2              Audio_Main();
+  83   2              Sync_Main();
+  84   2                      
+  85   2              // Everything else runs twice per millisecond
+  86   2              // Keep T1 first for timing accuracy
+  87   2              i = Status_Read() & STATUS_BEAT;
+  88   2              if (beat != i) {
+  89   3                  switch(beater++) {
+  90   4                  case 0:
+  91   4                      if(!ee_cw_mode){
+  92   5                          T1_Main();
+  93   5                      }else{
+  94   5                          if(!ee_semi_breakin && !ee_external_sound){
+  95   6                              T1_Main();
+  96   6                          }
+  97   5                      }
+  98   4                      break;
+  99   4                  case 1:
+ 100   4                      TX_Main();
+ 101   4                      break;
+ 102   4                  case 2:
+ 103   4                      Settings_Main();
+ 104   4                      break;
+ 105   4                  case 3:
+ 106   4                      Si570_Main();
+ 107   4                      break;
+ 108   4                  case 4:
+ 109   4                      Band_Main();
+ 110   4                      break;
+ 111   4                  case 5:
+ 112   4                      if (!(Status_Read() & STATUS_BOOT)) Bootloadable_Load();
+ 113   4                      /*do{
+ 114   4                          die_status = DieTemp_1_GetTemp(&die_temp);
+ 115   4                      }while (die_status != CYRET_SUCCESS);*/
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 3   
+
+ 116   4                      break;
+ 117   4                  case 6:
+ 118   4                      if(ee_cw_mode){Manage_Paddles_Port();}
+ 119   4                      if(!TX_Request && ee_cw_mode){cw_blink();}
+ 120   4                      break;
+ 121   4                
+ 122   4                  default:
+ 123   4                      main_usb_vbus();
+ 124   4                      beater = 0;
+ 125   4                      beat = i;
+ 126   4                  }
+ 127   3              }
+ 128   2                  
+ 129   2          }
+ 130   1      }
+ 131          
+ 132          uint32 swap32(uint32 original) CYREENTRANT {
+ 133   1          uint8 *r, *o;
+ 134   1          uint32 ret;
+ 135   1          r = (void*)&ret;
+ 136   1          o = (void*)&original;
+ 137   1          r[0] = o[3];
+ 138   1          r[1] = o[2];
+ 139   1          r[2] = o[1];
+ 140   1          r[3] = o[0];
+ 141   1          return ret;
+ 142   1      }
+ 143          
+ 144          void ERROR(char* msg) {
+ 145   1          uint8 i, beat;
+ 146   1          uint16 timer = 0;
+ 147   1          
+ 148   1          if(USBFS_initVar) USBFS_Stop();
+ 149   1          Control_Write(Control_Read() & ~CONTROL_TX | CONTROL_LED | CONTROL_AMP | CONTROL_RX);
+ 150   1          Morse_Main(msg);
+ 151   1          
+ 152   1          for(;;) {
+ 153   2              i = Status_Read() & STATUS_BEAT;
+ 154   2              if (beat != i) {
+ 155   3                  beat = i;
+ 156   3                  if (!timer--) {
+ 157   4                      timer = 480; // 5 WPM
+ 158   4                      Morse_Main(0);
+ 159   4                  }
+ 160   3              }    
+ 161   2          }
+ 162   1      }
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 4   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION main_init (BEGIN)
+                                           ; SOURCE LINE # 27
+                                           ; SOURCE LINE # 30
+0000 120000      E     LCALL   EEPROM_Start
+                                           ; SOURCE LINE # 31
+0003 120000      E     LCALL   CW_Hold_Timer_Start
+                                           ; SOURCE LINE # 32
+0006 120000      E     LCALL   Iambic_Counter_Start
+                                           ; SOURCE LINE # 33
+0009 D2AF              SETB    EA
+000B 9044F4            MOV     DPTR,#044F4H
+000E 74FD              MOV     A,#0FDH
+0010 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 34
+0011 E4                CLR     A
+0012 7F64              MOV     R7,#064H
+0014 FE                MOV     R6,A
+0015 FD                MOV     R5,A
+0016 FC                MOV     R4,A
+0017 120000      E     LCALL   _?CyDelay
+                                           ; SOURCE LINE # 35
+001A 120000      E     LCALL   Sync_Start
+                                           ; SOURCE LINE # 36
+001D 120000      E     LCALL   I2C_Start
+                                           ; SOURCE LINE # 37
+0020 120000      E     LCALL   Settings_Init
+                                           ; SOURCE LINE # 38
+0023 120000      E     LCALL   Si570_Init
+0026 900000      R     MOV     DPTR,#si_err
+0029 EF                MOV     A,R7
+002A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 39
+002B 6009              JZ      ?C0001
+                                           ; SOURCE LINE # 40
+002D 120000      E     LCALL   I2C_Stop
+                                           ; SOURCE LINE # 41
+0030 120000      E     LCALL   I2C_Start
+                                           ; SOURCE LINE # 42
+0033 120000      E     LCALL   I2C_MasterClearStatus
+                                           ; SOURCE LINE # 43
+0036         ?C0001:
+                                           ; SOURCE LINE # 44
+0036 120000      E     LCALL   PCM3060_Init
+0039 900000      R     MOV     DPTR,#pcm_err
+003C EF                MOV     A,R7
+003D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 45
+003E 900000      R     MOV     DPTR,#si_err
+0041 E0                MOVX    A,@DPTR
+0042 600D              JZ      ?C0002
+0044 A3                INC     DPTR
+0045 E0                MOVX    A,@DPTR
+0046 6009              JZ      ?C0002
+0048 7BFF              MOV     R3,#0FFH
+004A 7A00        R     MOV     R2,#HIGH ?SC_0
+004C 7900        R     MOV     R1,#LOW ?SC_0
+004E 120000      R     LCALL   _ERROR
+0051         ?C0002:
+                                           ; SOURCE LINE # 46
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 5   
+
+0051 900000      R     MOV     DPTR,#si_err
+0054 E0                MOVX    A,@DPTR
+0055 6009              JZ      ?C0003
+0057 7BFF              MOV     R3,#0FFH
+0059 7A00        R     MOV     R2,#HIGH ?SC_5
+005B 7900        R     MOV     R1,#LOW ?SC_5
+005D 120000      R     LCALL   _ERROR
+0060         ?C0003:
+                                           ; SOURCE LINE # 47
+0060 900000      R     MOV     DPTR,#pcm_err
+0063 E0                MOVX    A,@DPTR
+0064 6009              JZ      ?C0004
+0066 7BFF              MOV     R3,#0FFH
+0068 7A00        R     MOV     R2,#HIGH ?SC_12
+006A 7900        R     MOV     R1,#LOW ?SC_12
+006C 120000      R     LCALL   _ERROR
+006F         ?C0004:
+                                           ; SOURCE LINE # 48
+006F 120000      E     LCALL   CyXTAL_ReadStatus
+0072 EF                MOV     A,R7
+0073 6009              JZ      ?C0005
+0075 7BFF              MOV     R3,#0FFH
+0077 7A00        R     MOV     R2,#HIGH ?SC_21
+0079 7900        R     MOV     R1,#LOW ?SC_21
+007B 120000      R     LCALL   _ERROR
+007E         ?C0005:
+                                           ; SOURCE LINE # 49
+007E 120000      E     LCALL   Control_Read
+0081 EF                MOV     A,R7
+0082 54FE              ANL     A,#0FEH
+0084 FF                MOV     R7,A
+0085 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 50
+0088 22                RET     
+             ; FUNCTION main_init (END)
+
+             ; FUNCTION main_usb_vbus (BEGIN)
+                                           ; SOURCE LINE # 54
+                                           ; SOURCE LINE # 55
+0000 120000      E     LCALL   USBFS_VBusPresent
+0003 EF                MOV     A,R7
+0004 6013              JZ      ?C0007
+                                           ; SOURCE LINE # 56
+0006 900000      E     MOV     DPTR,#USBFS_initVar
+0009 E0                MOVX    A,@DPTR
+000A 701E              JNZ     ?C0011
+                                           ; SOURCE LINE # 57
+000C 7D02              MOV     R5,#02H
+000E FF                MOV     R7,A
+000F 120000      E     LCALL   _USBFS_Start
+                                           ; SOURCE LINE # 58
+0012 120000      E     LCALL   Audio_Start
+                                           ; SOURCE LINE # 59
+0015 120000      E     LCALL   PCM3060_Start
+                                           ; SOURCE LINE # 60
+                                           ; SOURCE LINE # 61
+0018 22                RET     
+0019         ?C0007:
+                                           ; SOURCE LINE # 62
+0019 900000      E     MOV     DPTR,#USBFS_initVar
+001C E0                MOVX    A,@DPTR
+001D 600B              JZ      ?C0011
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 6   
+
+                                           ; SOURCE LINE # 63
+001F E4                CLR     A
+0020 900000      E     MOV     DPTR,#TX_Request
+0023 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 64
+0024 120000      E     LCALL   PCM3060_Stop
+                                           ; SOURCE LINE # 65
+0027 120000      E     LCALL   USBFS_Stop
+                                           ; SOURCE LINE # 66
+                                           ; SOURCE LINE # 67
+                                           ; SOURCE LINE # 68
+002A         ?C0011:
+002A 22                RET     
+             ; FUNCTION main_usb_vbus (END)
+
+             ; FUNCTION main (BEGIN)
+                                           ; SOURCE LINE # 70
+                                           ; SOURCE LINE # 77
+0000 120000      R     LCALL   main_init
+                                           ; SOURCE LINE # 78
+0003 120000      E     LCALL   get_cw_params
+                                           ; SOURCE LINE # 80
+0006         ?C0012:
+                                           ; SOURCE LINE # 82
+0006 120000      E     LCALL   Audio_Main
+                                           ; SOURCE LINE # 83
+0009 120000      E     LCALL   Sync_Main
+                                           ; SOURCE LINE # 87
+000C 120000      E     LCALL   Status_Read
+000F EF                MOV     A,R7
+0010 5408              ANL     A,#08H
+0012 FF                MOV     R7,A
+0013 900000      R     MOV     DPTR,#i
+0016 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 88
+0017 900000      R     MOV     DPTR,#beat
+001A E0                MOVX    A,@DPTR
+001B 6F                XRL     A,R7
+001C 60E8              JZ      ?C0012
+                                           ; SOURCE LINE # 89
+001E A3                INC     DPTR
+001F E0                MOVX    A,@DPTR
+0020 FF                MOV     R7,A
+0021 04                INC     A
+0022 F0                MOVX    @DPTR,A
+0023 EF                MOV     A,R7
+0024 120000      E     LCALL   ?C?CCASE
+0027 0000        R     DW      ?C0016
+0029 00                DB      00H
+002A 0000        R     DW      ?C0020
+002C 01                DB      01H
+002D 0000        R     DW      ?C0021
+002F 02                DB      02H
+0030 0000        R     DW      ?C0022
+0032 03                DB      03H
+0033 0000        R     DW      ?C0023
+0035 04                DB      04H
+0036 0000        R     DW      ?C0024
+0038 05                DB      05H
+0039 0000        R     DW      ?C0026
+003B 06                DB      06H
+003C 0000              DW      00H
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 7   
+
+003E 0000        R     DW      ?C0029
+                                           ; SOURCE LINE # 90
+0040         ?C0016:
+                                           ; SOURCE LINE # 91
+0040 900000      R     MOV     DPTR,#ee_cw_mode
+0043 E0                MOVX    A,@DPTR
+0044 7005              JNZ     ?C0017
+                                           ; SOURCE LINE # 92
+0046 120000      E     LCALL   T1_Main
+                                           ; SOURCE LINE # 93
+0049 80BB              SJMP    ?C0012
+004B         ?C0017:
+                                           ; SOURCE LINE # 94
+004B 900000      E     MOV     DPTR,#ee_semi_breakin
+004E E0                MOVX    A,@DPTR
+004F 70B5              JNZ     ?C0012
+0051 900000      R     MOV     DPTR,#ee_external_sound
+0054 E0                MOVX    A,@DPTR
+0055 70AF              JNZ     ?C0012
+                                           ; SOURCE LINE # 95
+0057 120000      E     LCALL   T1_Main
+                                           ; SOURCE LINE # 96
+                                           ; SOURCE LINE # 97
+                                           ; SOURCE LINE # 98
+005A 80AA              SJMP    ?C0012
+                                           ; SOURCE LINE # 99
+005C         ?C0020:
+                                           ; SOURCE LINE # 100
+005C 120000      E     LCALL   TX_Main
+                                           ; SOURCE LINE # 101
+005F 80A5              SJMP    ?C0012
+                                           ; SOURCE LINE # 102
+0061         ?C0021:
+                                           ; SOURCE LINE # 103
+0061 120000      E     LCALL   Settings_Main
+                                           ; SOURCE LINE # 104
+0064 80A0              SJMP    ?C0012
+                                           ; SOURCE LINE # 105
+0066         ?C0022:
+                                           ; SOURCE LINE # 106
+0066 120000      E     LCALL   Si570_Main
+                                           ; SOURCE LINE # 107
+0069 809B              SJMP    ?C0012
+                                           ; SOURCE LINE # 108
+006B         ?C0023:
+                                           ; SOURCE LINE # 109
+006B 120000      E     LCALL   Band_Main
+                                           ; SOURCE LINE # 110
+006E 8096              SJMP    ?C0012
+                                           ; SOURCE LINE # 111
+0070         ?C0024:
+                                           ; SOURCE LINE # 112
+0070 120000      E     LCALL   Status_Read
+0073 EF                MOV     A,R7
+0074 20E28F            JB      ACC.2,?C0012
+0077 120000      E     LCALL   Bootloadable_Load
+                                           ; SOURCE LINE # 116
+007A 808A              SJMP    ?C0012
+                                           ; SOURCE LINE # 117
+007C         ?C0026:
+                                           ; SOURCE LINE # 118
+007C 900000      R     MOV     DPTR,#ee_cw_mode
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 8   
+
+007F E0                MOVX    A,@DPTR
+0080 6003              JZ      ?C0027
+0082 120000      E     LCALL   Manage_Paddles_Port
+0085         ?C0027:
+                                           ; SOURCE LINE # 119
+0085 900000      E     MOV     DPTR,#TX_Request
+0088 E0                MOVX    A,@DPTR
+0089 6003              JZ      $ + 5H
+008B 020000      R     LJMP    ?C0012
+008E 900000      R     MOV     DPTR,#ee_cw_mode
+0091 E0                MOVX    A,@DPTR
+0092 7003              JNZ     $ + 5H
+0094 020000      R     LJMP    ?C0012
+0097 120000      E     LCALL   cw_blink
+                                           ; SOURCE LINE # 120
+009A 020000      R     LJMP    ?C0012
+                                           ; SOURCE LINE # 122
+009D         ?C0029:
+                                           ; SOURCE LINE # 123
+009D 120000      R     LCALL   main_usb_vbus
+                                           ; SOURCE LINE # 124
+00A0 E4                CLR     A
+00A1 900000      R     MOV     DPTR,#beater
+00A4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 125
+00A5 900000      R     MOV     DPTR,#i
+00A8 E0                MOVX    A,@DPTR
+00A9 900000      R     MOV     DPTR,#beat
+00AC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 126
+                                           ; SOURCE LINE # 127
+                                           ; SOURCE LINE # 129
+00AD 020000      R     LJMP    ?C0012
+00B0 22                RET     
+             ; FUNCTION main (END)
+
+             ; FUNCTION _?swap32 (BEGIN)
+                                           ; SOURCE LINE # 132
+0000 90FFFC            MOV     DPTR,#0FFFCH
+0003 120000      E     LCALL   ?C?ADDXBP
+0006 120000      E     LCALL   ?C?LSTXDATA
+0009 90FFF6            MOV     DPTR,#0FFF6H
+000C 120000      E     LCALL   ?C?ADDXBP
+                                           ; SOURCE LINE # 135
+000F 7B01              MOV     R3,#01H
+0011 900006            MOV     DPTR,#06H
+0014 120000      E     LCALL   ?C?XBPOFF
+0017 A982              MOV     R1,DPL
+0019 AA83              MOV     R2,DPH
+001B 850083      E     MOV     DPH,?C_XBP
+001E 850082      E     MOV     DPL,?C_XBP+01H
+0021 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 136
+0024 7B01              MOV     R3,#01H
+0026 90000A            MOV     DPTR,#0AH
+0029 120000      E     LCALL   ?C?XBPOFF
+002C A982              MOV     R1,DPL
+002E AA83              MOV     R2,DPH
+0030 900003            MOV     DPTR,#03H
+0033 120000      E     LCALL   ?C?XBPOFF
+0036 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 137
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 9   
+
+0039 900003            MOV     DPTR,#03H
+003C 120000      E     LCALL   ?C?XBPOFF
+003F 120000      E     LCALL   ?C?PLDXDATA
+0042 E9                MOV     A,R1
+0043 2403              ADD     A,#03H
+0045 F9                MOV     R1,A
+0046 E4                CLR     A
+0047 3A                ADDC    A,R2
+0048 FA                MOV     R2,A
+0049 120000      E     LCALL   ?C?CLDPTR
+004C FF                MOV     R7,A
+004D 850083      E     MOV     DPH,?C_XBP
+0050 850082      E     MOV     DPL,?C_XBP+01H
+0053 120000      E     LCALL   ?C?PLDXDATA
+0056 EF                MOV     A,R7
+0057 120000      E     LCALL   ?C?CSTPTR
+                                           ; SOURCE LINE # 138
+005A 900003            MOV     DPTR,#03H
+005D 120000      E     LCALL   ?C?XBPOFF
+0060 120000      E     LCALL   ?C?PLDXDATA
+0063 E9                MOV     A,R1
+0064 2402              ADD     A,#02H
+0066 F9                MOV     R1,A
+0067 E4                CLR     A
+0068 3A                ADDC    A,R2
+0069 FA                MOV     R2,A
+006A 120000      E     LCALL   ?C?CLDPTR
+006D FF                MOV     R7,A
+006E 850083      E     MOV     DPH,?C_XBP
+0071 850082      E     MOV     DPL,?C_XBP+01H
+0074 120000      E     LCALL   ?C?PLDXDATA
+0077 E9                MOV     A,R1
+0078 2401              ADD     A,#01H
+007A F9                MOV     R1,A
+007B E4                CLR     A
+007C 3A                ADDC    A,R2
+007D FA                MOV     R2,A
+007E EF                MOV     A,R7
+007F 120000      E     LCALL   ?C?CSTPTR
+                                           ; SOURCE LINE # 139
+0082 900003            MOV     DPTR,#03H
+0085 120000      E     LCALL   ?C?XBPOFF
+0088 120000      E     LCALL   ?C?PLDXDATA
+008B E9                MOV     A,R1
+008C 2401              ADD     A,#01H
+008E F9                MOV     R1,A
+008F E4                CLR     A
+0090 3A                ADDC    A,R2
+0091 FA                MOV     R2,A
+0092 120000      E     LCALL   ?C?CLDPTR
+0095 FF                MOV     R7,A
+0096 850083      E     MOV     DPH,?C_XBP
+0099 850082      E     MOV     DPL,?C_XBP+01H
+009C 120000      E     LCALL   ?C?PLDXDATA
+009F E9                MOV     A,R1
+00A0 2402              ADD     A,#02H
+00A2 F9                MOV     R1,A
+00A3 E4                CLR     A
+00A4 3A                ADDC    A,R2
+00A5 FA                MOV     R2,A
+00A6 EF                MOV     A,R7
+00A7 120000      E     LCALL   ?C?CSTPTR
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 10  
+
+                                           ; SOURCE LINE # 140
+00AA 900003            MOV     DPTR,#03H
+00AD 120000      E     LCALL   ?C?XBPOFF
+00B0 120000      E     LCALL   ?C?PLDXDATA
+00B3 120000      E     LCALL   ?C?CLDPTR
+00B6 FF                MOV     R7,A
+00B7 850083      E     MOV     DPH,?C_XBP
+00BA 850082      E     MOV     DPL,?C_XBP+01H
+00BD 120000      E     LCALL   ?C?PLDXDATA
+00C0 E9                MOV     A,R1
+00C1 2403              ADD     A,#03H
+00C3 F9                MOV     R1,A
+00C4 E4                CLR     A
+00C5 3A                ADDC    A,R2
+00C6 FA                MOV     R2,A
+00C7 EF                MOV     A,R7
+00C8 120000      E     LCALL   ?C?CSTPTR
+                                           ; SOURCE LINE # 141
+00CB 900006            MOV     DPTR,#06H
+00CE 120000      E     LCALL   ?C?XBPOFF
+00D1 120000      E     LCALL   ?C?LLDXDATA
+                                           ; SOURCE LINE # 142
+00D4         ?C0031:
+00D4 90000E            MOV     DPTR,#0EH
+00D7 120000      E     LCALL   ?C?ADDXBP
+00DA 22                RET     
+             ; FUNCTION _?swap32 (END)
+
+             ; FUNCTION _ERROR (BEGIN)
+                                           ; SOURCE LINE # 144
+0000 900000      R     MOV     DPTR,#msg
+0003 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 146
+0006 E4                CLR     A
+0007 900000      R     MOV     DPTR,#timer
+000A F0                MOVX    @DPTR,A
+000B A3                INC     DPTR
+000C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 148
+000D 900000      E     MOV     DPTR,#USBFS_initVar
+0010 E0                MOVX    A,@DPTR
+0011 6003              JZ      ?C0032
+0013 120000      E     LCALL   USBFS_Stop
+0016         ?C0032:
+                                           ; SOURCE LINE # 149
+0016 120000      E     LCALL   Control_Read
+0019 EF                MOV     A,R7
+001A 54FB              ANL     A,#0FBH
+001C 440B              ORL     A,#0BH
+001E FF                MOV     R7,A
+001F 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 150
+0022 900000      R     MOV     DPTR,#msg
+0025 120000      E     LCALL   ?C?PLDXDATA
+0028 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 152
+002B         ?C0033:
+                                           ; SOURCE LINE # 153
+002B 120000      E     LCALL   Status_Read
+002E EF                MOV     A,R7
+002F 5408              ANL     A,#08H
+0031 FF                MOV     R7,A
+C51 COMPILER V9.51   MAIN                                                                  10/24/2015 08:30:41 PAGE 11  
+
+;---- Variable 'i' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 154
+0032 900000      R     MOV     DPTR,#beat
+0035 E0                MOVX    A,@DPTR
+0036 6F                XRL     A,R7
+0037 60F2              JZ      ?C0033
+                                           ; SOURCE LINE # 155
+0039 EF                MOV     A,R7
+003A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 156
+003B A3                INC     DPTR
+003C 74FF              MOV     A,#0FFH
+003E F5F0              MOV     B,A
+0040 120000      E     LCALL   ?C?ILDIX
+0043 45F0              ORL     A,B
+0045 70E4              JNZ     ?C0033
+                                           ; SOURCE LINE # 157
+0047 900000      R     MOV     DPTR,#timer
+004A 04                INC     A
+004B F0                MOVX    @DPTR,A
+004C A3                INC     DPTR
+004D 74E0              MOV     A,#0E0H
+004F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 158
+0050 7B00              MOV     R3,#00H
+0052 7A00              MOV     R2,#00H
+0054 7900              MOV     R1,#00H
+0056 120000      E     LCALL   _Morse_Main
+                                           ; SOURCE LINE # 159
+                                           ; SOURCE LINE # 160
+                                           ; SOURCE LINE # 161
+0059 80D0              SJMP    ?C0033
+005B 22                RET     
+             ; FUNCTION _ERROR (END)
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    668    ----
+   CONSTANT SIZE    =     27    ----
+   XDATA SIZE       =      6       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

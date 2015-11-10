@@ -1,0 +1,510 @@
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE SYNC
+OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\sync.obj
+COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
+                    -.\sync.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB WL(2) PR(.\DP8051\DP8051_Keil_951\D
+                    -ebug/sync.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\sync.obj)
+
+line level    source
+
+   1          // Copyright 2013 David Turnbull AE9RB
+   2          //
+   3          // Licensed under the Apache License, Version 2.0 (the "License");
+   4          // you may not use this file except in compliance with the License.
+   5          // You may obtain a copy of the License at
+   6          //
+   7          //     http://www.apache.org/licenses/LICENSE-2.0
+   8          //
+   9          // Unless required by applicable law or agreed to in writing, software
+  10          // distributed under the License is distributed on an "AS IS" BASIS,
+  11          // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  12          // See the License for the specific language governing permissions and
+  13          // limitations under the License.
+  14          
+  15          #include <peaberry.h>
+  16          
+  17          #define SYNC_SOF_CENTER 22000
+  18          #define SYNC_FRAC_MIN (FracN_DEFAULT-1000)
+  19          #define SYNC_FRAC_MAX (FracN_DEFAULT+500)
+  20          #define SYNC_P_GAIN 0.0004
+  21          #define SYNC_D_GAIN 0.5
+  22          
+  23          #define PLL_VERIFY_TIME 3000
+  24          #define PLL_RESET_TIME 200
+  25          
+  26          void Sync_Start(void) {
+  27   1          FracN_Start(P_DMA);
+  28   1          SyncSOF_Start();
+  29   1          // A pause is needed for the PLL to settle
+  30   1          CyDelay(1);
+  31   1      }
+  32          
+  33          void Sync_Main(void) {
+  34   1          static uint16 frac = FracN_DEFAULT;
+  35   1          static int16 prev_error = 0;
+  36   1          
+  37   1          static uint8 pll_resetting = 0;
+  38   1          static uint16 pll_testing = PLL_VERIFY_TIME;
+  39   1          static uint16 pll_diff_acc = 0, pll_error_count = 0;
+  40   1          
+  41   1          int16 cur_error, diff, p_term, d_term;
+  42   1          uint16 pos;
+  43   1          
+  44   1          pos = CY_GET_REG8(SyncSOF_FRAME_POS_LO__STATUS_REG);
+  45   1          if (pos & 0x01) {
+  46   2              pos += (uint16)CY_GET_REG8(SyncSOF_FRAME_POS_HI__STATUS_REG) << 8;
+  47   2      
+  48   2              cur_error = pos - SYNC_SOF_CENTER;
+  49   2                  
+  50   2              diff = cur_error - prev_error;
+  51   2              p_term = cur_error * SYNC_P_GAIN;
+  52   2              d_term = diff * SYNC_D_GAIN;
+  53   2              prev_error = cur_error;
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 2   
+
+  54   2              
+  55   2              frac += p_term + d_term;
+  56   2              
+  57   2              if (frac > SYNC_FRAC_MAX) frac = SYNC_FRAC_MAX;
+  58   2              if (frac < SYNC_FRAC_MIN) frac = SYNC_FRAC_MIN;
+  59   2              
+  60   2              if (pll_testing) {
+  61   3                  if (pll_resetting) {
+  62   4                      frac = 0;
+  63   4                      // Wait for PLL reset
+  64   4                      if (!(--pll_resetting)) {
+  65   5                          Control_Write(Control_Read() & ~CONTROL_LED);
+  66   5                          frac = FracN_DEFAULT;
+  67   5                          FRAC_CLK_SetDividerValue(13);
+  68   5                      }
+  69   4                  } else {
+  70   4                      pll_testing--;
+  71   4                      if (diff < 0) pll_diff_acc -= diff;
+  72   4                      else pll_diff_acc += diff;
+  73   4                      pll_diff_acc /= 2;
+  74   4                      if (pll_diff_acc < 2) {
+  75   5                          if (pll_error_count) pll_error_count--;
+  76   5                      } else if (pll_diff_acc > 7) {
+  77   5                          pll_error_count++;
+  78   5                      }
+  79   4                      if (pll_error_count > 50) {
+  80   5                          pll_diff_acc = 0;
+  81   5                          pll_error_count = 0;
+  82   5                          pll_resetting = PLL_RESET_TIME;
+  83   5                          pll_testing = PLL_VERIFY_TIME;
+  84   5                          Control_Write(Control_Read() | CONTROL_LED);
+  85   5                          FRAC_CLK_SetDividerValue(14);
+  86   5                      }
+  87   4                  }
+  88   3              }
+  89   2      
+  90   2              FracN_Set(frac);
+  91   2          }
+  92   1      }
+  93          
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 3   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Sync_Start (BEGIN)
+                                           ; SOURCE LINE # 26
+                                           ; SOURCE LINE # 27
+0000 E4                CLR     A
+0001 900000      E     MOV     DPTR,#?_P_DMA_DmaInitialize?BYTE+04H
+0004 F0                MOVX    @DPTR,A
+0005 A3                INC     DPTR
+0006 F0                MOVX    @DPTR,A
+0007 FB                MOV     R3,A
+0008 FA                MOV     R2,A
+0009 7D01              MOV     R5,#01H
+000B 7F01              MOV     R7,#01H
+000D 120000      E     LCALL   _P_DMA_DmaInitialize
+0010 120000      E     LCALL   _FracN_Start2
+                                           ; SOURCE LINE # 28
+0013 120000      E     LCALL   SyncSOF_Start
+                                           ; SOURCE LINE # 30
+0016 E4                CLR     A
+0017 7F01              MOV     R7,#01H
+0019 FE                MOV     R6,A
+001A FD                MOV     R5,A
+001B FC                MOV     R4,A
+001C 120000      E     LCALL   _?CyDelay
+                                           ; SOURCE LINE # 31
+001F 22                RET     
+             ; FUNCTION Sync_Start (END)
+
+             ; FUNCTION Sync_Main (BEGIN)
+                                           ; SOURCE LINE # 33
+                                           ; SOURCE LINE # 44
+0000 906564            MOV     DPTR,#06564H
+0003 E0                MOVX    A,@DPTR
+;---- Variable 'pos' assigned to Register 'R4/R5' ----
+0004 FD                MOV     R5,A
+0005 7C00              MOV     R4,#00H
+                                           ; SOURCE LINE # 45
+0007 20E003            JB      ACC.0,$ + 6H
+000A 020000      R     LJMP    ?C0016
+                                           ; SOURCE LINE # 46
+000D 906566            MOV     DPTR,#06566H
+0010 E0                MOVX    A,@DPTR
+0011 FE                MOV     R6,A
+0012 E4                CLR     A
+0013 2D                ADD     A,R5
+0014 FD                MOV     R5,A
+0015 EC                MOV     A,R4
+0016 3E                ADDC    A,R6
+0017 FC                MOV     R4,A
+                                           ; SOURCE LINE # 48
+0018 FE                MOV     R6,A
+0019 AF05              MOV     R7,AR5
+001B ED                MOV     A,R5
+001C 2410              ADD     A,#010H
+001E FF                MOV     R7,A
+001F EE                MOV     A,R6
+0020 34AA              ADDC    A,#0AAH
+0022 900000      R     MOV     DPTR,#cur_error
+0025 F0                MOVX    @DPTR,A
+0026 A3                INC     DPTR
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 4   
+
+0027 EF                MOV     A,R7
+0028 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 50
+0029 900000      R     MOV     DPTR,#prev_error
+002C E0                MOVX    A,@DPTR
+002D FE                MOV     R6,A
+002E A3                INC     DPTR
+002F E0                MOVX    A,@DPTR
+0030 FF                MOV     R7,A
+0031 900000      R     MOV     DPTR,#cur_error
+0034 E0                MOVX    A,@DPTR
+0035 FC                MOV     R4,A
+0036 A3                INC     DPTR
+0037 E0                MOVX    A,@DPTR
+0038 FD                MOV     R5,A
+0039 C3                CLR     C
+003A 9F                SUBB    A,R7
+003B FF                MOV     R7,A
+003C EC                MOV     A,R4
+003D 9E                SUBB    A,R6
+003E A3                INC     DPTR
+003F F0                MOVX    @DPTR,A
+0040 A3                INC     DPTR
+0041 EF                MOV     A,R7
+0042 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 51
+0043 EC                MOV     A,R4
+0044 120000      E     LCALL   ?C?FCASTI
+0047 7B17              MOV     R3,#017H
+0049 7AB7              MOV     R2,#0B7H
+004B 79D1              MOV     R1,#0D1H
+004D 7839              MOV     R0,#039H
+004F 120000      E     LCALL   ?C?FPMUL
+0052 120000      E     LCALL   ?C?CASTF
+0055 900000      R     MOV     DPTR,#p_term
+0058 EE                MOV     A,R6
+0059 F0                MOVX    @DPTR,A
+005A A3                INC     DPTR
+005B EF                MOV     A,R7
+005C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 52
+005D 900000      R     MOV     DPTR,#diff
+0060 E0                MOVX    A,@DPTR
+0061 FC                MOV     R4,A
+0062 A3                INC     DPTR
+0063 E0                MOVX    A,@DPTR
+0064 FD                MOV     R5,A
+0065 EC                MOV     A,R4
+0066 120000      E     LCALL   ?C?FCASTI
+0069 E4                CLR     A
+006A FB                MOV     R3,A
+006B FA                MOV     R2,A
+006C F9                MOV     R1,A
+006D 783F              MOV     R0,#03FH
+006F 120000      E     LCALL   ?C?FPMUL
+0072 120000      E     LCALL   ?C?CASTF
+;---- Variable 'd_term' assigned to Register 'R6/R7' ----
+                                           ; SOURCE LINE # 53
+0075 900000      R     MOV     DPTR,#cur_error
+0078 E0                MOVX    A,@DPTR
+0079 FD                MOV     R5,A
+007A A3                INC     DPTR
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 5   
+
+007B E0                MOVX    A,@DPTR
+007C 900000      R     MOV     DPTR,#prev_error
+007F CD                XCH     A,R5
+0080 F0                MOVX    @DPTR,A
+0081 A3                INC     DPTR
+0082 ED                MOV     A,R5
+0083 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 55
+0084 900000      R     MOV     DPTR,#p_term+01H
+0087 E0                MOVX    A,@DPTR
+0088 2F                ADD     A,R7
+0089 FF                MOV     R7,A
+008A 900000      R     MOV     DPTR,#p_term
+008D E0                MOVX    A,@DPTR
+008E 3E                ADDC    A,R6
+008F 900000      R     MOV     DPTR,#frac
+0092 8FF0              MOV     B,R7
+0094 120000      E     LCALL   ?C?IILDX
+                                           ; SOURCE LINE # 57
+0097 D3                SETB    C
+0098 900000      R     MOV     DPTR,#frac+01H
+009B E0                MOVX    A,@DPTR
+009C 94E8              SUBB    A,#0E8H
+009E 900000      R     MOV     DPTR,#frac
+00A1 E0                MOVX    A,@DPTR
+00A2 943F              SUBB    A,#03FH
+00A4 4007              JC      ?C0003
+00A6 743F              MOV     A,#03FH
+00A8 F0                MOVX    @DPTR,A
+00A9 A3                INC     DPTR
+00AA 74E8              MOV     A,#0E8H
+00AC F0                MOVX    @DPTR,A
+00AD         ?C0003:
+                                           ; SOURCE LINE # 58
+00AD C3                CLR     C
+00AE 900000      R     MOV     DPTR,#frac+01H
+00B1 E0                MOVX    A,@DPTR
+00B2 940C              SUBB    A,#0CH
+00B4 900000      R     MOV     DPTR,#frac
+00B7 E0                MOVX    A,@DPTR
+00B8 943A              SUBB    A,#03AH
+00BA 5007              JNC     ?C0004
+00BC 743A              MOV     A,#03AH
+00BE F0                MOVX    @DPTR,A
+00BF A3                INC     DPTR
+00C0 740C              MOV     A,#0CH
+00C2 F0                MOVX    @DPTR,A
+00C3         ?C0004:
+                                           ; SOURCE LINE # 60
+00C3 900000      R     MOV     DPTR,#pll_testing
+00C6 E0                MOVX    A,@DPTR
+00C7 7002              JNZ     ?C0017
+00C9 A3                INC     DPTR
+00CA E0                MOVX    A,@DPTR
+00CB         ?C0017:
+00CB 7003              JNZ     $ + 5H
+00CD 020000      R     LJMP    ?C0005
+                                           ; SOURCE LINE # 61
+00D0 900000      R     MOV     DPTR,#pll_resetting
+00D3 E0                MOVX    A,@DPTR
+00D4 6032              JZ      ?C0006
+                                           ; SOURCE LINE # 62
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 6   
+
+00D6 E4                CLR     A
+00D7 900000      R     MOV     DPTR,#frac
+00DA F0                MOVX    @DPTR,A
+00DB A3                INC     DPTR
+00DC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 64
+00DD 900000      R     MOV     DPTR,#pll_resetting
+00E0 E0                MOVX    A,@DPTR
+00E1 14                DEC     A
+00E2 F0                MOVX    @DPTR,A
+00E3 6003              JZ      $ + 5H
+00E5 020000      R     LJMP    ?C0005
+                                           ; SOURCE LINE # 65
+00E8 120000      E     LCALL   Control_Read
+00EB EF                MOV     A,R7
+00EC 54FE              ANL     A,#0FEH
+00EE FF                MOV     R7,A
+00EF 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 66
+00F2 900000      R     MOV     DPTR,#frac
+00F5 743D              MOV     A,#03DH
+00F7 F0                MOVX    @DPTR,A
+00F8 A3                INC     DPTR
+00F9 74F4              MOV     A,#0F4H
+00FB F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 67
+00FC 7D01              MOV     R5,#01H
+00FE 7F0C              MOV     R7,#0CH
+0100 7E00              MOV     R6,#00H
+0102 120000      E     LCALL   _FRAC_CLK_SetDividerRegister
+                                           ; SOURCE LINE # 68
+                                           ; SOURCE LINE # 69
+0105 020000      R     LJMP    ?C0005
+0108         ?C0006:
+                                           ; SOURCE LINE # 70
+0108 900000      R     MOV     DPTR,#pll_testing
+010B 74FF              MOV     A,#0FFH
+010D F5F0              MOV     B,A
+010F 120000      E     LCALL   ?C?IILDX
+                                           ; SOURCE LINE # 71
+0112 900000      R     MOV     DPTR,#diff
+0115 E0                MOVX    A,@DPTR
+0116 FE                MOV     R6,A
+0117 A3                INC     DPTR
+0118 E0                MOVX    A,@DPTR
+0119 FF                MOV     R7,A
+011A C3                CLR     C
+011B EE                MOV     A,R6
+011C 6480              XRL     A,#080H
+011E 9480              SUBB    A,#080H
+0120 500F              JNC     ?C0009
+0122 C3                CLR     C
+0123 900000      R     MOV     DPTR,#pll_diff_acc+01H
+0126 E0                MOVX    A,@DPTR
+0127 9F                SUBB    A,R7
+0128 F0                MOVX    @DPTR,A
+0129 900000      R     MOV     DPTR,#pll_diff_acc
+012C E0                MOVX    A,@DPTR
+012D 9E                SUBB    A,R6
+012E F0                MOVX    @DPTR,A
+012F 8011              SJMP    ?C0010
+0131         ?C0009:
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 7   
+
+                                           ; SOURCE LINE # 72
+0131 900000      R     MOV     DPTR,#diff
+0134 E0                MOVX    A,@DPTR
+0135 FE                MOV     R6,A
+0136 A3                INC     DPTR
+0137 E0                MOVX    A,@DPTR
+0138 FF                MOV     R7,A
+0139 900000      R     MOV     DPTR,#pll_diff_acc
+013C EE                MOV     A,R6
+013D 8FF0              MOV     B,R7
+013F 120000      E     LCALL   ?C?IILDX
+0142         ?C0010:
+                                           ; SOURCE LINE # 73
+0142 900000      R     MOV     DPTR,#pll_diff_acc
+0145 E0                MOVX    A,@DPTR
+0146 C3                CLR     C
+0147 13                RRC     A
+0148 FE                MOV     R6,A
+0149 A3                INC     DPTR
+014A E0                MOVX    A,@DPTR
+014B 13                RRC     A
+014C FF                MOV     R7,A
+014D 900000      R     MOV     DPTR,#pll_diff_acc
+0150 EE                MOV     A,R6
+0151 F0                MOVX    @DPTR,A
+0152 A3                INC     DPTR
+0153 EF                MOV     A,R7
+0154 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 74
+0155 C3                CLR     C
+0156 9402              SUBB    A,#02H
+0158 EE                MOV     A,R6
+0159 9400              SUBB    A,#00H
+015B 5014              JNC     ?C0011
+                                           ; SOURCE LINE # 75
+015D A3                INC     DPTR
+015E E0                MOVX    A,@DPTR
+015F 7002              JNZ     ?C0018
+0161 A3                INC     DPTR
+0162 E0                MOVX    A,@DPTR
+0163         ?C0018:
+0163 6025              JZ      ?C0013
+0165 900000      R     MOV     DPTR,#pll_error_count
+0168 74FF              MOV     A,#0FFH
+016A F5F0              MOV     B,A
+016C 120000      E     LCALL   ?C?IILDX
+                                           ; SOURCE LINE # 76
+016F 8019              SJMP    ?C0013
+0171         ?C0011:
+0171 D3                SETB    C
+0172 900000      R     MOV     DPTR,#pll_diff_acc+01H
+0175 E0                MOVX    A,@DPTR
+0176 9407              SUBB    A,#07H
+0178 900000      R     MOV     DPTR,#pll_diff_acc
+017B E0                MOVX    A,@DPTR
+017C 9400              SUBB    A,#00H
+017E 400A              JC      ?C0013
+                                           ; SOURCE LINE # 77
+0180 900000      R     MOV     DPTR,#pll_error_count
+0183 E4                CLR     A
+0184 75F001            MOV     B,#01H
+0187 120000      E     LCALL   ?C?IILDX
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 8   
+
+                                           ; SOURCE LINE # 78
+018A         ?C0013:
+                                           ; SOURCE LINE # 79
+018A D3                SETB    C
+018B 900000      R     MOV     DPTR,#pll_error_count+01H
+018E E0                MOVX    A,@DPTR
+018F 9432              SUBB    A,#032H
+0191 900000      R     MOV     DPTR,#pll_error_count
+0194 E0                MOVX    A,@DPTR
+0195 9400              SUBB    A,#00H
+0197 402C              JC      ?C0005
+                                           ; SOURCE LINE # 80
+0199 E4                CLR     A
+019A 900000      R     MOV     DPTR,#pll_diff_acc
+019D F0                MOVX    @DPTR,A
+019E A3                INC     DPTR
+019F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 81
+01A0 A3                INC     DPTR
+01A1 F0                MOVX    @DPTR,A
+01A2 A3                INC     DPTR
+01A3 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 82
+01A4 900000      R     MOV     DPTR,#pll_resetting
+01A7 74C8              MOV     A,#0C8H
+01A9 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 83
+01AA A3                INC     DPTR
+01AB 740B              MOV     A,#0BH
+01AD F0                MOVX    @DPTR,A
+01AE A3                INC     DPTR
+01AF 74B8              MOV     A,#0B8H
+01B1 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 84
+01B2 120000      E     LCALL   Control_Read
+01B5 EF                MOV     A,R7
+01B6 4401              ORL     A,#01H
+01B8 FF                MOV     R7,A
+01B9 120000      E     LCALL   _Control_Write
+                                           ; SOURCE LINE # 85
+01BC 7D01              MOV     R5,#01H
+01BE 7F0D              MOV     R7,#0DH
+01C0 7E00              MOV     R6,#00H
+01C2 120000      E     LCALL   _FRAC_CLK_SetDividerRegister
+                                           ; SOURCE LINE # 86
+                                           ; SOURCE LINE # 87
+                                           ; SOURCE LINE # 88
+01C5         ?C0005:
+                                           ; SOURCE LINE # 90
+01C5 900000      R     MOV     DPTR,#frac
+01C8 E0                MOVX    A,@DPTR
+01C9 FE                MOV     R6,A
+01CA A3                INC     DPTR
+01CB E0                MOVX    A,@DPTR
+01CC FF                MOV     R7,A
+01CD 120000      E     LCALL   _FracN_Set
+                                           ; SOURCE LINE # 91
+                                           ; SOURCE LINE # 92
+01D0         ?C0016:
+01D0 22                RET     
+             ; FUNCTION Sync_Main (END)
+
+C51 COMPILER V9.51   SYNC                                                                  10/24/2015 08:30:46 PAGE 9   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    497    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     11       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
