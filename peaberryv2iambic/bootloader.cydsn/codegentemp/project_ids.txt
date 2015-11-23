@@ -1,8 +1,0 @@
-J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\bootloader.cyprj|59ffcdfe-0483-4856-806c-df39d3a31b8a
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|1be7e4ff-06cf-4231-8703-e12a49db27cb
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\default\CyReferenceLibrary\CyReferenceLibrary.cylib\CyReferenceLibrary.cyprj|c5792295-131e-4f1f-bbcf-709804283783
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|27286988-f331-455a-9f1a-4a41b89ab61d
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|588e0a39-0149-4e65-8d0d-d64858946b0a
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|600816d3-465c-43b0-9c93-5d1299ed82f7
-J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\peaberry.cydsn\peaberry.cyprj|12c3cffb-541f-4c69-b2d0-b8bbcc53f82a
-C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\dev\psoc3\AnalogDevice\PSoC35AnalogDevice.cylib\PSoC35AnalogDevice.cyprj|a7ea4236-4a9d-4235-a03f-c8f2168f068f
