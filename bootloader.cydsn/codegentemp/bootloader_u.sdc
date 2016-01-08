@@ -1,3 +1,3 @@
-# Component constraints for J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\TopDesign\TopDesign.cysch
-# Project: J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\bootloader.cyprj
-# Date: Fri, 23 Oct 2015 02:06:53 GMT
+# Component constraints for J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\TopDesign\TopDesign.cysch
+# Project: J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\bootloader.cyprj
+# Date: Fri, 08 Jan 2016 03:10:44 GMT

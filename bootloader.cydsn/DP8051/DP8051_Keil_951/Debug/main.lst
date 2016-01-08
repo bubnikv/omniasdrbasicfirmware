@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 1   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   51          
   52          const uint8 code MORSE_XTAL[] = {
   53              /* 0x58 X */ MCODE(3113),
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 2   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 2   
 
   54              /* 0x54 T */ MCODE(3),
   55              /* 0x41 A */ MCODE(13),
@@ -126,7 +126,7 @@ line level    source
              -tate 
  113   1                          //to enable firmware upload.
  114   1              //if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 3   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 3   
 
  115   1              //else {
  116   1                  //if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
@@ -160,7 +160,7 @@ line level    source
  141   1      }
  142          
  143          /* [] END OF FILE */
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 4   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -224,7 +224,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005D FE                MOV     R6,A
 005E 5407              ANL     A,#07H
 0060 A3                INC     DPTR
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 5   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 5   
 
 0061 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 70
@@ -288,7 +288,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 84
 00AE         ?C0007:
                                            ; SOURCE LINE # 85
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 6   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 6   
 
 00AE 900000      R     MOV     DPTR,#timer
 00B1 E0                MOVX    A,@DPTR
@@ -352,7 +352,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F9         ?C0013:
                                            ; SOURCE LINE # 100
 00F9 900000      R     MOV     DPTR,#timer
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 7   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 7   
 
 00FC E0                MOVX    A,@DPTR
 00FD 14                DEC     A
@@ -416,7 +416,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 129
 0031 120000      E     LCALL   BOOT_Read
 ;---- Variable 'boot_pin' assigned to Register 'R7' ----
-C51 COMPILER V9.51   MAIN                                                                  10/22/2015 22:06:59 PAGE 8   
+C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 8   
 
                                            ; SOURCE LINE # 130
 0034 EF                MOV     A,R7

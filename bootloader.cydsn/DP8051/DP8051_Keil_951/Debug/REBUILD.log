@@ -1,4 +1,4 @@
---------------- Rebuild Started: 10/22/2015 22:06:48 Project: bootloader, Configuration: DP8051 Keil 9.51 Debug ---------------
+--------------- Rebuild Started: 01/07/2016 22:10:40 Project: bootloader, Configuration: DP8051 Keil 9.51 Debug ---------------
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\main.obj"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\cyfitter_cfg.obj"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS.obj"
@@ -43,7 +43,7 @@ Deleting file ".\bootloader_timing.html"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\.deps\C_FILE.P"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\.deps\DP8051_C_FILE.P"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\.deps\KEIL_8051_ASM_FILE.P"
-cydsfit.exe -.appdatapath "C:\Users\Ron\AppData\Local\Cypress Semiconductor\PSoC Creator\3.3" -.fdsnotice -.fdswarpdepfile=warp_dependencies.txt -.fdselabdepfile=elab_dependencies.txt -.fdsbldfile=generated_files.txt -p "J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\bootloader.cyprj" -d CY8C3246PVI-147 -s "J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\Generated_Source\PSoC3" -- -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=BE
+cydsfit.exe -.appdatapath "C:\Users\Ron\AppData\Local\Cypress Semiconductor\PSoC Creator\3.3" -.fdsnotice -.fdswarpdepfile=warp_dependencies.txt -.fdselabdepfile=elab_dependencies.txt -.fdsbldfile=generated_files.txt -p "J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\bootloader.cyprj" -d CY8C3246PVI-147 -s "J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\Generated_Source\PSoC3" -- -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=BE
 Elaborating Design...
 HDL Generation ...
 Synthesis ...
@@ -103,4 +103,4 @@ cysymboladdressfinder.exe -f .\DP8051\DP8051_Keil_951\Debug\bootloader.elf -s Bo
 cyhextool -o .\DP8051\DP8051_Keil_951\Debug\bootloader.hex -f .\DP8051\DP8051_Keil_951\Debug\bootloader.ihx -prot .\Generated_Source\PSoC3\protect.hex -id 1E093069 -a EEPROM=90200000:800,PROGRAM=00000000:10000,CONFIG=80000000:2000,PROTECT=90400000:40 -meta 0301 -cunv 0800C005 -wonv BC90ACAF -ecc OFF -blver 000001010100000000000000 -blcks .\DP8051\DP8051_Keil_951\Debug\cksmaddress.txt -blsize .\DP8051\DP8051_Keil_951\Debug\sizeaddress.txt -flsLine 256 -endian b
 Flash used: 16896 of 65536 bytes (25.8 %).
 SRAM used: 1587 of 8192 bytes (19.4 %).
---------------- Rebuild Succeeded: 10/22/2015 22:07:08 ---------------
+--------------- Rebuild Succeeded: 01/07/2016 22:11:02 ---------------

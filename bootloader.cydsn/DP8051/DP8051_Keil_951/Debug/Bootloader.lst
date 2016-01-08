@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 1   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE BOOTLOADER
@@ -62,7 +62,7 @@ line level    source
   50          const uint8  CYCODE *Bootloader_ChecksumAccess  = (const uint8  CYCODE *)(&Bootloader_Checksum);
   51          
   52          #if defined(__ARMCC_VERSION) || defined (__GNUC__)
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 2   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 2   
 
                   __attribute__((section (".bootloader"), used))
               #elif defined (__ICCARM__)
@@ -126,7 +126,7 @@ line level    source
                */
               static Bootloader_callback_type Bootloader_callback = NULL;
               #endif /*(CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LAUNCHER) && (!CY_PSOC3)*/
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 3   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 3   
 
  113          /** @}*/
  114           
@@ -190,7 +190,7 @@ line level    source
                                CYSMALL ;
                   static void Bootloader_Copier(void) CYSMALL ;
               #endif /*(0u != Bootloader_COPIER_AVAIL) && (CY_PSOC4)*/
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 4   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 4   
 
               #endif /*(CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER)*/
  172                                 
@@ -254,7 +254,7 @@ line level    source
               * \endinternal 
               *******************************************************************************/
               static  uint8 Bootloader_GetActiveAppFromMetadata(void) CYSMALL \
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 5   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 5   
 
                      
               {
@@ -318,7 +318,7 @@ line level    source
               *     - Bootloader_initVar
               *
               * \details 
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 6   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 6   
 
               *   This API should be called first to be able to capture the active application 
               *   number that is actually the running application number.
@@ -382,7 +382,7 @@ line level    source
               *
               *******************************************************************************/
               uint8 Bootloader_GetActiveAppStatus(void) CYSMALL \
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 7   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 7   
 
                     
               {  
@@ -446,7 +446,7 @@ line level    source
  415   4      
  416   4                          tmp >>= 1u;
  417   4                      }
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 8   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 8   
 
  418   3      
  419   3                      size--;
@@ -510,7 +510,7 @@ line level    source
               *  \param ramStart 
               *        The start address of corresponding data to compare in the RAM buffer.
               *  \param size 
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 9   
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 9   
 
               *        The data length (common for both arrays).
               *
@@ -574,7 +574,7 @@ line level    source
                       CYASSERT(baseAddr == CY_FLASH_BASE);
                   #endif  /* (!CY_PSOC4) */
  541   1      
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 10  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 10  
 
  542   1          while (size > 0u)
  543   1          {
@@ -638,7 +638,7 @@ line level    source
               *    the case when there is a large communication component like BLE. To save 
               *    flash space for the user application, such a large communication component 
               *    is present only in the first application (Stack application) and is "shared" 
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 11  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 11  
 
               *    with the second application (the user's application actually) by "Code 
               *    sharing feature" (See code sharing and BLE Upgradable Stack example project). 
@@ -702,7 +702,7 @@ line level    source
                   uint16 launcherLastRow = Bootloader_GetMetadata(Bootloader_GET_BTLDR_LAST_ROW, Bootloader_MD_BTLDB_ACT
              -IVE_0);
               
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 12  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 12  
 
                   /* Calculating destination's start row number (first row of app#1) */
                   uint16 dstRow = launcherLastRow + 1u;
@@ -766,7 +766,7 @@ line level    source
                           CyHalt(0x00u);
                       }
                   }    
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 13  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 13  
 
                   
                   /* Copy metadata app#2 -> app#1*/
@@ -830,7 +830,7 @@ line level    source
               #endif /*(CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER)*/
  786          
  787          
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 14  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 14  
 
  788          /*******************************************************************************
  789          * Function Name: Bootloader_Start
@@ -894,7 +894,7 @@ line level    source
  847   1          #if(0u != Bootloader_BOOTLOADER_APP_VALIDATION)
  848   1              uint8 CYDATA calcedChecksum;
  849   1          #endif    /* (0u != Bootloader_BOOTLOADER_APP_VALIDATION) */
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 15  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 15  
 
  850   1      
  851   1          #if(!CY_PSOC4)
@@ -958,7 +958,7 @@ line level    source
                           * |      |        |       |        |       | stay in Bootloader            |                  
              -            | 
                           * |  11  |    1   |   0   |   1    |   0   | Bootloader                    | Launcher         
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 16  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 16  
 
              -            |
                           * |  12  |    1   |   0   |   1    |   1   | app#2                         | app#2            
@@ -1022,7 +1022,7 @@ line level    source
                           * |  4   |    0   |   0   |   1    |   1   | app#2                         | app#2            
              -            | 
                           * |  5   |    0   |   1   |   0    |   0   | Bootloader                    | app#1            
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 17  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 17  
 
              -            |
                           * |  6   |    0   |   1   |   0    |   1   | Bootloader                    | app#1            
@@ -1086,7 +1086,7 @@ line level    source
                               else
                               {
                                   /* case#1, case#3, case#9, case#11: very bad situation, no valid application */
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 18  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 18  
 
                                   /* Do nothing, stay in Bootloader/Launcher */
                               }
@@ -1150,7 +1150,7 @@ line level    source
 1057   1              calcedChecksum = Bootloader_Calc8BitSum(CY_FLASH_BASE,
 1058   1                      Bootloader_MD_BTLDR_ADDR_PTR,
 1059   1                      *Bootloader_SizeBytesAccess - Bootloader_MD_BTLDR_ADDR_PTR);
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 19  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 19  
 
 1060   1      
 1061   1              /* We included checksum, so remove it */
@@ -1214,7 +1214,7 @@ line level    source
 1119   1      #endif /*(CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/    
 1120   1      }
 1121          
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 20  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 20  
 
 1122          #if (CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
 1123          /*******************************************************************************
@@ -1278,7 +1278,7 @@ line level    source
 1181   2              if(CYRET_SUCCESS == Bootloader_ValidateBootloadable(appId))
 1182   2              {
 1183   3                  /* Set active application in metadata */
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 21  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 21  
 
 1184   3                  uint8 CYDATA idx;
 1185   3                  for(idx = 0u; idx < Bootloader_MAX_NUM_OF_BTLDB; idx++)
@@ -1342,7 +1342,7 @@ line level    source
 1243   1      
 1244   1          if (Bootloader_GET_RUN_TYPE == Bootloader_SCHEDULE_BTLDB)
 1245   1          {
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 22  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 22  
 
 1246   2      
 1247   2      
@@ -1406,7 +1406,7 @@ line level    source
               
               #elif defined(__GNUC__)
               
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 23  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 23  
 
                   __attribute__((noinline)) /* Workaround for GCC toolchain bug with inlining */
                   __attribute__((naked))
@@ -1470,7 +1470,7 @@ line level    source
                           if(appId > 1u)
                           {
                               return(CYRET_BAD_DATA);
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 24  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 24  
 
                           }
               
@@ -1534,7 +1534,7 @@ line level    source
 1429   1      
 1430   1              #if(0u != Bootloader_FAST_APP_VALIDATION)
 1431   1                  Bootloader_SetFlashByte((uint32) Bootloader_MD_BTLDB_VERIFIED_OFFSET(appId),
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 25  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 25  
 
 1432   1                                                Bootloader_MD_BTLDB_IS_VERIFIED);
 1433   1              #endif  /* (0u != Bootloader_FAST_APP_VALIDATION) */
@@ -1598,7 +1598,7 @@ line level    source
                       * Incremented by 1 to get the first available row.
                       *
                       * NOTE M1 and M2 stand for metadata # 1 and metadata # 2, metadata 
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 26  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 26  
 
                       * sections for the 1st and 2nd Bootloadable applications.
                       *******************************************************************************/
@@ -1662,7 +1662,7 @@ line level    source
                       *
                       * The second Bootloadable application is active: the number of flash rows available
                       * for both Bootloadable applications should be divided by 1, meaning 1 
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 27  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 27  
 
                       * Bootloadable application should fit there.
                       *******************************************************************************/
@@ -1726,7 +1726,7 @@ line level    source
                   return ackCode;
               }
               #endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) || \
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 28  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 28  
 
                          (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER) */
 1617          
@@ -1790,7 +1790,7 @@ line level    source
                           #if !defined(CY_BOOT_VERSION)
               
                               /* Not required with cy_boot 4.20 */
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 29  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 29  
 
                               uint8 CYXDATA Bootloader_flashBuffer[Bootloader_FROW_SIZE];
               
@@ -1854,7 +1854,7 @@ line level    source
 1737   3                                     packetBuffer[Bootloader_SIZE_ADDR];
 1738   3      
 1739   3      
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 30  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 30  
 
 1740   3                  /****************************************************************************************
 1741   3                  * If the whole packet length exceeds the number of bytes that have been read by the communicat
@@ -1918,7 +1918,7 @@ line level    source
                                                           Bootloader_GET_METADATA_RESPONSE_SIZE);
                                           #else
                                               (void) memcpy(&packetBuffer[Bootloader_DATA_ADDR],
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 31  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 31  
 
                                                           (uint8 *) Bootloader_MD_BASE_ADDR(btldrData),
                                                           Bootloader_GET_METADATA_RESPONSE_SIZE);
@@ -1982,7 +1982,7 @@ line level    source
                                   if (3u == pktSize)
                                   {
                                       /* Do nothing, data is already in dataBuffer[] */
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 32  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 32  
 
                                   }
                                   else 
@@ -2046,7 +2046,7 @@ line level    source
                                                               
                                           ackCode = Bootloader_VerifyRow(startAddr, &dataBuffer[rowSize], (uint16)CYDEV_
              -ECC_ROW_SIZE);                        
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 33  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 33  
 
                                       }
                                   #endif /*(CYDEV_ECC_ENABLE == 0u)*/
@@ -2110,7 +2110,7 @@ line level    source
 1975   6                                  *
 1976   6                                  *   If this is a Bootloader that is located in an application (Combination pro
              -ject type),
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 34  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 34  
 
 1977   6                                  *   then we do not use the Bootloader_SizeBytes and Bootloader_SizeBytesAccess
              - 
@@ -2174,7 +2174,7 @@ line level    source
              -BOOTLOADER))
               
                               #if(0u != Bootloader_CMD_GET_APP_STATUS_AVAIL)
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 35  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 35  
 
               
                                   case Bootloader_COMMAND_APP_STATUS:
@@ -2238,7 +2238,7 @@ line level    source
 2089   6                          }
 2090   5                          else
 2091   5                          {
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 36  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 36  
 
 2092   6                              break;
 2093   6                          }
@@ -2302,7 +2302,7 @@ line level    source
 2151   6                                                    packetBuffer[Bootloader_DATA_ADDR + 1u];
 2152   6      
 2153   6                              /*Checking if row number is within array address range*/
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 37  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 37  
 
 2154   6                              ackCode = Bootloader_CHECK_ROW_NUMBER(dataOffset, upperRange);
 2155   6                          
@@ -2366,7 +2366,7 @@ line level    source
                                           
                                           /*****************************************************************************
              -*******
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 38  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 38  
 
                                           * No check is required in case when there is no app#1 present in Upgradable St
              -ack
@@ -2430,7 +2430,7 @@ line level    source
                                                (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/    
 2265   7        
 2266   7      
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 39  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 39  
 
 2267   7                              /*******************************************************************************
 2268   7                              * Clear a row that contains metadata, when the "Fast bootloadable application
@@ -2494,7 +2494,7 @@ line level    source
 2325   8                                      clearedMetaData = 1u;
 2326   8                                  }
 2327   7      
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 40  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 40  
 
 2328   7                              #endif  /* (0u != Bootloader_FAST_APP_VALIDATION) */
 2329   7      
@@ -2558,7 +2558,7 @@ line level    source
 2386   4      
 2387   4      
 2388   4                  /***************************************************************************
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 41  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 41  
 
 2389   4                  *   Set an active application (0x36)
 2390   4                  ***************************************************************************/
@@ -2622,7 +2622,7 @@ line level    source
 2448   4      
 2449   4                  #endif  /* (0u != Bootloader_CMD_SEND_DATA_AVAIL) */
 2450   4      
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 42  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 42  
 
 2451   4      
 2452   4                  /***************************************************************************
@@ -2686,7 +2686,7 @@ line level    source
 2509   5                                            ( int16 )rspSize);
 2510   5                          #else
                                       (void) memcpy(&packetBuffer[Bootloader_DATA_ADDR],
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 43  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 43  
 
                                                     &BtldrVersion,
                                                     (uint32) rspSize);
@@ -2750,7 +2750,7 @@ line level    source
 2569   6                                  ackCode = Bootloader_CHECK_ROW_NUMBER(rowNum, 
 2570   6                                                             Bootloader_NUMBER_OF_ROWS_IN_ARRAY);
 2571   6                          
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 44  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 44  
 
 2572   6                                  if (CYRET_SUCCESS != ackCode)
 2573   6                                  {
@@ -2814,7 +2814,7 @@ line level    source
 2631   5                          if((Bootloader_MD_FLASH_ARRAY_NUM == btldrData) && (Bootloader_CONTAIN_METADATA(tmpRow
              -Num)))
 2632   5                          {
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 45  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 45  
 
 2633   6      
 2634   6                              checksum -= (uint8)Bootloader_GetMetadata(Bootloader_GET_BTLDB_ACTIVE,
@@ -2878,7 +2878,7 @@ line level    source
 2691   4                  
 2692   4                  #if (!CY_PSOC3)
                               if ((NULL != Bootloader_callback) && (Bootloader_COMMUNICATION_STATE_ACTIVE == communicati
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 46  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 46  
 
              -onState))
                               {
@@ -2942,7 +2942,7 @@ line level    source
 2752          *      The buffer containing the data portion of the packet.
 2753          *  \param size
 2754          *      The number of bytes contained within the buffer to pass back.
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 47  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 47  
 
 2755          *
 2756          * \return
@@ -3006,7 +3006,7 @@ line level    source
 2814   1      
 2815   1          for(idx = 0u; idx < CYDEV_FLS_ROW_SIZE; idx++)
 2816   1          {
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 48  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 48  
 
 2817   2              rowData[idx] = Bootloader_GET_CODE_BYTE(baseAddr + idx);
 2818   2          }
@@ -3070,7 +3070,7 @@ line level    source
 2876   2              break;
 2877   2      
 2878   2          case Bootloader_GET_BTLDR_LAST_ROW:
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 49  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 49  
 
 2879   2              fieldPtr  = Bootloader_MD_BTLDR_LAST_ROW_OFFSET(appId);
 2880   2              break;
@@ -3134,7 +3134,7 @@ line level    source
 2938   1      
 2939   1          #if(CY_PSOC3)   /* Big-endian */
 2940   1      
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 50  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 50  
 
 2941   1              if (2u == fieldSize)
 2942   1              {
@@ -3173,7 +3173,7 @@ line level    source
 2975          
 2976          
 2977          /* @} [] END OF FILE */
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 51  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 51  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -3237,7 +3237,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004A E500        R     MOV     A,tmp+01H
 004C 5401              ANL     A,#01H
 004E FF                MOV     R7,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 52  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 52  
 
 004F E500        R     MOV     A,crc+01H
 0051 5401              ANL     A,#01H
@@ -3301,7 +3301,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 423
 0095 6300FF      R     XRL     crc+01H,#0FFH
 0098 6300FF      R     XRL     crc,#0FFH
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 53  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 53  
 
                                            ; SOURCE LINE # 424
 009B 850000      R     MOV     tmp,crc
@@ -3365,7 +3365,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0035 404B              JC      ?C0014
                                            ; SOURCE LINE # 543
                                            ; SOURCE LINE # 544
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 54  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 54  
 
 0037 AF00        R     MOV     R7,size+03H
 0039 AE00        R     MOV     R6,size+02H
@@ -3429,7 +3429,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0003 E4                CLR     A
 0004 FF                MOV     R7,A
 0005 120000      R     LCALL   _Bootloader_ValidateBootloadable
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 55  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 55  
 
 0008 EF                MOV     A,R7
 0009 7002              JNZ     ?C0016
@@ -3493,7 +3493,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0053 04                INC     A
 0054 FF                MOV     R7,A
                                            ; SOURCE LINE # 1066
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 56  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 56  
 
 0055 B50612            CJNE    A,AR6,?C0019
 0058 900000      R     MOV     DPTR,#Bootloader_SizeBytesAccess
@@ -3557,7 +3557,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _Bootloader_Exit (BEGIN)
                                            ; SOURCE LINE # 1173
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 57  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 57  
 
 0000 8F00        R     MOV     appId,R7
                                            ; SOURCE LINE # 1175
@@ -3621,7 +3621,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004F 80C7              SJMP    ?C0027
 0051         ?C0028:
                                            ; SOURCE LINE # 1197
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 58  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 58  
 
 0051 9046FA            MOV     DPTR,#046FAH
 0054 7480              MOV     A,#080H
@@ -3685,7 +3685,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0006 120000      R     LCALL   _Bootloader_GetMetadata
 0009 EF                MOV     A,R7
 000A 2401              ADD     A,#01H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 59  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 59  
 
 000C FF                MOV     R7,A
 000D E4                CLR     A
@@ -3749,7 +3749,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0061 3E                ADDC    A,R6
 0062 FE                MOV     R6,A
 0063 E4                CLR     A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 60  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 60  
 
 0064 3D                ADDC    A,R5
 0065 FD                MOV     R5,A
@@ -3813,7 +3813,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00BA 8E00        R     MOV     idx+02H,R6
 00BC 8D00        R     MOV     idx+01H,R5
 00BE 8C00        R     MOV     idx,R4
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 61  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 61  
 
 00C0 80B8              SJMP    ?C0039
 00C2         ?C0040:
@@ -3877,7 +3877,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011B 8C00        R     MOV     end,R4
                                            ; SOURCE LINE # 1414
 011D         ?C0045:
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 62  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 62  
 
 011D AF00        R     MOV     R7,end+03H
 011F AE00        R     MOV     R6,end+02H
@@ -3941,7 +3941,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 017D AA06              MOV     R2,AR6
 017F AB07              MOV     R3,AR7
 0181 AF00        R     MOV     R7,calcedChecksum
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 63  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 63  
 
 0183 E4                CLR     A
 0184 FC                MOV     R4,A
@@ -4005,7 +4005,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F C200        R     CLR     communicationState
                                            ; SOURCE LINE # 1666
 0011 F500        R     MOV     dataOffset,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 64  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 64  
 
 0013 F500        R     MOV     dataOffset+01H,A
                                            ; SOURCE LINE # 1701
@@ -4069,7 +4069,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1729
 0061 C3                CLR     C
 0062 E500        R     MOV     A,numberRead+01H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 65  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 65  
 
 0064 9407              SUBB    A,#07H
 0066 E500        R     MOV     A,numberRead
@@ -4133,7 +4133,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B3 F583              MOV     DPH,A
 00B5 E0                MOVX    A,@DPTR
 00B6 FE                MOV     R6,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 66  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 66  
 
 00B7 7400        R     MOV     A,#LOW packetBuffer+04H
 00B9 2500        R     ADD     A,pktSize+01H
@@ -4197,7 +4197,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1771
 0105 E500        R     MOV     A,ackCode
 0107 6003              JZ      $ + 5H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 67  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 67  
 
 0109 020000      R     LJMP    ?C0071
                                            ; SOURCE LINE # 1772
@@ -4261,7 +4261,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1830
 0162 E4                CLR     A
 0163 F500        R     MOV     ackCode,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 68  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 68  
 
                                            ; SOURCE LINE # 1831
                                            ; SOURCE LINE # 1832
@@ -4325,7 +4325,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01BD 8014              SJMP    ?C0081
 01BF         ?C0080:
                                            ; SOURCE LINE # 1998
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 69  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 69  
 
 01BF E500        R     MOV     A,btldrData
 01C1 D3                SETB    C
@@ -4389,7 +4389,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0204 020000      R     LJMP    ?C0071
                                            ; SOURCE LINE # 2066
                                            ; SOURCE LINE # 2068
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 70  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 70  
 
 0207 E500        R     MOV     A,btldrData
 0209 C3                CLR     C
@@ -4453,7 +4453,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 025B FC                MOV     R4,A
 025C 7D01              MOV     R5,#01H
 025E 7B01              MOV     R3,#01H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 71  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 71  
 
 0260 7A00        R     MOV     R2,#HIGH packetBuffer+07H
 0262 7900        R     MOV     R1,#LOW packetBuffer+07H
@@ -4517,7 +4517,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02B4 6500        R     XRL     A,pktSize
 02B6         ?C0160:
 02B6 6003              JZ      $ + 5H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 72  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 72  
 
 02B8 020000      R     LJMP    ?C0094
                                            ; SOURCE LINE # 2140
@@ -4581,7 +4581,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0309 E0                MOVX    A,@DPTR
 030A FE                MOV     R6,A
 030B A3                INC     DPTR
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 73  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 73  
 
 030C E0                MOVX    A,@DPTR
 030D F582              MOV     DPL,A
@@ -4645,7 +4645,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2203
 035F 020000      R     LJMP    ?C0071
                                            ; SOURCE LINE # 2204
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 74  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 74  
 
 0362         ?C0100:
                                            ; SOURCE LINE # 2280
@@ -4709,7 +4709,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03B6 EF                MOV     A,R7
 03B7 6004              JZ      ?C0102
 03B9 7F0A              MOV     R7,#0AH
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 75  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 75  
 
 03BB 8002              SJMP    ?C0103
 03BD         ?C0102:
@@ -4773,7 +4773,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03FA AF00        R     MOV     R7,pktSize+01H
 03FC 7400        R     MOV     A,#LOW dataBuffer
 03FE 2500        R     ADD     A,dataOffset+01H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 76  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 76  
 
 0400 F9                MOV     R1,A
 0401 7400        R     MOV     A,#HIGH dataBuffer
@@ -4837,7 +4837,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0456 FB                MOV     R3,A
 0457 7A00        R     MOV     R2,#HIGH BtldrVersion
 0459 7900        R     MOV     R1,#LOW BtldrVersion
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 77  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 77  
 
 045B 120000      E     LCALL   ?C?COPYAMD
                                            ; SOURCE LINE # 2516
@@ -4901,7 +4901,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 04B1 E500        R     MOV     A,rowNum
 04B3 9400              SUBB    A,#00H
 04B5 5004              JNC     ?C0117
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 78  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 78  
 
 04B7 7F00              MOV     R7,#00H
 04B9 8002              SJMP    ?C0118
@@ -4965,7 +4965,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0514 8F00        R     MOV     rowAddr+03H,R7
 0516 8E00        R     MOV     rowAddr+02H,R6
 0518 8D00        R     MOV     rowAddr+01H,R5
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 79  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 79  
 
 051A 8C00        R     MOV     rowAddr,R4
                                            ; SOURCE LINE # 2570
@@ -5029,7 +5029,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 056E E4                CLR     A
 056F 3C                ADDC    A,R4
 0570 FC                MOV     R4,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 80  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 80  
 
 0571 C004              PUSH    AR4
 0573 A905              MOV     R1,AR5
@@ -5093,7 +5093,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2631
 05D1 E500        R     MOV     A,btldrData
 05D3 702A              JNZ     ?C0128
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 81  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 81  
 
 05D5 AE00        R     MOV     R6,tmpRowNum
 05D7 AF00        R     MOV     R7,tmpRowNum+01H
@@ -5157,7 +5157,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2675
 061F         ?C0130:
                                            ; SOURCE LINE # 2681
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 82  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 82  
 
 061F 120000      E     LCALL   CySoftwareReset
                                            ; SOURCE LINE # 2684
@@ -5221,7 +5221,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0024 FA                MOV     R2,A
 0025 E500        R     MOV     A,size+01H
 0027 120000      E     LCALL   ?C?CSTPTR
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 83  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 83  
 
                                            ; SOURCE LINE # 2770
 002A E500        R     MOV     A,size
@@ -5285,7 +5285,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0081 120000      E     LCALL   ?C?CSTPTR
                                            ; SOURCE LINE # 2777
 0084 AB00        R     MOV     R3,buffer
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 84  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 84  
 
 0086 E500        R     MOV     A,size+01H
 0088 2406              ADD     A,#06H
@@ -5349,7 +5349,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0022 FA                MOV     R2,A
 0023 7901              MOV     R1,#01H
 0025 F8                MOV     R0,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 85  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 85  
 
 0026 900000      R     MOV     DPTR,#flsAddr
 0029 120000      E     LCALL   ?C?LLDXDATA
@@ -5413,7 +5413,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0081 E4                CLR     A
 0082 93                MOVC    A,@A+DPTR
 0083 FF                MOV     R7,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 86  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 86  
 
 0084 7400        R     MOV     A,#LOW rowData
 0086 2B                ADD     A,R3
@@ -5477,7 +5477,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2861
 0007 900000      R     MOV     DPTR,#fieldSize
 000A 7402              MOV     A,#02H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 87  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 87  
 
 000C F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 2862
@@ -5541,7 +5541,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005F E4                CLR     A
 0060 3C                ADDC    A,R4
 0061 FC                MOV     R4,A
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 88  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 88  
 
 0062 A3                INC     DPTR
 0063 120000      E     LCALL   ?C?LSTXDATA
@@ -5605,7 +5605,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B3 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 2880
 00B6 020000      R     LJMP    ?C0138
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 89  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 89  
 
                                            ; SOURCE LINE # 2882
 00B9         ?C0142:
@@ -5669,7 +5669,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0109         ?C0144:
                                            ; SOURCE LINE # 2895
 0109 900000      R     MOV     DPTR,#appId
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 90  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 90  
 
 010C E0                MOVX    A,@DPTR
 010D FF                MOV     R7,A
@@ -5733,7 +5733,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 015D FF                MOV     R7,A
 015E 7E00              MOV     R6,#00H
 0160 7C01              MOV     R4,#01H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 91  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 91  
 
 0162 7D00              MOV     R5,#00H
 0164 120000      E     LCALL   ?C?LIMUL
@@ -5797,7 +5797,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01B5 FF                MOV     R7,A
 01B6 74FF              MOV     A,#0FFH
 01B8 9E                SUBB    A,R6
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 92  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 92  
 
 01B9 FE                MOV     R6,A
 01BA 7410              MOV     A,#010H
@@ -5861,7 +5861,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0209 FF                MOV     R7,A
 020A 74FF              MOV     A,#0FFH
 020C 9E                SUBB    A,R6
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 93  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 93  
 
 020D FE                MOV     R6,A
 020E 7410              MOV     A,#010H
@@ -5925,7 +5925,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 025C 120000      E     LCALL   ?C?LLDXDATA
 025F EF                MOV     A,R7
 0260 2401              ADD     A,#01H
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 94  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 94  
 
 0262 FF                MOV     R7,A
 0263 E4                CLR     A
@@ -5989,7 +5989,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02C9 FF                MOV     R7,A
 02CA E4                CLR     A
 02CB 3E                ADDC    A,R6
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 95  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 95  
 
 02CC FE                MOV     R6,A
 02CD E4                CLR     A
@@ -6053,7 +6053,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0334 C003              PUSH    AR3
 0336 900000      R     MOV     DPTR,#fieldPtr
 0339 120000      E     LCALL   ?C?LLDXDATA
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 96  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 96  
 
 033C EF                MOV     A,R7
 033D 2401              ADD     A,#01H
@@ -6117,7 +6117,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2974
 03A8         ?C0156:
 03A8 22                RET     
-C51 COMPILER V9.51   BOOTLOADER                                                            10/22/2015 22:07:02 PAGE 97  
+C51 COMPILER V9.51   BOOTLOADER                                                            01/07/2016 22:10:57 PAGE 97  
 
              ; FUNCTION _Bootloader_GetMetadata (END)
 

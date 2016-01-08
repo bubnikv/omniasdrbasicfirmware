@@ -648,9 +648,10 @@
 <name_val_pair name="J:\Ham Radio\Peaberry\peaberryv2iambic\bootloader.cydsn\DP8051\DP8051_Keil_951\Debug\bootloader.hex" v="TO '${OutputDir}\${ProjectShortName}.omf' CODE RU RC(10) DW(16) WL(2) PR(${OutputDir}/${ProjectShortName}.map) IX CL(XDATA(X:0x0000-X:0x1FFF)) CL(CODE(C:0x0000-C:0xFFBF)) CL(CONST(C:0x0000-C:0xFFBF))" />
 <name_val_pair name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\DP8051\DP8051_Keil_951\Debug\bootloader.hex" v="TO '${OutputDir}\${ProjectShortName}.omf' CODE RU RC(10) DW(16) WL(2) PR(${OutputDir}/${ProjectShortName}.map) IX CL(XDATA(X:0x0000-X:0x1FFF)) CL(CODE(C:0x0000-C:0xFFBF)) CL(CONST(C:0x0000-C:0xFFBF))" />
 <name_val_pair name=".\Generated_Source\PSoC3\Control_PM.c" v="NOIV LARGE MODDP2 OMF2 VB(1) NOIP &quot;INCDIR(., Generated_Source\PSoC3)&quot; FF(3) DB DF(DEBUG) WL(2) PR(${OutputDir}/${CompileFile}.lst) CD OT(5 ,Size)" />
+<name_val_pair name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\DP8051\DP8051_Keil_951\Debug\bootloader.hex" v="TO '${OutputDir}\${ProjectShortName}.omf' CODE RU RC(10) DW(16) WL(2) PR(${OutputDir}/${ProjectShortName}.map) IX CL(XDATA(X:0x0000-X:0x1FFF)) CL(CODE(C:0x0000-C:0xFFBF)) CL(CONST(C:0x0000-C:0xFFBF))" />
 </name>
 </genericCmdLineData>
-<codeGenCmdLineTag v="-.appdatapath &quot;C:\Users\Ron\AppData\Local\Cypress Semiconductor\PSoC Creator\3.3&quot; -.fdsnotice -.fdswarpdepfile=warp_dependencies.txt -.fdselabdepfile=elab_dependencies.txt -.fdsbldfile=generated_files.txt -p &quot;J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\bootloader.cyprj&quot; -d CY8C3246PVI-147 -s &quot;J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\peaberryv2iambic\bootloader.cydsn\Generated_Source\PSoC3&quot; -- -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=BE" />
+<codeGenCmdLineTag v="-.appdatapath &quot;C:\Users\Ron\AppData\Local\Cypress Semiconductor\PSoC Creator\3.3&quot; -.fdsnotice -.fdswarpdepfile=warp_dependencies.txt -.fdselabdepfile=elab_dependencies.txt -.fdsbldfile=generated_files.txt -p &quot;J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\bootloader.cyprj&quot; -d CY8C3246PVI-147 -s &quot;J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\Generated_Source\PSoC3&quot; -- -yv2 -q10 -ygs -o2 -v3 -.fftcfgtype=BE" />
 </CyGuid_b0374e30-ce3a-47f2-ad85-821643292c68>
 </dataGuid>
 <dataGuid v="925cc1e1-309e-4e08-b0a1-09a83c35b157">
@@ -1268,14 +1269,14 @@
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\warp\lib\common\cy_psoc3_inc.v</v>
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\warp\lib\common\stdlogic\rtlpkg.vif</v>
 </warp_dep>
-<deps_time v="130900396194981781" />
+<deps_time v="130966962544873294" />
 <top_block v="TopDesign" />
 <last_generation v="0" />
 </CyGuid_925cc1e1-309e-4e08-b0a1-09a83c35b157>
 </dataGuid>
 <dataGuid v="769d31ea-68b1-4f0c-b90a-7c10a43ee563">
 <CyGuid_769d31ea-68b1-4f0c-b90a-7c10a43ee563 type_name="CyDesigner.Common.ProjMgmt.Model.CyLinkCustomData" version="1">
-<deps_time v="130900396280001930" />
+<deps_time v="130966962618583397" />
 </CyGuid_769d31ea-68b1-4f0c-b90a-7c10a43ee563>
 </dataGuid>
 </userData>
