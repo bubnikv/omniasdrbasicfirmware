@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 1   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_PM
@@ -62,7 +62,7 @@ line level    source
   51              * Return:
   52              *  None.
   53              *
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 2   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 2   
 
   54              *******************************************************************************/
   55              CY_ISR(USBFS_DP_ISR)
@@ -126,7 +126,7 @@ line level    source
  113          *  No.
  114          *
  115          *******************************************************************************/
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 3   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 3   
 
  116          void USBFS_RestoreConfig(void) 
  117          {
@@ -190,7 +190,7 @@ line level    source
  174   2              CyDelayUs(1u);  /* 0.5 us min delay */
  175   2              /* Disable the USBIO reference by setting PM.USB_CR0.fsusbio_ref_en.*/
  176   2              USBFS_PM_USB_CR0_REG &= (uint8)~USBFS_PM_USB_CR0_REF_EN;
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 4   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 4   
 
  177   2      
  178   2              /* Switch DP and DM terminals to GPIO mode and disconnect 1.5k pullup*/
@@ -254,7 +254,7 @@ line level    source
  236   2              /* Enable USB block */
  237   2              USBFS_PM_ACT_CFG_REG |= USBFS_PM_ACT_EN_FSUSB;
  238   2              /* Enable USB block for Standby Power Mode */
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 5   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 5   
 
  239   2              USBFS_PM_STBY_CFG_REG |= USBFS_PM_STBY_EN_FSUSB;
  240   2              /* Enable core clock */
@@ -303,7 +303,7 @@ line level    source
  283          
  284          
  285          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 6   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 6   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -367,7 +367,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 146
                                            ; SOURCE LINE # 148
 0000 120000      E     LCALL   CyEnterCriticalSection
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 7   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 7   
 
 0003 900000      R     MOV     DPTR,#enableInterrupts
 0006 EF                MOV     A,R7
@@ -431,7 +431,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0056 906012            MOV     DPTR,#06012H
 0059 E0                MOVX    A,@DPTR
 005A 4420              ORL     A,#020H
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 8   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 8   
 
 005C F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 182
@@ -495,7 +495,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0008 900000      R     MOV     DPTR,#USBFS_backup
 000B E0                MOVX    A,@DPTR
 000C 6078              JZ      ?C0008
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 9   
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 9   
 
                                            ; SOURCE LINE # 231
                                            ; SOURCE LINE # 233
@@ -559,7 +559,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0063 E0                MOVX    A,@DPTR
 0064 4404              ORL     A,#04H
 0066 F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   USBFS_PM                                                              01/07/2016 22:10:56 PAGE 10  
+C51 COMPILER V9.51   USBFS_PM                                                              01/18/2016 13:18:01 PAGE 10  
 
                                            ; SOURCE LINE # 270
 0067 906028            MOV     DPTR,#06028H

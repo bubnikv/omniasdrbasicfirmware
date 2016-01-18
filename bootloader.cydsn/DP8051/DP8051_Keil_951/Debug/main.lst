@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 1   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   51          
   52          const uint8 code MORSE_XTAL[] = {
   53              /* 0x58 X */ MCODE(3113),
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 2   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 2   
 
   54              /* 0x54 T */ MCODE(3),
   55              /* 0x41 A */ MCODE(13),
@@ -119,14 +119,14 @@ line level    source
  106   1          uint8 boot_pin;
  107   1          uint8 crystal_status = FALSE;
  108   1          
- 109   1          CyDelay(100);  // Let things settle down after a power on    
+ 109   1          CyDelay(3000);  // Let things settle down after a power on    
  110   1          //message = MORSE_BOOT;
  111   1          //boot_pin = BOOT_Read;
  112   1          //if (!boot_pin) {//User will place a "boot" jumper on this pin to ground taking this pin to a "low" s
              -tate 
  113   1                          //to enable firmware upload.
  114   1              //if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 3   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 3   
 
  115   1              //else {
  116   1                  //if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
@@ -160,7 +160,7 @@ line level    source
  141   1      }
  142          
  143          /* [] END OF FILE */
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 4   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -224,7 +224,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005D FE                MOV     R6,A
 005E 5407              ANL     A,#07H
 0060 A3                INC     DPTR
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 5   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 5   
 
 0061 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 70
@@ -288,7 +288,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 84
 00AE         ?C0007:
                                            ; SOURCE LINE # 85
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 6   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 6   
 
 00AE 900000      R     MOV     DPTR,#timer
 00B1 E0                MOVX    A,@DPTR
@@ -352,7 +352,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F9         ?C0013:
                                            ; SOURCE LINE # 100
 00F9 900000      R     MOV     DPTR,#timer
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 7   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 7   
 
 00FC E0                MOVX    A,@DPTR
 00FD 14                DEC     A
@@ -388,78 +388,78 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0001 900000      R     MOV     DPTR,#crystal_status
 0004 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 109
-0005 7F64              MOV     R7,#064H
-0007 FE                MOV     R6,A
-0008 FD                MOV     R5,A
-0009 FC                MOV     R4,A
-000A 120000      E     LCALL   _?CyDelay
+0005 7FB8              MOV     R7,#0B8H
+0007 7E0B              MOV     R6,#0BH
+0009 FD                MOV     R5,A
+000A FC                MOV     R4,A
+000B 120000      E     LCALL   _?CyDelay
                                            ; SOURCE LINE # 127
-000D 120000      E     LCALL   CyXTAL_ReadStatus
-0010 900000      R     MOV     DPTR,#crystal_status
-0013 EF                MOV     A,R7
-0014 F0                MOVX    @DPTR,A
+000E 120000      E     LCALL   CyXTAL_ReadStatus
+0011 900000      R     MOV     DPTR,#crystal_status
+0014 EF                MOV     A,R7
+0015 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 128
-0015 600E              JZ      ?C0018
-0017 7BFF              MOV     R3,#0FFH
-0019 7A00        R     MOV     R2,#HIGH MORSE_XTAL
-001B 7900        R     MOV     R1,#LOW MORSE_XTAL
-001D 900000      R     MOV     DPTR,#message
-0020 120000      E     LCALL   ?C?PSTXDATA
-0023 800C              SJMP    ?C0019
-0025         ?C0018:
-0025 7BFF              MOV     R3,#0FFH
-0027 7A00        R     MOV     R2,#HIGH MORSE_BOOT
-0029 7900        R     MOV     R1,#LOW MORSE_BOOT
-002B 900000      R     MOV     DPTR,#message
-002E 120000      E     LCALL   ?C?PSTXDATA
-0031         ?C0019:
+0016 600E              JZ      ?C0018
+0018 7BFF              MOV     R3,#0FFH
+001A 7A00        R     MOV     R2,#HIGH MORSE_XTAL
+001C 7900        R     MOV     R1,#LOW MORSE_XTAL
+001E 900000      R     MOV     DPTR,#message
+0021 120000      E     LCALL   ?C?PSTXDATA
+0024 800C              SJMP    ?C0019
+0026         ?C0018:
+0026 7BFF              MOV     R3,#0FFH
+0028 7A00        R     MOV     R2,#HIGH MORSE_BOOT
+002A 7900        R     MOV     R1,#LOW MORSE_BOOT
+002C 900000      R     MOV     DPTR,#message
+002F 120000      E     LCALL   ?C?PSTXDATA
+0032         ?C0019:
                                            ; SOURCE LINE # 129
-0031 120000      E     LCALL   BOOT_Read
+0032 120000      E     LCALL   BOOT_Read
 ;---- Variable 'boot_pin' assigned to Register 'R7' ----
-C51 COMPILER V9.51   MAIN                                                                  01/07/2016 22:10:54 PAGE 8   
+C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 8   
 
                                            ; SOURCE LINE # 130
-0034 EF                MOV     A,R7
-0035 701D              JNZ     ?C0020
+0035 EF                MOV     A,R7
+0036 701D              JNZ     ?C0020
                                            ; SOURCE LINE # 132
-0037 7E00        R     MOV     R6,#HIGH morse_interrupt
-0039 7F00        R     MOV     R7,#LOW morse_interrupt
-003B 120000      E     LCALL   _morse_isr_StartEx
+0038 7E00        R     MOV     R6,#HIGH morse_interrupt
+003A 7F00        R     MOV     R7,#LOW morse_interrupt
+003C 120000      E     LCALL   _morse_isr_StartEx
                                            ; SOURCE LINE # 133
-003E 120000      E     LCALL   Morse_Counter_Start
+003F 120000      E     LCALL   Morse_Counter_Start
                                            ; SOURCE LINE # 134
-0041 D2AF              SETB    EA
-0043 9044F4            MOV     DPTR,#044F4H
-0046 74FD              MOV     A,#0FDH
-0048 F0                MOVX    @DPTR,A
+0042 D2AF              SETB    EA
+0044 9044F4            MOV     DPTR,#044F4H
+0047 74FD              MOV     A,#0FDH
+0049 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 135
-0049 900000      R     MOV     DPTR,#crystal_status
-004C E0                MOVX    A,@DPTR
-004D 7013              JNZ     ?C0023
-004F 120000      E     LCALL   Bootloader_Start
+004A 900000      R     MOV     DPTR,#crystal_status
+004D E0                MOVX    A,@DPTR
+004E 7013              JNZ     ?C0023
+0050 120000      E     LCALL   Bootloader_Start
                                            ; SOURCE LINE # 136
-0052 800E              SJMP    ?C0023
-0054         ?C0020:
-0054 E4                CLR     A
-0055 FF                MOV     R7,A
-0056 120000      E     LCALL   _Bootloader_Exit
+0053 800E              SJMP    ?C0023
+0055         ?C0020:
+0055 E4                CLR     A
+0056 FF                MOV     R7,A
+0057 120000      E     LCALL   _Bootloader_Exit
                                            ; SOURCE LINE # 137
-0059 9046FA            MOV     DPTR,#046FAH
-005C 7480              MOV     A,#080H
-005E F0                MOVX    @DPTR,A
+005A 9046FA            MOV     DPTR,#046FAH
+005D 7480              MOV     A,#080H
+005F F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 138
-005F 120000      E     LCALL   CySoftwareReset
+0060 120000      E     LCALL   CySoftwareReset
                                            ; SOURCE LINE # 139
                                            ; SOURCE LINE # 140
-0062         ?C0023:
-0062 80FE              SJMP    ?C0023
-0064 22                RET     
+0063         ?C0023:
+0063 80FE              SJMP    ?C0023
+0065 22                RET     
              ; FUNCTION main (END)
 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    391    ----
+   CODE SIZE        =    392    ----
    CONSTANT SIZE    =     10    ----
    XDATA SIZE       =      8       1
    PDATA SIZE       =   ----    ----

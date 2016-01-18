@@ -106,7 +106,7 @@ void main()
     uint8 boot_pin;
     uint8 crystal_status = FALSE;
     
-    CyDelay(100);  // Let things settle down after a power on    
+    CyDelay(3000);  // Let things settle down after a power on    
     //message = MORSE_BOOT;
     //boot_pin = BOOT_Read;
     //if (!boot_pin) {//User will place a "boot" jumper on this pin to ground taking this pin to a "low" state 

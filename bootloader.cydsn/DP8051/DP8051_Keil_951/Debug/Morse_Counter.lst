@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 1   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MORSE_COUNTER
@@ -62,7 +62,7 @@ line level    source
   50   1                  Morse_Counter_CONTROL &= Morse_Counter_CTRL_ENABLE;
   51   1                  
   52   1                  /* Clear the mode bits for continuous run mode */
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 2   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 2   
 
   53   1                  #if (CY_PSOC5A)
                               Morse_Counter_CONTROL2 &= ((uint8)(~Morse_Counter_CTRL_MODE_MASK));
@@ -126,7 +126,7 @@ line level    source
                           
                           /* CyEnterCriticalRegion and CyExitCriticalRegion are used to mark following region critical*/
                           /* Enter Critical Region*/
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 3   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 3   
 
                           Morse_Counter_interruptState = CyEnterCriticalSection();
                           
@@ -190,7 +190,7 @@ line level    source
  174          *  Morse_Counter_initVar: Is modified when this function is called for the  
  175          *   first time. Is used to ensure that initialization happens only once.
  176          *
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 4   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 4   
 
  177          *******************************************************************************/
  178          void Morse_Counter_Start(void) 
@@ -254,7 +254,7 @@ line level    source
  236          *******************************************************************************/
  237          void Morse_Counter_SetInterruptMode(uint8 interruptsMask) 
  238          {
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 5   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 5   
 
  239   1          Morse_Counter_STATUS_MASK = interruptsMask;
  240   1      }
@@ -318,7 +318,7 @@ line level    source
  298          *  void
  299          *
  300          * Return: 
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 6   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 6   
 
  301          *  (uint8) The contents of the control register
  302          *
@@ -382,7 +382,7 @@ line level    source
  360   1          /* Must first do a software capture to be able to read the counter */
  361   1          /* It is up to the user code to make sure there isn't already captured data in the FIFO */
  362   1          #if(Morse_Counter_UsingFixedFunction)
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 7   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 7   
 
  363   1                      (void)CY_GET_REG16(Morse_Counter_COUNTER_LSB_PTR);
  364   1              #else
@@ -446,7 +446,7 @@ line level    source
  422   1      }
  423          
  424          
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 8   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 8   
 
  425          /*******************************************************************************
  426          * Function Name: Morse_Counter_ReadPeriod
@@ -510,7 +510,7 @@ line level    source
               *
               * Return: 
               *  (uint8) Present compare value.
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 9   
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 9   
 
               *
               *******************************************************************************/
@@ -574,7 +574,7 @@ line level    source
               * Function Name: Morse_Counter_ClearFIFO
               ********************************************************************************
               * Summary:
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 10  
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 10  
 
               *   This function clears all capture data from the capture FIFO
               *
@@ -599,7 +599,7 @@ line level    source
  569          
  570          /* [] END OF FILE */
  571          
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 11  
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 11  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -663,7 +663,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0006 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 148
 0007 9043B3            MOV     DPTR,#043B3H
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 12  
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 12  
 
 000A E0                MOVX    A,@DPTR
 000B 4401              ORL     A,#01H
@@ -727,7 +727,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 238
                                            ; SOURCE LINE # 239
 0000 904F03            MOV     DPTR,#04F03H
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 13  
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 13  
 
 0003 EF                MOV     A,R7
 0004 F0                MOVX    @DPTR,A
@@ -791,7 +791,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 7F00              MOV     R7,#00H
 0015 120000      E     LCALL   _?CyHalt
 0018         ?C0010:
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 14  
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 14  
 
                                            ; SOURCE LINE # 333
 0018 9043A3            MOV     DPTR,#043A3H
@@ -855,7 +855,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 7B02              MOV     R3,#02H
 0002 7A4F              MOV     R2,#04FH
 0004 7904              MOV     R1,#04H
-C51 COMPILER V9.51   MORSE_COUNTER                                                         01/07/2016 22:10:58 PAGE 15  
+C51 COMPILER V9.51   MORSE_COUNTER                                                         01/18/2016 13:18:03 PAGE 15  
 
 0006 EF                MOV     A,R7
 0007 FD                MOV     R5,A

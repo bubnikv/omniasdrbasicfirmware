@@ -31,7 +31,7 @@ void main_init() {
     CW_Hold_Timer_Start();
     Iambic_Counter_Start();
     CyGlobalIntEnable;
-    CyDelay(100);
+    CyDelay(3000);
     Sync_Start();
     I2C_Start();
     Settings_Init();
@@ -70,6 +70,7 @@ void main_usb_vbus(void) {
 int main(){
     uint8 i;
     static uint8 beat = 0, beater = 0;
+    uint16 usb_count = 0;
         
     //uint8 die_status;
     //int16 die_temp;
@@ -120,7 +121,10 @@ int main(){
                 break;
           
             default:
-                main_usb_vbus();
+                if(usb_count++ >= 6000){
+                    main_usb_vbus();
+                    usb_count = 0;
+                }
                 beater = 0;
                 beat = i;
             }

@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 1   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_MIDI
@@ -62,7 +62,7 @@ line level    source
                   /*  Program Change                          */ 0x02u,
                   /*  Channel Pressure                        */ 0x02u,
                   /*  PitchBend Change                        */ 0x03u,
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 2   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 2   
 
                   /*  Single Byte                             */ 0x01u
                   };
@@ -126,7 +126,7 @@ line level    source
               * Summary:
               *  This function initializes the MIDI interface and UART(s) to be ready to
               *   receive data from the PC and MIDI ports.
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 3   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 3   
 
               *
               * Parameters:
@@ -190,7 +190,7 @@ line level    source
                   * Function Name: USBFS_MIDI_OUT_EP_Service
                   ********************************************************************************
                   *
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 4   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 4   
 
                   * Summary:
                   *  Services the USB MIDI OUT endpoints.
@@ -254,7 +254,7 @@ line level    source
                                   }
                                   while((dmaState & (STATUS_TD_ACTIVE | STATUS_CHAIN_ACTIVE)) != 0u);
                               #endif /* (USBFS_EP_MM == USBFS__EP_DMAMANUAL) */
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 5   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 5   
 
               
                           #endif /* (USBFS_EP_MM != USBFS__EP_DMAAUTO) */
@@ -318,7 +318,7 @@ line level    source
               
               #if (USBFS_MIDI_IN_BUFF_SIZE > 0)
               
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 6   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 6   
 
               
                   /*******************************************************************************
@@ -382,7 +382,7 @@ line level    source
                   * Summary:
                   *  Services the traffic from the MIDI input ports (RX UART) and prepare data
                   *  in USB MIDI IN endpoint buffer.
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 7   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 7   
 
                   *  Calls the USBFS_MIDI_IN_EP_Service() function to sent the
                   *  data from buffer to PC. Non-blocking. Should be called from main foreground
@@ -446,7 +446,7 @@ line level    source
                       #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
               
                       /* Service the USB MIDI input endpoint */
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 8   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 8   
 
                       USBFS_MIDI_IN_EP_Service();
                   }
@@ -510,7 +510,7 @@ line level    source
                       {
                           USBFS_MIDI_IN_EP_Service();
                       }
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 9   
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 9   
 
                       if (USBFS_midiInPointer <=
                                   (USBFS_EP[USBFS_midi_in_ep].bufferSize - USBFS_EVENT_LENGTH))
@@ -574,7 +574,7 @@ line level    source
                   *  Builds a USB MIDI event in the input endpoint buffer at the current pointer.
                   *  Puts one MIDI message into the USB MIDI In endpoint buffer.
                   *
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 10  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 10  
 
                   * Parameters:
                   *  ic:   0 = No message (should never happen)
@@ -638,7 +638,7 @@ line level    source
                               USBFS_midiInPointer++;
                           }
                           else if (srcBuffZero == USBFS_MIDI_TUNEREQ)
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 11  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 11  
 
                           {
                               USBFS_midiInBuffer[USBFS_midiInPointer] = USBFS_1BYTE_COMMON | cable;
@@ -702,7 +702,7 @@ line level    source
                                   USBFS_midiInBuffer[USBFS_midiInPointer] = USBFS_MIDI_EOSEX;
                                   USBFS_midiInPointer++;
                                   break;
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 12  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 12  
 
                               default:
                                   break;
@@ -766,7 +766,7 @@ line level    source
                           USBFS_MIDI2_TxRunStat = 0u;
                           USBFS_MIDI2_InqFlags = 0u;
                           /* Start second UART block */
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 13  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 13  
 
                           MIDI2_UART_Start();
                           /* Change the priority of the UART TX interrupt */
@@ -830,7 +830,7 @@ line level    source
                                           rxStat->count = 1u;
                                           rxStat->length = 3u;
                                           break;
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 14  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 14  
 
                                       case USBFS_MIDI_EOSEX:
                                           rxStat->runstat = 0u;
@@ -894,7 +894,7 @@ line level    source
                           }
                       }
               
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 15  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 15  
 
                       /* Otherwise, it's a data byte */
                       else
@@ -958,7 +958,7 @@ line level    source
                   * Function Name: USBFS_MIDI1_GetEvent
                   ********************************************************************************
                   *
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 16  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 16  
 
                   * Summary:
                   *  Checks for incoming MIDI data, calls the MIDI event builder if so.
@@ -1022,7 +1022,7 @@ line level    source
                               while ( ((rxBufferRead != MIDI1_UART_rxBufferWrite) || (rxBufferLoopDetect != 0u)) && (msg
              -Rtn == 0u) )
                           #endif /*  ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 17  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 17  
 
                               {
                                   rxData = MIDI1_UART_rxBuffer[rxBufferRead];
@@ -1086,7 +1086,7 @@ line level    source
                   *
                   * Global variables:
                   *  USBFS_MIDI1_TxRunStat: This variable used to save the MIDI
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 18  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 18  
 
                   *    status byte and skip to send the repeated status byte in subsequent event.
                   *  USBFS_MIDI1_InqFlags: The following flags are set when SysEx
@@ -1150,7 +1150,7 @@ line level    source
                                       *  The Identity Reply message may be send by user code.
                                       */
                                       USBFS_MIDI1_InqFlags |= USBFS_INQ_IDENTITY_REQ_FLAG;
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 19  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 19  
 
                                   }
                               }
@@ -1214,7 +1214,7 @@ line level    source
                   *   MIDI_EOSEX, if end of system exclusive
                   *   0xf8 - 0xff, if single byte real time message
                   *
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 20  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 20  
 
                   * Global variables:
                   *  USBFS_MIDI2_Event: RX status structure used to parse received
@@ -1278,7 +1278,7 @@ line level    source
                                   {
                                       MIDI2_UART_rxBufferLoopDetect = 0u;
                                       #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 21  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 21  
 
                                           CyIntDisable(MIDI2_UART_RX_VECT_NUM);
                                       #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
@@ -1342,7 +1342,7 @@ line level    source
                       uint8 len;
                       uint8 i;
               
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 22  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 22  
 
                       /* User code is required at the beginning of the procedure */
                       /* `#START MIDI2_PROCESS_OUT_START` */
@@ -1406,7 +1406,7 @@ line level    source
                               }
                               else
                               {   /* Save Status byte for next event */
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 23  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 23  
 
                                   USBFS_MIDI2_TxRunStat = epBuf[USBFS_EVENT_BYTE1];
                               }
@@ -1446,7 +1446,7 @@ line level    source
 1380          
 1381          
 1382          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_MIDI                                                            01/07/2016 22:10:57 PAGE 24  
+C51 COMPILER V9.51   USBFS_MIDI                                                            01/18/2016 13:18:02 PAGE 24  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
