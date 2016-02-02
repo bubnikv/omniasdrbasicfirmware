@@ -150,7 +150,8 @@ void ERROR(char* msg) {
     uint16 timer = 0;
     
     if(USBFS_initVar) USBFS_Stop();
-    Control_Write(Control_Read() & ~CONTROL_TX | CONTROL_LED | CONTROL_AMP | CONTROL_RX);
+    //Control_Write(Control_Read() & ~CONTROL_TX | CONTROL_LED | CONTROL_AMP | CONTROL_RX);
+    Control_Write(Control_Read() & (~CONTROL_TX | CONTROL_LED | CONTROL_AMP | CONTROL_RX));
     Morse_Main(msg);
     
     for(;;) {

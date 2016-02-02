@@ -38,7 +38,7 @@
 #define MCODE_6(x) (((x&0x00F00000LU)?4:0)\
 + ((((x&0x00F00000LU)?1:0) & ((x&0x00000002LU)?0:1))?2:0))
 #define MCODE(d)((uint8) (d==0)?7:MCODE_L(0x##d##LU)\
-+ (MCODE_C(0x##d##LU) << 8 - MCODE_L(0x##d##LU))\
++ (MCODE_C(0x##d##LU) << (8 - MCODE_L(0x##d##LU)))\
 - MCODE_6(0x##d##LU))
 
 const uint8 code MORSE_BOOT[] = {
@@ -133,10 +133,11 @@ void main()
         Morse_Counter_Start();
         CyGlobalIntEnable;
         if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader component.
-            }else {Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); // Testing new beta version of Bootloader_Exit
-            Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
-            CySoftwareReset();
-        }
+    }else {
+        Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); 
+        Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
+        CySoftwareReset();
+    }
     for(;;) {}
 }
 

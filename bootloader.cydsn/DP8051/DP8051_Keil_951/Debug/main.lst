@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 1   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
@@ -49,7 +49,7 @@ line level    source
   38          #define MCODE_6(x) (((x&0x00F00000LU)?4:0)\
   39          + ((((x&0x00F00000LU)?1:0) & ((x&0x00000002LU)?0:1))?2:0))
   40          #define MCODE(d)((uint8) (d==0)?7:MCODE_L(0x##d##LU)\
-  41          + (MCODE_C(0x##d##LU) << 8 - MCODE_L(0x##d##LU))\
+  41          + (MCODE_C(0x##d##LU) << (8 - MCODE_L(0x##d##LU)))\
   42          - MCODE_6(0x##d##LU))
   43          
   44          const uint8 code MORSE_BOOT[] = {
@@ -62,7 +62,7 @@ line level    source
   51          
   52          const uint8 code MORSE_XTAL[] = {
   53              /* 0x58 X */ MCODE(3113),
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 2   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 2   
 
   54              /* 0x54 T */ MCODE(3),
   55              /* 0x41 A */ MCODE(13),
@@ -126,7 +126,7 @@ line level    source
              -tate 
  113   1                          //to enable firmware upload.
  114   1              //if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 3   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 3   
 
  115   1              //else {
  116   1                  //if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
@@ -151,16 +151,16 @@ line level    source
  134   2              CyGlobalIntEnable;
  135   2              if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader compo
              -nent.
- 136   2                  }else {Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); // Testing new beta version of Bootloader_Ex
-             -it
- 137   2                  Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
- 138   2                  CySoftwareReset();
- 139   2              }
- 140   1          for(;;) {}
- 141   1      }
- 142          
- 143          /* [] END OF FILE */
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 4   
+ 136   2          }else {
+ 137   2              Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); 
+ 138   2              Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
+ 139   2              CySoftwareReset();
+ 140   2          }
+ 141   1          for(;;) {}
+ 142   1      }
+ 143          
+ 144          /* [] END OF FILE */
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -224,7 +224,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005D FE                MOV     R6,A
 005E 5407              ANL     A,#07H
 0060 A3                INC     DPTR
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 5   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 5   
 
 0061 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 70
@@ -288,7 +288,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 84
 00AE         ?C0007:
                                            ; SOURCE LINE # 85
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 6   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 6   
 
 00AE 900000      R     MOV     DPTR,#timer
 00B1 E0                MOVX    A,@DPTR
@@ -352,7 +352,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F9         ?C0013:
                                            ; SOURCE LINE # 100
 00F9 900000      R     MOV     DPTR,#timer
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 7   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 7   
 
 00FC E0                MOVX    A,@DPTR
 00FD 14                DEC     A
@@ -416,7 +416,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 129
 0032 120000      E     LCALL   BOOT_Read
 ;---- Variable 'boot_pin' assigned to Register 'R7' ----
-C51 COMPILER V9.51   MAIN                                                                  01/18/2016 13:17:59 PAGE 8   
+C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 8   
 
                                            ; SOURCE LINE # 130
 0035 EF                MOV     A,R7
@@ -440,17 +440,18 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 136
 0053 800E              SJMP    ?C0023
 0055         ?C0020:
+                                           ; SOURCE LINE # 137
 0055 E4                CLR     A
 0056 FF                MOV     R7,A
 0057 120000      E     LCALL   _Bootloader_Exit
-                                           ; SOURCE LINE # 137
+                                           ; SOURCE LINE # 138
 005A 9046FA            MOV     DPTR,#046FAH
 005D 7480              MOV     A,#080H
 005F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 138
-0060 120000      E     LCALL   CySoftwareReset
                                            ; SOURCE LINE # 139
+0060 120000      E     LCALL   CySoftwareReset
                                            ; SOURCE LINE # 140
+                                           ; SOURCE LINE # 141
 0063         ?C0023:
 0063 80FE              SJMP    ?C0023
 0065 22                RET     
