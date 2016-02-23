@@ -2,7 +2,7 @@
 --	Conversion of bootloader.v to vh2:
 --
 --	Cypress Semiconductor - WARP Version 6.3 IR 41
---	Tue Feb 02 10:48:25 2016
+--	Tue Feb 23 09:16:58 2016
 --
 
 USE cypress.cypress.all;

@@ -106,23 +106,7 @@ void main()
     uint8 boot_pin;
     uint8 crystal_status = FALSE;
     
-    CyDelay(3000);  // Let things settle down after a power on    
-    //message = MORSE_BOOT;
-    //boot_pin = BOOT_Read;
-    //if (!boot_pin) {//User will place a "boot" jumper on this pin to ground taking this pin to a "low" state 
-                    //to enable firmware upload.
-        //if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
-        //else {
-            //if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
-               // Bootloader_Exit(Bootloader_EXIT_TO_BTLDB);
-            //}
-        //}
-    //}
-   // morse_isr_StartEx(&morse_interrupt);
-    //Morse_Counter_Start();
-    //CyGlobalIntEnable;
-    //Bootloader_Start();
-      
+    CyDelay(1000);  // Let things settle down after a power on    
     
     crystal_status = CyXTAL_ReadStatus();
     if (crystal_status) message = MORSE_XTAL; else message = MORSE_BOOT;
@@ -135,7 +119,7 @@ void main()
         if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader component.
     }else {
         Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); 
-        Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
+        //Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
         CySoftwareReset();
     }
     for(;;) {}

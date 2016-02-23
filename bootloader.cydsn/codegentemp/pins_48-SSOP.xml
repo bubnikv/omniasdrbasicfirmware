@@ -42,92 +42,200 @@
     <capability name="CSD_CMOD" value="0x0000020000000000" />
   </capabilities>
   <pins>
-    <pin number="1" name="P12[2]" portId="12" pinId="2" ioSupplyPin="VDDIO0" capabilities="0x000000F000000025" />
-    <pin number="2" name="P12[3]" portId="12" pinId="3" ioSupplyPin="VDDIO0" capabilities="0x000000F000000025" />
-    <pin number="3" name="P0[0]" portId="0" pinId="0" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
-    <pin number="4" name="P0[1]" portId="0" pinId="1" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
-    <pin number="5" name="P0[2]" portId="0" pinId="2" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
-    <pin number="6" name="P0[3]" portId="0" pinId="3" ioSupplyPin="VDDIO0" capabilities="0x000000D810000017">
-      <ffbterm ffbtype="DSM" ffbid="0" term="ext_pin_1" />
+    <pin number="1" name="P12[2]">
+      <pad name="P12[2]" number="72" portId="12" pinId="2" ioSupplyPin="VDDIO0" capabilities="0x000000F000000025" />
     </pin>
-    <pin number="7" name="VDDIO0" ioSupplyPin="VDDIO0" powerPadNames="VDDIO0" capabilities="0x0000000000000000" />
-    <pin number="8" name="P0[4]" portId="0" pinId="4" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
-    <pin number="9" name="P0[5]" portId="0" pinId="5" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
-    <pin number="10" name="P0[6]" portId="0" pinId="6" ioSupplyPin="VDDIO0" capabilities="0x000000D000000117">
-      <ffbterm ffbtype="VIDAC" ffbid="0" term="iout" />
+    <pin number="2" name="P12[3]">
+      <pad name="P12[3]" number="73" portId="12" pinId="3" ioSupplyPin="VDDIO0" capabilities="0x000000F000000025" />
     </pin>
-    <pin number="11" name="P0[7]" portId="0" pinId="7" ioSupplyPin="VDDIO0" capabilities="0x000000D000000117">
-      <ffbterm ffbtype="VIDAC" ffbid="2" term="iout" />
+    <pin number="3" name="P0[0]">
+      <pad name="P0[0]" number="76" portId="0" pinId="0" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="12" name="VCCD" ioSupplyPin="-" powerPadNames="VCCD;VCCD" capabilities="0x0000000000000000" />
-    <pin number="13" name="VSSD" ioSupplyPin="-" powerPadNames="VSSD;VSSD" capabilities="0x0000000000000000" />
-    <pin number="14" name="VDDD" ioSupplyPin="-" powerPadNames="VDDD;VDDD" capabilities="0x0000000000000000" />
-    <pin number="15" name="P2[3]" portId="2" pinId="3" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
-    <pin number="16" name="P2[4]" portId="2" pinId="4" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
-    <pin number="17" name="VDDIO2" ioSupplyPin="VDDIO2" powerPadNames="VDDIO2" capabilities="0x0000000000000000" />
-    <pin number="18" name="P2[5]" portId="2" pinId="5" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
-    <pin number="19" name="P2[6]" portId="2" pinId="6" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
-    <pin number="20" name="P2[7]" portId="2" pinId="7" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
-    <pin number="21" name="VSSB" ioSupplyPin="-" dedicatedPadNames="VSSB;VSSB" capabilities="0x0000000000000000" />
-    <pin number="22" name="IND" ioSupplyPin="-" dedicatedPadNames="IND;IND" capabilities="0x0000000000000000" />
-    <pin number="23" name="VB" ioSupplyPin="-" dedicatedPadNames="VB;VB" capabilities="0x0000000000000000" />
-    <pin number="24" name="VBAT" ioSupplyPin="-" dedicatedPadNames="VBAT" capabilities="0x0000000000000000" />
-    <pin number="25" name="P1[0]" portId="1" pinId="0" ioSupplyPin="VDDIO1" capabilities="0x000000D000005017">
-      <ffbterm ffbtype="JTAG" ffbid="0" term="tms" />
-      <ffbterm ffbtype="SWD" ffbid="0" term="io" />
+    <pin number="4" name="P0[1]">
+      <pad name="P0[1]" number="77" portId="0" pinId="1" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="26" name="P1[1]" portId="1" pinId="1" ioSupplyPin="VDDIO1" capabilities="0x000000D000005017">
-      <ffbterm ffbtype="JTAG" ffbid="0" term="tck" />
-      <ffbterm ffbtype="SWD" ffbid="0" term="ck" />
+    <pin number="5" name="P0[2]">
+      <pad name="P0[2]" number="78" portId="0" pinId="2" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="27" name="P1[2]" portId="1" pinId="2" ioSupplyPin="VDDIO1" capabilities="0x000000D000010017">
-      <ffbterm ffbtype="XRES" ffbid="0" term="opt" />
+    <pin number="6" name="P0[3]">
+      <pad name="P0[3]" number="79" portId="0" pinId="3" ioSupplyPin="VDDIO0" capabilities="0x000000D810000017">
+        <ffbterm ffbtype="DSM" ffbid="0" term="ext_pin_1" />
+      </pad>
     </pin>
-    <pin number="28" name="P1[3]" portId="1" pinId="3" ioSupplyPin="VDDIO1" capabilities="0x000000D000006017">
-      <ffbterm ffbtype="JTAG" ffbid="0" term="tdo" />
-      <ffbterm ffbtype="SWD" ffbid="0" term="swv" />
+    <pin number="7" name="VDDIO0">
+      <pad name="VDDIO0" number="80" ioSupplyPin="VDDIO0" powerPadNames="VDDIO0" capabilities="0x0000000000000000" />
     </pin>
-    <pin number="29" name="P1[4]" portId="1" pinId="4" ioSupplyPin="VDDIO1" capabilities="0x000000D000004017">
-      <ffbterm ffbtype="JTAG" ffbid="0" term="tdi" />
+    <pin number="8" name="P0[4]">
+      <pad name="P0[4]" number="81" portId="0" pinId="4" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="30" name="P1[5]" portId="1" pinId="5" ioSupplyPin="VDDIO1" capabilities="0x000000D000008017">
-      <ffbterm ffbtype="JTAG" ffbid="0" term="ntrst" />
+    <pin number="9" name="P0[5]">
+      <pad name="P0[5]" number="82" portId="0" pinId="5" ioSupplyPin="VDDIO0" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="31" name="VDDIO1" ioSupplyPin="VDDIO1" powerPadNames="VDDIO1" capabilities="0x0000000000000000" />
-    <pin number="32" name="P1[6]" portId="1" pinId="6" ioSupplyPin="VDDIO1" capabilities="0x000000D000000017" />
-    <pin number="33" name="P1[7]" portId="1" pinId="7" ioSupplyPin="VDDIO1" capabilities="0x000000D000000017" />
-    <pin number="34" name="P15[6]" portId="15" pinId="6" ioSupplyPin="VUSB" capabilities="0x000000D000401005">
-      <ffbterm ffbtype="USB" ffbid="0" term="dp" />
-      <ffbterm ffbtype="SWD" ffbid="0" term="io" />
+    <pin number="10" name="P0[6]">
+      <pad name="P0[6]" number="83" portId="0" pinId="6" ioSupplyPin="VDDIO0" capabilities="0x000000D000000117">
+        <ffbterm ffbtype="VIDAC" ffbid="0" term="iout" />
+      </pad>
     </pin>
-    <pin number="35" name="P15[7]" portId="15" pinId="7" ioSupplyPin="VUSB" capabilities="0x000000D000801005">
-      <ffbterm ffbtype="USB" ffbid="0" term="dm" />
-      <ffbterm ffbtype="SWD" ffbid="0" term="ck" />
+    <pin number="11" name="P0[7]">
+      <pad name="P0[7]" number="84" portId="0" pinId="7" ioSupplyPin="VDDIO0" capabilities="0x000000D000000117">
+        <ffbterm ffbtype="VIDAC" ffbid="2" term="iout" />
+      </pad>
     </pin>
-    <pin number="36" name="VDDD" ioSupplyPin="-" powerPadNames="VUSB;VDDD;VDDD" capabilities="0x0000000000000000" />
-    <pin number="37" name="VSSD" ioSupplyPin="-" powerPadNames="VSSD;VSSD" capabilities="0x0000000000000000" />
-    <pin number="38" name="VCCD" ioSupplyPin="-" powerPadNames="VCCD;VCCD" capabilities="0x0000000000000000" />
-    <pin number="39" name="P15[0]" portId="15" pinId="0" ioSupplyPin="VDDIO3" capabilities="0x000000D002000017">
-      <ffbterm ffbtype="XTAL" ffbid="0" term="Xo" />
+    <pin number="12" name="VCCD">
+      <pad name="VCCD" number="91" ioSupplyPin="-" powerPadNames="VCCD" capabilities="0x0000000000000000" />
+      <pad name="VCCD" number="92" ioSupplyPin="-" powerPadNames="VCCD" capabilities="0x0000000000000000" />
     </pin>
-    <pin number="40" name="P15[1]" portId="15" pinId="1" ioSupplyPin="VDDIO3" capabilities="0x000000D002000017">
-      <ffbterm ffbtype="XTAL" ffbid="0" term="Xi" />
+    <pin number="13" name="VSSD">
+      <pad name="VSSD" number="93" ioSupplyPin="-" powerPadNames="VSSD" capabilities="0x0000000000000000" />
+      <pad name="VSSD" number="94" ioSupplyPin="-" powerPadNames="VSSD" capabilities="0x0000000000000000" />
     </pin>
-    <pin number="41" name="VDDIO3" ioSupplyPin="VDDIO3" powerPadNames="VDDIO3" capabilities="0x0000000000000000" />
-    <pin number="42" name="P12[0]" portId="12" pinId="0" ioSupplyPin="VDDIO3" capabilities="0x000000F000200025">
-      <ffbterm ffbtype="I2C" ffbid="1" term="scl" />
+    <pin number="14" name="VDDD">
+      <pad name="VDDD" number="96" ioSupplyPin="-" powerPadNames="VDDD" capabilities="0x0000000000000000" />
+      <pad name="VDDD" number="97" ioSupplyPin="-" powerPadNames="VDDD" capabilities="0x0000000000000000" />
     </pin>
-    <pin number="43" name="P12[1]" portId="12" pinId="1" ioSupplyPin="VDDIO3" capabilities="0x000000F000100025">
-      <ffbterm ffbtype="I2C" ffbid="1" term="sda" />
+    <pin number="15" name="P2[3]">
+      <pad name="P2[3]" number="109" portId="2" pinId="3" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="44" name="P15[2]" portId="15" pinId="2" ioSupplyPin="VDDIO3" capabilities="0x000000D008000017">
-      <ffbterm ffbtype="XTAL_32kHz" ffbid="0" term="Xo" />
+    <pin number="16" name="P2[4]">
+      <pad name="P2[4]" number="110" portId="2" pinId="4" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
     </pin>
-    <pin number="45" name="P15[3]" portId="15" pinId="3" ioSupplyPin="VDDIO3" capabilities="0x000000D008000017">
-      <ffbterm ffbtype="XTAL_32kHz" ffbid="0" term="Xi" />
+    <pin number="17" name="VDDIO2">
+      <pad name="VDDIO2" number="111" ioSupplyPin="VDDIO2" powerPadNames="VDDIO2" capabilities="0x0000000000000000" />
     </pin>
-    <pin number="46" name="VCCA" ioSupplyPin="-" powerPadNames="VCCA" capabilities="0x0000000000000000" />
-    <pin number="47" name="VSSA" ioSupplyPin="-" powerPadNames="VSSOPAMP;VSSA" capabilities="0x0000000000000000" />
-    <pin number="48" name="VDDA" ioSupplyPin="-" powerPadNames="VDDOPAMP;VDDA" capabilities="0x0000000000000000" />
+    <pin number="18" name="P2[5]">
+      <pad name="P2[5]" number="1" portId="2" pinId="5" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
+    </pin>
+    <pin number="19" name="P2[6]">
+      <pad name="P2[6]" number="2" portId="2" pinId="6" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
+    </pin>
+    <pin number="20" name="P2[7]">
+      <pad name="P2[7]" number="3" portId="2" pinId="7" ioSupplyPin="VDDIO2" capabilities="0x000000D000000017" />
+    </pin>
+    <pin number="21" name="VSSB">
+      <pad name="VSSB" number="10" ioSupplyPin="-" capabilities="0x0000000000000000" />
+      <pad name="VSSB" number="11" ioSupplyPin="-" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="22" name="IND">
+      <pad name="IND" number="12" ioSupplyPin="-" capabilities="0x0000000000000000" />
+      <pad name="IND" number="13" ioSupplyPin="-" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="23" name="VB">
+      <pad name="VB" number="14" ioSupplyPin="-" capabilities="0x0000000000000000" />
+      <pad name="VB" number="15" ioSupplyPin="-" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="24" name="VBAT">
+      <pad name="VBAT" number="16" ioSupplyPin="-" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="25" name="P1[0]">
+      <pad name="P1[0]" number="25" portId="1" pinId="0" ioSupplyPin="VDDIO1" capabilities="0x000000D000005017">
+        <ffbterm ffbtype="JTAG" ffbid="0" term="tms" />
+        <ffbterm ffbtype="SWD" ffbid="0" term="io" />
+      </pad>
+    </pin>
+    <pin number="26" name="P1[1]">
+      <pad name="P1[1]" number="26" portId="1" pinId="1" ioSupplyPin="VDDIO1" capabilities="0x000000D000005017">
+        <ffbterm ffbtype="JTAG" ffbid="0" term="tck" />
+        <ffbterm ffbtype="SWD" ffbid="0" term="ck" />
+      </pad>
+    </pin>
+    <pin number="27" name="P1[2]">
+      <pad name="P1[2]" number="27" portId="1" pinId="2" ioSupplyPin="VDDIO1" capabilities="0x000000D000010017">
+        <ffbterm ffbtype="XRES" ffbid="0" term="opt" />
+      </pad>
+    </pin>
+    <pin number="28" name="P1[3]">
+      <pad name="P1[3]" number="28" portId="1" pinId="3" ioSupplyPin="VDDIO1" capabilities="0x000000D000006017">
+        <ffbterm ffbtype="JTAG" ffbid="0" term="tdo" />
+        <ffbterm ffbtype="SWD" ffbid="0" term="swv" />
+      </pad>
+    </pin>
+    <pin number="29" name="P1[4]">
+      <pad name="P1[4]" number="29" portId="1" pinId="4" ioSupplyPin="VDDIO1" capabilities="0x000000D000004017">
+        <ffbterm ffbtype="JTAG" ffbid="0" term="tdi" />
+      </pad>
+    </pin>
+    <pin number="30" name="P1[5]">
+      <pad name="P1[5]" number="30" portId="1" pinId="5" ioSupplyPin="VDDIO1" capabilities="0x000000D000008017">
+        <ffbterm ffbtype="JTAG" ffbid="0" term="ntrst" />
+      </pad>
+    </pin>
+    <pin number="31" name="VDDIO1">
+      <pad name="VDDIO1" number="31" ioSupplyPin="VDDIO1" powerPadNames="VDDIO1" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="32" name="P1[6]">
+      <pad name="P1[6]" number="32" portId="1" pinId="6" ioSupplyPin="VDDIO1" capabilities="0x000000D000000017" />
+    </pin>
+    <pin number="33" name="P1[7]">
+      <pad name="P1[7]" number="33" portId="1" pinId="7" ioSupplyPin="VDDIO1" capabilities="0x000000D000000017" />
+    </pin>
+    <pin number="34" name="P15[6]">
+      <pad name="P15[6]" number="40" portId="15" pinId="6" ioSupplyPin="VUSB" capabilities="0x000000D000401005">
+        <ffbterm ffbtype="USB" ffbid="0" term="dp" />
+        <ffbterm ffbtype="SWD" ffbid="0" term="io" />
+      </pad>
+    </pin>
+    <pin number="35" name="P15[7]">
+      <pad name="P15[7]" number="41" portId="15" pinId="7" ioSupplyPin="VUSB" capabilities="0x000000D000801005">
+        <ffbterm ffbtype="USB" ffbid="0" term="dm" />
+        <ffbterm ffbtype="SWD" ffbid="0" term="ck" />
+      </pad>
+    </pin>
+    <pin number="36" name="VDDD">
+      <pad name="VUSB" number="42" ioSupplyPin="-" powerPadNames="VUSB" capabilities="0x0000000000000000" />
+      <pad name="VDDD" number="43" ioSupplyPin="-" powerPadNames="VDDD" capabilities="0x0000000000000000" />
+      <pad name="VDDD" number="44" ioSupplyPin="-" powerPadNames="VDDD" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="37" name="VSSD">
+      <pad name="VSSD" number="45" ioSupplyPin="-" powerPadNames="VSSD" capabilities="0x0000000000000000" />
+      <pad name="VSSD" number="46" ioSupplyPin="-" powerPadNames="VSSD" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="38" name="VCCD">
+      <pad name="VCCD" number="48" ioSupplyPin="-" powerPadNames="VCCD" capabilities="0x0000000000000000" />
+      <pad name="VCCD" number="49" ioSupplyPin="-" powerPadNames="VCCD" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="39" name="P15[0]">
+      <pad name="P15[0]" number="50" portId="15" pinId="0" ioSupplyPin="VDDIO3" capabilities="0x000000D002000017">
+        <ffbterm ffbtype="XTAL" ffbid="0" term="Xo" />
+      </pad>
+    </pin>
+    <pin number="40" name="P15[1]">
+      <pad name="P15[1]" number="51" portId="15" pinId="1" ioSupplyPin="VDDIO3" capabilities="0x000000D002000017">
+        <ffbterm ffbtype="XTAL" ffbid="0" term="Xi" />
+      </pad>
+    </pin>
+    <pin number="41" name="VDDIO3">
+      <pad name="VDDIO3" number="58" ioSupplyPin="VDDIO3" powerPadNames="VDDIO3" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="42" name="P12[0]">
+      <pad name="P12[0]" number="61" portId="12" pinId="0" ioSupplyPin="VDDIO3" capabilities="0x000000F000200025">
+        <ffbterm ffbtype="I2C" ffbid="1" term="scl" />
+      </pad>
+    </pin>
+    <pin number="43" name="P12[1]">
+      <pad name="P12[1]" number="62" portId="12" pinId="1" ioSupplyPin="VDDIO3" capabilities="0x000000F000100025">
+        <ffbterm ffbtype="I2C" ffbid="1" term="sda" />
+      </pad>
+    </pin>
+    <pin number="44" name="P15[2]">
+      <pad name="P15[2]" number="63" portId="15" pinId="2" ioSupplyPin="VDDIO3" capabilities="0x000000D008000017">
+        <ffbterm ffbtype="XTAL_32kHz" ffbid="0" term="Xo" />
+      </pad>
+    </pin>
+    <pin number="45" name="P15[3]">
+      <pad name="P15[3]" number="64" portId="15" pinId="3" ioSupplyPin="VDDIO3" capabilities="0x000000D008000017">
+        <ffbterm ffbtype="XTAL_32kHz" ffbid="0" term="Xi" />
+      </pad>
+    </pin>
+    <pin number="46" name="VCCA">
+      <pad name="VCCA" number="65" ioSupplyPin="-" powerPadNames="VCCA" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="47" name="VSSA">
+      <pad name="VSSOPAMP" number="66" ioSupplyPin="-" powerPadNames="VSSOPAMP" capabilities="0x0000000000000000" />
+      <pad name="VSSA" number="67" ioSupplyPin="-" powerPadNames="VSSA" capabilities="0x0000000000000000" />
+    </pin>
+    <pin number="48" name="VDDA">
+      <pad name="VDDOPAMP" number="68" ioSupplyPin="-" powerPadNames="VDDOPAMP" capabilities="0x0000000000000000" />
+      <pad name="VDDA" number="69" ioSupplyPin="-" powerPadNames="VDDA" capabilities="0x0000000000000000" />
+    </pin>
   </pins>
 </pindata>

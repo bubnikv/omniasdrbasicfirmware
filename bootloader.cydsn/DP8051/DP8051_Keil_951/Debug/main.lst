@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 1   
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   51          
   52          const uint8 code MORSE_XTAL[] = {
   53              /* 0x58 X */ MCODE(3113),
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 2   
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 2   
 
   54              /* 0x54 T */ MCODE(3),
   55              /* 0x41 A */ MCODE(13),
@@ -119,48 +119,31 @@ line level    source
  106   1          uint8 boot_pin;
  107   1          uint8 crystal_status = FALSE;
  108   1          
- 109   1          CyDelay(3000);  // Let things settle down after a power on    
- 110   1          //message = MORSE_BOOT;
- 111   1          //boot_pin = BOOT_Read;
- 112   1          //if (!boot_pin) {//User will place a "boot" jumper on this pin to ground taking this pin to a "low" s
-             -tate 
- 113   1                          //to enable firmware upload.
- 114   1              //if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 3   
+ 109   1          CyDelay(1000);  // Let things settle down after a power on    
+ 110   1          
+ 111   1          crystal_status = CyXTAL_ReadStatus();
+ 112   1          if (crystal_status) message = MORSE_XTAL; else message = MORSE_BOOT;
+ 113   1          boot_pin = BOOT_Read();
+ 114   1          if (!boot_pin){      
+ 115   2              //User will place a "boot" jumper on this pin to ground taking this pin to a "low" state to enable
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 3   
 
- 115   1              //else {
- 116   1                  //if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
- 117   1                     // Bootloader_Exit(Bootloader_EXIT_TO_BTLDB);
- 118   1                  //}
- 119   1              //}
- 120   1          //}
- 121   1         // morse_isr_StartEx(&morse_interrupt);
- 122   1          //Morse_Counter_Start();
- 123   1          //CyGlobalIntEnable;
- 124   1          //Bootloader_Start();
- 125   1            
- 126   1          
- 127   1          crystal_status = CyXTAL_ReadStatus();
- 128   1          if (crystal_status) message = MORSE_XTAL; else message = MORSE_BOOT;
- 129   1          boot_pin = BOOT_Read();
- 130   1          if (!boot_pin){      
- 131   2              //User will place a "boot" jumper on this pin to ground taking this pin to a "low" state to enable
              - firmware upload.
- 132   2              morse_isr_StartEx(&morse_interrupt); //This blinks a LED morse code message.  
- 133   2              Morse_Counter_Start();
- 134   2              CyGlobalIntEnable;
- 135   2              if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader compo
+ 116   2              morse_isr_StartEx(&morse_interrupt); //This blinks a LED morse code message.  
+ 117   2              Morse_Counter_Start();
+ 118   2              CyGlobalIntEnable;
+ 119   2              if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader compo
              -nent.
- 136   2          }else {
- 137   2              Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); 
- 138   2              Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
- 139   2              CySoftwareReset();
- 140   2          }
- 141   1          for(;;) {}
- 142   1      }
- 143          
- 144          /* [] END OF FILE */
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 4   
+ 120   2          }else {
+ 121   2              Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); 
+ 122   2              //Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
+ 123   2              CySoftwareReset();
+ 124   2          }
+ 125   1          for(;;) {}
+ 126   1      }
+ 127          
+ 128          /* [] END OF FILE */
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -224,7 +207,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005D FE                MOV     R6,A
 005E 5407              ANL     A,#07H
 0060 A3                INC     DPTR
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 5   
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 5   
 
 0061 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 70
@@ -288,7 +271,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 84
 00AE         ?C0007:
                                            ; SOURCE LINE # 85
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 6   
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 6   
 
 00AE 900000      R     MOV     DPTR,#timer
 00B1 E0                MOVX    A,@DPTR
@@ -352,7 +335,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F9         ?C0013:
                                            ; SOURCE LINE # 100
 00F9 900000      R     MOV     DPTR,#timer
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 7   
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 7   
 
 00FC E0                MOVX    A,@DPTR
 00FD 14                DEC     A
@@ -388,17 +371,17 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0001 900000      R     MOV     DPTR,#crystal_status
 0004 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 109
-0005 7FB8              MOV     R7,#0B8H
-0007 7E0B              MOV     R6,#0BH
+0005 7FE8              MOV     R7,#0E8H
+0007 7E03              MOV     R6,#03H
 0009 FD                MOV     R5,A
 000A FC                MOV     R4,A
 000B 120000      E     LCALL   _?CyDelay
-                                           ; SOURCE LINE # 127
+                                           ; SOURCE LINE # 111
 000E 120000      E     LCALL   CyXTAL_ReadStatus
 0011 900000      R     MOV     DPTR,#crystal_status
 0014 EF                MOV     A,R7
 0015 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 128
+                                           ; SOURCE LINE # 112
 0016 600E              JZ      ?C0018
 0018 7BFF              MOV     R3,#0FFH
 001A 7A00        R     MOV     R2,#HIGH MORSE_XTAL
@@ -413,54 +396,50 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002C 900000      R     MOV     DPTR,#message
 002F 120000      E     LCALL   ?C?PSTXDATA
 0032         ?C0019:
-                                           ; SOURCE LINE # 129
+                                           ; SOURCE LINE # 113
 0032 120000      E     LCALL   BOOT_Read
 ;---- Variable 'boot_pin' assigned to Register 'R7' ----
-C51 COMPILER V9.51   MAIN                                                                  02/02/2016 10:49:55 PAGE 8   
+C51 COMPILER V9.51   MAIN                                                                  02/23/2016 09:17:09 PAGE 8   
 
-                                           ; SOURCE LINE # 130
+                                           ; SOURCE LINE # 114
 0035 EF                MOV     A,R7
 0036 701D              JNZ     ?C0020
-                                           ; SOURCE LINE # 132
+                                           ; SOURCE LINE # 116
 0038 7E00        R     MOV     R6,#HIGH morse_interrupt
 003A 7F00        R     MOV     R7,#LOW morse_interrupt
 003C 120000      E     LCALL   _morse_isr_StartEx
-                                           ; SOURCE LINE # 133
+                                           ; SOURCE LINE # 117
 003F 120000      E     LCALL   Morse_Counter_Start
-                                           ; SOURCE LINE # 134
+                                           ; SOURCE LINE # 118
 0042 D2AF              SETB    EA
 0044 9044F4            MOV     DPTR,#044F4H
 0047 74FD              MOV     A,#0FDH
 0049 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 135
+                                           ; SOURCE LINE # 119
 004A 900000      R     MOV     DPTR,#crystal_status
 004D E0                MOVX    A,@DPTR
-004E 7013              JNZ     ?C0023
+004E 700D              JNZ     ?C0023
 0050 120000      E     LCALL   Bootloader_Start
-                                           ; SOURCE LINE # 136
-0053 800E              SJMP    ?C0023
+                                           ; SOURCE LINE # 120
+0053 8008              SJMP    ?C0023
 0055         ?C0020:
-                                           ; SOURCE LINE # 137
+                                           ; SOURCE LINE # 121
 0055 E4                CLR     A
 0056 FF                MOV     R7,A
 0057 120000      E     LCALL   _Bootloader_Exit
-                                           ; SOURCE LINE # 138
-005A 9046FA            MOV     DPTR,#046FAH
-005D 7480              MOV     A,#080H
-005F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 139
-0060 120000      E     LCALL   CySoftwareReset
-                                           ; SOURCE LINE # 140
-                                           ; SOURCE LINE # 141
-0063         ?C0023:
-0063 80FE              SJMP    ?C0023
-0065 22                RET     
+                                           ; SOURCE LINE # 123
+005A 120000      E     LCALL   CySoftwareReset
+                                           ; SOURCE LINE # 124
+                                           ; SOURCE LINE # 125
+005D         ?C0023:
+005D 80FE              SJMP    ?C0023
+005F 22                RET     
              ; FUNCTION main (END)
 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    392    ----
+   CODE SIZE        =    386    ----
    CONSTANT SIZE    =     10    ----
    XDATA SIZE       =      8       1
    PDATA SIZE       =   ----    ----

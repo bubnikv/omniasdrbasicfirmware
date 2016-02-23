@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/02/2016 10:48:34 PAGE 1   
+C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/23/2016 09:17:13 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE MORSE_COUNTER_PM
@@ -62,7 +62,7 @@ line level    source
                       #endif /* (!Morse_Counter_ControlRegRemoved) */
               
                   #endif /* (!Morse_Counter_UsingFixedFunction) */
-C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/02/2016 10:48:34 PAGE 2   
+C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/23/2016 09:17:13 PAGE 2   
 
   53   1      }
   54          
@@ -126,7 +126,7 @@ line level    source
  112   2                  Morse_Counter_backup.CounterEnableState = 1u;
  113   2              }
  114   1              else
-C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/02/2016 10:48:34 PAGE 3   
+C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/23/2016 09:17:13 PAGE 3   
 
  115   1              {
  116   2                  /* Counter is disabled */
@@ -178,7 +178,7 @@ line level    source
  162          
  163          
  164          /* [] END OF FILE */
-C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/02/2016 10:48:34 PAGE 4   
+C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/23/2016 09:17:13 PAGE 4   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -242,7 +242,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 158
                                            ; SOURCE LINE # 161
 000D         ?C0007:
-C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/02/2016 10:48:34 PAGE 5   
+C51 COMPILER V9.51   MORSE_COUNTER_PM                                                      02/23/2016 09:17:13 PAGE 5   
 
 000D 22                RET     
              ; FUNCTION Morse_Counter_Wakeup (END)

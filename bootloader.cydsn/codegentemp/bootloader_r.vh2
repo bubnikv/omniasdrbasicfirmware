@@ -1,6 +1,6 @@
 -- Project:   bootloader
--- Generated: 02/02/2016 10:48:27
--- PSoC Creator  3.3 CP1
+-- Generated: 02/23/2016 09:17:01
+-- PSoC Creator  3.3 SP1
 
 ENTITY bootloader IS
     PORT(
@@ -9,8 +9,8 @@ ENTITY bootloader IS
         BOOT(0)_PAD : IN std_ulogic);
     ATTRIBUTE voltage_VDDOPAMP OF __DEFAULT__ : ENTITY IS 5e0;
     ATTRIBUTE voltage_VDDA OF __DEFAULT__ : ENTITY IS 5e0;
-    ATTRIBUTE voltage_VUSB OF __DEFAULT__ : ENTITY IS 5e0;
     ATTRIBUTE voltage_VDDD OF __DEFAULT__ : ENTITY IS 5e0;
+    ATTRIBUTE voltage_VUSB OF __DEFAULT__ : ENTITY IS 5e0;
     ATTRIBUTE voltage_VDDIO0 OF __DEFAULT__ : ENTITY IS 3.3e0;
     ATTRIBUTE voltage_VDDIO1 OF __DEFAULT__ : ENTITY IS 5e0;
     ATTRIBUTE voltage_VDDIO2 OF __DEFAULT__ : ENTITY IS 5e0;

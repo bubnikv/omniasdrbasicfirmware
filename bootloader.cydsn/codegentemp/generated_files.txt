@@ -54,6 +54,7 @@
   <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\USBFS_Dp.h" value="NONE;USBFS_Dp" />
   <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\USBFS_Dp_aliases.h" value="NONE;USBFS_Dp" />
   <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\cycodeshareimport.ld" value="NONE;" />
+  <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\cycodeshareexport.ld" value="NONE;" />
   <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\cycodeshareimport.scat" value="NONE;" />
   <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\CyBootAsmKeil.a51" value="KEIL_8051_ASM_FILE;cy_boot" />
   <file name="J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\codegentemp\CyDmac.c" value="DP8051_C_FILE;cy_boot" />
