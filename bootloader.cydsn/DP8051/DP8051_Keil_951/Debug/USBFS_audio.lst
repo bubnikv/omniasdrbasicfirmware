@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 1   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_AUDIO
@@ -62,7 +62,7 @@ line level    source
                   volatile uint8 USBFS_currentVolume[USBFS_VOLUME_LEN];
                   volatile uint8 USBFS_minimumVolume[USBFS_VOLUME_LEN] = {USBFS_VOL_MIN_LSB,
                                                                                                 USBFS_VOL_MIN_MSB};
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 2   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 2   
 
                   volatile uint8 USBFS_maximumVolume[USBFS_VOLUME_LEN] = {USBFS_VOL_MAX_LSB,
                                                                                                 USBFS_VOL_MAX_MSB};
@@ -126,7 +126,7 @@ line level    source
                           switch (CY_GET_REG8(USBFS_bRequest))
                           {
                               case USBFS_GET_CUR:
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 3   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 3   
 
                               #if defined(USBFS_ENABLE_AUDIO_STREAMING)
                                   if(CY_GET_REG8(USBFS_wValueHi) == USBFS_SAMPLING_FREQ_CONTROL)
@@ -190,7 +190,7 @@ line level    source
                                   }
                                   else
                                   {
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 4   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 4   
 
                                       /* `#START OTHER_GET_CUR_REQUESTS` Place other request handler here */
               
@@ -254,7 +254,7 @@ line level    source
                       else
                       {   /* USBFS_RQST_RCPT_OTHER */
                       }
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 5   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 5   
 
                   }
                   else
@@ -318,7 +318,7 @@ line level    source
               
                                       /* `#END` */
               
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 6   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 6   
 
                                       #ifdef USBFS_DISPATCH_AUDIO_CLASS_VOLUME_CONTROL_SET_REQUEST_CALLBACK
                                           USBFS_DispatchAUDIOClass_VOLUME_CONTROL_SET_REQUEST_Callback();
@@ -378,7 +378,7 @@ line level    source
  356          
  357          
  358          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_AUDIO                                                           02/23/2016 09:17:10 PAGE 7   
+C51 COMPILER V9.51   USBFS_AUDIO                                                           02/25/2016 10:46:00 PAGE 7   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 1   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_DESCR
@@ -62,7 +62,7 @@ line level    source
   50          /* iProduct                                */ 0x03u,
   51          /* iSerialNumber                           */ 0x80u,
   52          /* bNumConfigurations                      */ 0x01u
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 2   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 2   
 
   53          };
   54          /*********************************************************************
@@ -126,7 +126,7 @@ line level    source
  112          const uint8 CYCODE USBFS_STRING_DESCRIPTORS[95u] = {
  113          /*********************************************************************
  114          * Language ID Descriptor
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 3   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 3   
 
  115          *********************************************************************/
  116          /* Descriptor Length                       */ 0x04u,
@@ -190,7 +190,7 @@ line level    source
  174          /* USAGE                                   */ 0x09u, 0x00u, 
  175          /* LOGICAL_MINIMUM                         */ 0x15u, 0x00u, 
  176          /* LOGICAL_MAXIMUM                         */ 0x25u, 0xFFu, 
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 4   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 4   
 
  177          /* REPORT_SIZE                             */ 0x75u, 0x08u, 
  178          /* REPORT_COUNT                            */ 0x95u, 0x40u, 
@@ -254,7 +254,7 @@ line level    source
  236          
  237          /*********************************************************************
  238          * HID Output Report TD Table
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 5   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 5   
 
  239          *********************************************************************/
  240          const T_USBFS_TD CYCODE USBFS_DEVICE0_CONFIGURATION0_INTERFACE0_ALTERNATE0_HID_OUT_RPT_TABLE[1u] = {
@@ -318,7 +318,7 @@ line level    source
  298          *********************************************************************/
  299          const T_USBFS_LUT CYCODE USBFS_DEVICE0_TABLE[2u] = {
  300              {0x01u,     &USBFS_DEVICE0_DESCR},
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 6   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 6   
 
  301              {0x01u,     &USBFS_DEVICE0_CONFIGURATION0_TABLE}
  302          };
@@ -379,7 +379,7 @@ line level    source
  354          
  355          
  356          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_DESCR                                                           02/23/2016 09:17:11 PAGE 7   
+C51 COMPILER V9.51   USBFS_DESCR                                                           02/25/2016 10:46:01 PAGE 7   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 

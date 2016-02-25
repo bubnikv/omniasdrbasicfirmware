@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   CONTROL                                                               02/23/2016 09:17:12 PAGE 1   
+C51 COMPILER V9.51   CONTROL                                                               02/25/2016 10:46:02 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE CONTROL
@@ -62,7 +62,7 @@ line level    source
   51          *  None.
   52          *
   53          * Return:
-C51 COMPILER V9.51   CONTROL                                                               02/23/2016 09:17:12 PAGE 2   
+C51 COMPILER V9.51   CONTROL                                                               02/25/2016 10:46:02 PAGE 2   
 
   54          *  Returns the current value in the Control Register.
   55          *
@@ -76,7 +76,7 @@ line level    source
   63          
   64          
   65          /* [] END OF FILE */
-C51 COMPILER V9.51   CONTROL                                                               02/23/2016 09:17:12 PAGE 3   
+C51 COMPILER V9.51   CONTROL                                                               02/25/2016 10:46:02 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 

@@ -28,7 +28,7 @@
 #define TRUE 1
 #define FALSE 0   
     
-#define FIRMWARE_VERSION 0x640F // Version 16.20 --  {YY}.{[M]M}{Release Number}  (the bytes are reversed)  
+#define FIRMWARE_VERSION 0x1410 // Version 16.20 --  {YY}.{[M]M}{Release Number}  (the bytes are reversed)  
 #define FIRMWARE_VERSION_MAJOR 0x10
 #define FIRMWARE_VERSION_MINOR 0x14
     

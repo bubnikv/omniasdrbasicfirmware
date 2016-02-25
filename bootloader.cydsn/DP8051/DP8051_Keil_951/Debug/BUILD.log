@@ -1,5 +1,5 @@
---------------- Build Started: 02/02/2016 22:09:28 Project: bootloader, Configuration: DP8051 Keil 9.51 Debug ---------------
+--------------- Build Started: 02/25/2016 10:45:36 Project: bootloader, Configuration: DP8051 Keil 9.51 Debug ---------------
 The code generation step is up to date.
 The compile step is up to date, no work needs to be done.
 The link step is up to date, no work needs to be done.
---------------- Build Succeeded: 02/02/2016 22:09:28 ---------------
+--------------- Build Succeeded: 02/25/2016 10:45:36 ---------------

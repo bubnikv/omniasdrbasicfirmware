@@ -1,5 +1,5 @@
 -- Project:   bootloader
--- Generated: 02/23/2016 09:17:01
+-- Generated: 02/25/2016 10:45:56
 -- PSoC Creator  3.3 SP1
 
 ENTITY bootloader IS
