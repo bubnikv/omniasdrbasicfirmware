@@ -1,6 +1,6 @@
 -- Project:   bootloader
--- Generated: 02/25/2016 10:45:55
--- PSoC Creator  3.3 SP1
+-- Generated: 04/01/2016 11:42:10
+-- PSoC Creator  3.3 CP2
 
 ENTITY bootloader IS
     PORT(

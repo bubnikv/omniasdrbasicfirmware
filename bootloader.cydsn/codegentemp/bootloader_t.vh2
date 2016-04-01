@@ -1,6 +1,6 @@
 -- Project:   J:\Ham Radio\ominaSDR\Hardware\Omnia-basic\firmware\omnia-sdr-basic\bootloader.cydsn\bootloader.cyprj
--- Generated: 02/25/2016 10:45:57
--- PSoC Creator  3.3 SP1
+-- Generated: 04/01/2016 11:42:12
+-- PSoC Creator  3.3 CP2
 
 ENTITY bootloader IS
     PORT(

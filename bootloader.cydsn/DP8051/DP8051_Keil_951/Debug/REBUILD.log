@@ -1,4 +1,4 @@
---------------- Rebuild Started: 02/25/2016 10:45:51 Project: bootloader, Configuration: DP8051 Keil 9.51 Debug ---------------
+--------------- Rebuild Started: 04/01/2016 11:42:05 Project: bootloader, Configuration: DP8051 Keil 9.51 Debug ---------------
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\main.obj"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\cyfitter_cfg.obj"
 Deleting file ".\DP8051\DP8051_Keil_951\Debug\USBFS.obj"
@@ -103,4 +103,4 @@ cysymboladdressfinder.exe -f .\DP8051\DP8051_Keil_951\Debug\bootloader.elf -s Bo
 cyhextool -o .\DP8051\DP8051_Keil_951\Debug\bootloader.hex -f .\DP8051\DP8051_Keil_951\Debug\bootloader.ihx -prot .\Generated_Source\PSoC3\protect.hex -id 1E093069 -a EEPROM=90200000:800,PROGRAM=00000000:10000,CONFIG=80000000:2000,PROTECT=90400000:40 -meta 0301 -cunv 0800C005 -wonv BC90ACAF -ecc OFF -blver 000001010100000000000000 -blcks .\DP8051\DP8051_Keil_951\Debug\cksmaddress.txt -blsize .\DP8051\DP8051_Keil_951\Debug\sizeaddress.txt -flsLine 256 -endian b
 Flash used: 16896 of 65536 bytes (25.8 %).
 SRAM used: 1587 of 8192 bytes (19.4 %).
---------------- Rebuild Succeeded: 02/25/2016 10:46:06 ---------------
+--------------- Rebuild Succeeded: 04/01/2016 11:42:21 ---------------

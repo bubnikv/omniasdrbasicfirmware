@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 1   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS
@@ -62,7 +62,7 @@ line level    source
                   #include "USBFS_EP17_DMA_Done_SR.h"
               #endif /* ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u)) */
   53          
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 2   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 2   
 
   54          
   55          /***************************************
@@ -126,7 +126,7 @@ line level    source
  113          *  configuration of this component. The variable is initialized to zero (0u)
  114          *  and set to one (1u) the first time USBFS_Start() is called.
  115          *  This allows for component Re-Start without unnecessary re-initialization
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 3   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 3   
 
  116          *  in all subsequent calls to the USBFS_Start() routine.
  117          *  If re-initialization of the component is required the variable should be set
@@ -190,7 +190,7 @@ line level    source
  175   1          USBFS_CR1_REG = USBFS_CR1_ENABLE_LOCK;
  176   1      
  177   1          /* ENABLING USBIO PADS IN USB MODE FROM I/O MODE */
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 4   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 4   
 
  178   1          /* Ensure USB transmit enable is low (USB_USBIO_CR0.ten). - Manual Transmission - Disabled */
  179   1          USBFS_USBIO_CR0_REG &= ((uint8)(~USBFS_USBIO_CR0_TEN));
@@ -254,7 +254,7 @@ line level    source
  237   1          CyIntSetPriority(USBFS_EP_0_VECT_NUM, USBFS_EP_0_PRIOR);
  238   1      
  239   1          /* Set the Data Endpoint 1 Interrupt. */
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 5   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 5   
 
  240   1          #if(USBFS_EP1_ISR_REMOVE == 0u)
  241   1              (void) CyIntSetVector(USBFS_EP_1_VECT_NUM,   &USBFS_EP_1_ISR);
@@ -318,7 +318,7 @@ line level    source
  299          *
  300          * Summary:
  301          *  Initialize the component, except for the HW which is done one time in
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 6   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 6   
 
  302          *  the Start function.  This function pulls up D+.
  303          *
@@ -382,7 +382,7 @@ line level    source
  361   1          #endif /* USBFS_ENABLE_HID_CLASS */
  362   1      
  363   1          /* Enable Interrupts. */
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 7   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 7   
 
  364   1          CyIntEnable(USBFS_BUS_RESET_VECT_NUM);
  365   1          CyIntEnable(USBFS_EP_0_VECT_NUM);
@@ -446,7 +446,7 @@ line level    source
  423   2                  break;
  424   2              default:   /*USBFS_DWR_VDDD_OPERATION */
  425   2                  #if(USBFS_VDDD_MV < USBFS_3500MV)
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 8   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 8   
 
                               USBFS_CR1_REG = USBFS_CR1_ENABLE_LOCK;
                           #else
@@ -510,7 +510,7 @@ line level    source
  485          *       variable is initialized to zero in this API. Host starts to communicate
  486          *      to device with address 0 and then set it to whatever value using
  487          *      SET_ADDRESS request.
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 9   
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 9   
 
  488          *   USBFS_deviceStatus: initialized to 0.
  489          *       This is two bit variable which contain power status in first bit
@@ -574,7 +574,7 @@ line level    source
  547          * Global variables:
  548          *   USBFS_configuration: Contains current configuration number
  549          *       which is set by the Host using SET_CONFIGURATION request.
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 10  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 10  
 
  550          *       Initialized to zero in this API.
  551          *   USBFS_deviceAddress: Contains current device address. This
@@ -638,7 +638,7 @@ line level    source
  609   1          USBFS_configuration = 0u;
  610   1          USBFS_interfaceNumber = 0u;
  611   1          USBFS_configurationChanged = 0u;
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 11  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 11  
 
  612   1          USBFS_deviceAddress  = 0u;
  613   1          USBFS_deviceStatus = 0u;
@@ -702,7 +702,7 @@ line level    source
  671          *  Returns the clear on read configuration state. It is usefull when PC send
  672          *  double SET_CONFIGURATION request with same configuration number.
  673          *
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 12  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 12  
 
  674          * Parameters:
  675          *  None.
@@ -766,7 +766,7 @@ line level    source
  733          *
  734          *******************************************************************************/
  735          uint8 USBFS_GetEPState(uint8 epNumber) 
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 13  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 13  
 
  736          {
  737   1          return(USBFS_EP[epNumber].apiEpState);
@@ -830,7 +830,7 @@ line level    source
                   * Return:
                   *  None.
                   *
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 14  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 14  
 
                   * Reentrant:
                   *  No.
@@ -894,7 +894,7 @@ line level    source
                                   USBFS_DmaChan[epNumber] = USBFS_ep6_DmaInitialize(
                                       USBFS_DMA_BYTES_PER_BURST, USBFS_DMA_REQUEST_PER_BURST, src, dst);
                               #endif   /*  USBFS_DMA6_REMOVE */
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 15  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 15  
 
                               break;
                           case USBFS_EP7:
@@ -958,7 +958,7 @@ line level    source
                               {
                                   CyDmaTdFree(USBFS_DmaNextTd[i]);
                                   USBFS_DmaNextTd[i] = DMA_INVALID_TD;
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 16  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 16  
 
                               }
                           #endif /* ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u)) */
@@ -1022,7 +1022,7 @@ line level    source
                       /* CyDmaChSetInitialTd API is optimised to init TD */
                       CY_DMA_CH_STRUCT_PTR[USBFS_DmaChan[epNumber]].basic_status[1u] = USBFS_DmaTd[epNumber];
                   }
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 17  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 17  
 
               #endif /* ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u)) */
  985          
@@ -1086,7 +1086,7 @@ line level    source
 1043   4                      }
 1044   3                  }
 1045   2                  USBFS_EP[epNumber].apiEpState = USBFS_NO_EVENT_PENDING;
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 18  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 18  
 
 1046   2                  /* Write the Mode register */
 1047   2                  CY_SET_REG8((reg8 *)(USBFS_SIE_EP1_CR0_IND + ri), USBFS_EP[epNumber].epMode);
@@ -1150,7 +1150,7 @@ line level    source
                           #else /* Configure DMA to send all data*/
                               (void) CyDmaTdSetConfiguration(USBFS_DmaTd[epNumber], length,
                                                              USBFS_DmaTd[epNumber], TD_TERMIN_EN | TD_INC_SRC_ADR);
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 19  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 19  
 
                               (void) CyDmaTdSetAddress(USBFS_DmaTd[epNumber],  LO16((uint32)pData), LO16((uint32)p));
                           #endif /* USBFS_EP_DMA_AUTO_OPT == 0u */
@@ -1214,7 +1214,7 @@ line level    source
 1161          *  USBFS_GetEPState to see if an event is pending.
 1162          *
 1163          * Parameters:
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 20  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 20  
 
 1164          *  epNumber: Contains the data endpoint number.
 1165          *            Valid values are between 1 and 8.
@@ -1278,7 +1278,7 @@ line level    source
 1223   2      
 1224   2              #if(USBFS_EP_MM == USBFS__EP_DMAMANUAL)
                           /* Enable DMA in mode2 for transferring data */
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 21  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 21  
 
                           (void) CyDmaChDisable(USBFS_DmaChan[epNumber]);
                           (void) CyDmaTdSetConfiguration(USBFS_DmaTd[epNumber], length, CY_DMA_DISABLE_TD,
@@ -1342,7 +1342,7 @@ line level    source
 1282          *
 1283          * Reentrant:
 1284          *  No.
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 22  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 22  
 
 1285          *
 1286          *******************************************************************************/
@@ -1406,7 +1406,7 @@ line level    source
 1344          * Return:
 1345          *  None.
 1346          *
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 23  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 23  
 
 1347          *******************************************************************************/
 1348          void USBFS_Force(uint8 bState) 
@@ -1470,7 +1470,7 @@ line level    source
 1406          void USBFS_SetPowerStatus(uint8 powerStatus) 
 1407          {
 1408   1          if (powerStatus != USBFS_DEVICE_STATUS_BUS_POWERED)
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 24  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 24  
 
 1409   1          {
 1410   2              USBFS_deviceStatus |=  USBFS_DEVICE_STATUS_SELF_POWERED;
@@ -1534,12 +1534,12 @@ line level    source
 1468   1      
 1469   1          return(result);
 1470   1      }
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 25  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 25  
 
 1471          
 1472          
 1473          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 26  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 26  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1603,7 +1603,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 175
 001C 906009            MOV     DPTR,#06009H
 001F 04                INC     A
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 27  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 27  
 
 0020 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 179
@@ -1667,7 +1667,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0074 E4                CLR     A
 0075 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 209
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 28  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 28  
 
 0076 A3                INC     DPTR
 0077 F0                MOVX    @DPTR,A
@@ -1731,7 +1731,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 348
 ;---- Variable 'mode' assigned to Register 'R5' ----
 ;---- Variable 'device' assigned to Register 'R7' ----
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 29  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 29  
 
                                            ; SOURCE LINE # 349
                                            ; SOURCE LINE # 357
@@ -1795,7 +1795,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 424
 003B         ?C0010:
                                            ; SOURCE LINE # 428
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 30  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 30  
 
 003B 906009            MOV     DPTR,#06009H
 003E 7403              MOV     A,#03H
@@ -1859,7 +1859,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0002         ?C0012:
                                            ; SOURCE LINE # 507
                                            ; SOURCE LINE # 508
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 31  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 31  
 
 0002 7F01              MOV     R7,#01H
 0004 900000      E     MOV     DPTR,#USBFS_hidProtocol
@@ -1923,7 +1923,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0012 54FE              ANL     A,#0FEH
 0014 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 578
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 32  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 32  
 
 0015 9043B5            MOV     DPTR,#043B5H
 0018 E0                MOVX    A,@DPTR
@@ -1987,7 +1987,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0010 FF                MOV     R7,A
                                            ; SOURCE LINE # 643
 0011         ?C0017:
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 33  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 33  
 
 0011 22                RET     
              ; FUNCTION USBFS_CheckActivity (END)
@@ -2051,7 +2051,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _USBFS_GetEPState (BEGIN)
                                            ; SOURCE LINE # 735
 ;---- Variable 'epNumber' assigned to Register 'R7' ----
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 34  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 34  
 
                                            ; SOURCE LINE # 736
                                            ; SOURCE LINE # 737
@@ -2115,7 +2115,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0028 3460              ADDC    A,#060H
 002A 8B82              MOV     DPL,R3
 002C F583              MOV     DPH,A
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 35  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 35  
 
 002E E0                MOVX    A,@DPTR
 002F 540F              ANL     A,#0FH
@@ -2179,7 +2179,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0024 EF                MOV     A,R7
 0025 C4                SWAP    A
 0026 F8                MOV     R0,A
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 36  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 36  
 
 0027 540F              ANL     A,#0FH
 0029 C8                XCH     A,R0
@@ -2243,7 +2243,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0076 F582              MOV     DPL,A
 0078 E4                CLR     A
 0079 3400        E     ADDC    A,#HIGH USBFS_EP+06H
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 37  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 37  
 
 007B F583              MOV     DPH,A
 007D E0                MOVX    A,@DPTR
@@ -2307,7 +2307,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00CD 120000      E     LCALL   ?C?PLDXDATA
 00D0 E9                MOV     A,R1
 00D1 4A                ORL     A,R2
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 38  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 38  
 
 00D2 4B                ORL     A,R3
 00D3 6046              JZ      ?C0027
@@ -2371,7 +2371,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011F FF                MOV     R7,A
 0120 75F00B            MOV     B,#0BH
 0123 A4                MUL     AB
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 39  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 39  
 
 0124 2400        E     ADD     A,#LOW USBFS_EP+01H
 0126 F582              MOV     DPL,A
@@ -2435,7 +2435,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0024 900000      R     MOV     DPTR,#epNumber
 0027 E0                MOVX    A,@DPTR
 0028 FD                MOV     R5,A
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 40  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 40  
 
 0029 24FF              ADD     A,#0FFH
 002B FF                MOV     R7,A
@@ -2499,7 +2499,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 006A 9F                SUBB    A,R7
 006B 900000      R     MOV     DPTR,#length
 006E E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 41  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 41  
 
 006F 9E                SUBB    A,R6
 0070 4024              JC      ?C0035
@@ -2563,7 +2563,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _USBFS_EnableOutEP (BEGIN)
                                            ; SOURCE LINE # 1287
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 42  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 42  
 
 ;---- Variable 'epNumber' assigned to Register 'R5' ----
 0000 AD07              MOV     R5,AR7
@@ -2627,7 +2627,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004B F583              MOV     DPH,A
 004D EE                MOV     A,R6
 004E F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 43  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 43  
 
                                            ; SOURCE LINE # 1297
                                            ; SOURCE LINE # 1298
@@ -2691,7 +2691,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 906010            MOV     DPTR,#06010H
 0003 EF                MOV     A,R7
 0004 F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 44  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 44  
 
                                            ; SOURCE LINE # 1351
 0005 22                RET     
@@ -2755,7 +2755,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _USBFS_SetPowerStatus (BEGIN)
                                            ; SOURCE LINE # 1406
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 45  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 45  
 
 ;---- Variable 'powerStatus' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 1407
@@ -2819,7 +2819,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    EDATA SIZE       =   ----    ----
    HDATA SIZE       =   ----    ----
    XDATA CONST SIZE =   ----    ----
-C51 COMPILER V9.51   USBFS                                                                 02/25/2016 10:46:00 PAGE 46  
+C51 COMPILER V9.51   USBFS                                                                 04/01/2016 11:42:15 PAGE 46  
 
    FAR CONST SIZE   =   ----    ----
 END OF MODULE INFORMATION.
