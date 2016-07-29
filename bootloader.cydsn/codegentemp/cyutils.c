@@ -1,6 +1,6 @@
 /*******************************************************************************
 * FILENAME: cyutils.c
-* Version 5.20
+* Version 5.30
 *
 *  Description:
 *   CyUtils provides a function to handle 24-bit value writes.

@@ -1,6 +1,6 @@
 ;*******************************************************************************
 ; FILENAME: Bootloader_psoc3.a51
-; Version 1.40
+; Version 1.50
 ;
 ;  DESCRIPTION:
 ;    Means to jump to an instruction in the Application and clear the stack on

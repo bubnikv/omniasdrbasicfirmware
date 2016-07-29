@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS_VND                                                             04/01/2016 11:42:16 PAGE 1   
+C51 COMPILER V9.51   USBFS_VND                                                             07/29/2016 09:50:45 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_VND
@@ -9,150 +9,149 @@ COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creato
 
 line level    source
 
-   1          /*******************************************************************************
-   2          * File Name: USBFS_vnd.c
-   3          * Version 2.80
+   1          /***************************************************************************//**
+   2          * \file USBFS_vnd.c
+   3          * \version 3.0
    4          *
-   5          * Description:
-   6          *  USB vendor request handler.
+   5          * \brief
+   6          *  This file contains the  USB vendor request handler.
    7          *
-   8          * Note:
-   9          *
-  10          ********************************************************************************
-  11          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
-  12          * You may use this file only in accordance with the license, terms, conditions,
-  13          * disclaimers, and limitations in the end user license agreement accompanying
-  14          * the software package with which this file was provided.
-  15          *******************************************************************************/
-  16          
-  17          #include "USBFS.h"
-  18          #include "USBFS_pvt.h"
-  19          
+   8          ********************************************************************************
+   9          * \copyright
+  10          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+  11          * You may use this file only in accordance with the license, terms, conditions,
+  12          * disclaimers, and limitations in the end user license agreement accompanying
+  13          * the software package with which this file was provided.
+  14          *******************************************************************************/
+  15          
+  16          #include "USBFS_pvt.h"
+  17          
+  18          
+  19          #if(USBFS_EXTERN_VND == USBFS_FALSE)
   20          
-  21          #if(USBFS_EXTERN_VND == USBFS_FALSE)
-  22          
-  23          
-  24          /***************************************
-  25          * Vendor Specific Declarations
-  26          ***************************************/
-  27          
-  28          /* `#START VENDOR_SPECIFIC_DECLARATIONS` Place your declaration here */
+  21          /***************************************
+  22          * Vendor Specific Declarations
+  23          ***************************************/
+  24          
+  25          /* `#START VENDOR_SPECIFIC_DECLARATIONS` Place your declaration here */
+  26          
+  27          /* `#END` */
+  28          
   29          
-  30          /* `#END` */
-  31          
-  32          
-  33          /*******************************************************************************
-  34          * Function Name: USBFS_HandleVendorRqst
-  35          ********************************************************************************
+  30          /*******************************************************************************
+  31          * Function Name: USBFS_HandleVendorRqst
+  32          ****************************************************************************//**
+  33          *
+  34          *  This routine provide users with a method to implement vendor specific
+  35          *  requests.
   36          *
-  37          * Summary:
-  38          *  This routine provide users with a method to implement vendor specific
-  39          *  requests.
-  40          *
-  41          *  To implement vendor specific requests, add your code in this function to
-  42          *  decode and disposition the request.  If the request is handled, your code
-  43          *  must set the variable "requestHandled" to TRUE, indicating that the
-  44          *  request has been handled.
-  45          *
-  46          * Parameters:
-  47          *  None.
-  48          *
-  49          * Return:
-  50          *  requestHandled.
-  51          *
-  52          * Reentrant:
-  53          *  No.
-C51 COMPILER V9.51   USBFS_VND                                                             04/01/2016 11:42:16 PAGE 2   
+  37          *  To implement vendor specific requests, add your code in this function to
+  38          *  decode and disposition the request.  If the request is handled, your code
+  39          *  must set the variable "requestHandled" to TRUE, indicating that the
+  40          *  request has been handled.
+  41          *
+  42          * \return
+  43          *  requestHandled.
+  44          *
+  45          * \reentrant
+  46          *  No.
+  47          *
+  48          *******************************************************************************/
+  49          uint8 USBFS_HandleVendorRqst(void) 
+  50          {
+  51   1          uint8 requestHandled = USBFS_FALSE;
+  52   1      
+  53   1          /* Check request direction: D2H or H2D. */
+C51 COMPILER V9.51   USBFS_VND                                                             07/29/2016 09:50:45 PAGE 2   
 
-  54          *
-  55          *******************************************************************************/
-  56          uint8 USBFS_HandleVendorRqst(void) 
-  57          {
-  58   1          uint8 requestHandled = USBFS_FALSE;
-  59   1      
-  60   1          if ((CY_GET_REG8(USBFS_bmRequestType) & USBFS_RQST_DIR_MASK) == USBFS_RQST_DIR_D2H)
-  61   1          {
-  62   2              /* Control Read */
-  63   2              switch (CY_GET_REG8(USBFS_bRequest))
-  64   2              {
-  65   3                  case USBFS_GET_EXTENDED_CONFIG_DESCRIPTOR:
-  66   3                      #if defined(USBFS_ENABLE_MSOS_STRING)
-                                  USBFS_currentTD.pData = (volatile uint8 *)&USBFS_MSOS_CONFIGURATION_DESCR[0u];
-                                  USBFS_currentTD.count = USBFS_MSOS_CONFIGURATION_DESCR[0u];
-                                  requestHandled  = USBFS_InitControlRead();
-                              #endif /*  USBFS_ENABLE_MSOS_STRING */
-  71   3                      break;
-  72   3                  default:
-  73   3                      break;
-  74   3              }
-  75   2          }
+  54   1          if (0u != (USBFS_bmRequestTypeReg & USBFS_RQST_DIR_D2H))
+  55   1          {
+  56   2              /* Handle direction from device to host. */
+  57   2              
+  58   2              switch (USBFS_bRequestReg)
+  59   2              {
+  60   3                  case USBFS_GET_EXTENDED_CONFIG_DESCRIPTOR:
+  61   3                  #if defined(USBFS_ENABLE_MSOS_STRING)
+                              USBFS_currentTD.pData = (volatile uint8 *) &USBFS_MSOS_CONFIGURATION_DESCR[0u];
+                              USBFS_currentTD.count = USBFS_MSOS_CONFIGURATION_DESCR[0u];
+                              requestHandled  = USBFS_InitControlRead();
+                          #endif /* (USBFS_ENABLE_MSOS_STRING) */
+  66   3                      break;
+  67   3                  
+  68   3                  default:
+  69   3                      break;
+  70   3              }
+  71   2          }
+  72   1      
+  73   1          /* `#START VENDOR_SPECIFIC_CODE` Place your vendor specific request here */
+  74   1      
+  75   1          /* `#END` */
   76   1      
-  77   1          /* `#START VENDOR_SPECIFIC_CODE` Place your vendor specific request here */
-  78   1      
-  79   1          /* `#END` */
-  80   1      
-  81   1          #ifdef USBFS_HANDLE_VENDOR_RQST_CALLBACK
-                      USBFS_HandleVendorRqst_Callback();
-                  #endif /* USBFS_HANDLE_VENDOR_RQST_CALLBACK */
-  84   1      
-  85   1          return(requestHandled);
-  86   1      }
+  77   1      #ifdef USBFS_HANDLE_VENDOR_RQST_CALLBACK
+                  if (USBFS_FALSE == requestHandled)
+                  {
+                      requestHandled = USBFS_HandleVendorRqst_Callback();
+                  }
+              #endif /* (USBFS_HANDLE_VENDOR_RQST_CALLBACK) */
+  83   1      
+  84   1          return (requestHandled);
+  85   1      }
+  86          
   87          
-  88          
-  89          /*******************************************************************************
-  90          * Additional user functions supporting Vendor Specific Requests
-  91          ********************************************************************************/
-  92          
-  93          /* `#START VENDOR_SPECIFIC_FUNCTIONS` Place any additional functions here */
-  94          
-  95          /* `#END` */
+  88          /*******************************************************************************
+  89          * Additional user functions supporting Vendor Specific Requests
+  90          ********************************************************************************/
+  91          
+  92          /* `#START VENDOR_SPECIFIC_FUNCTIONS` Place any additional functions here */
+  93          
+  94          /* `#END` */
+  95          
   96          
   97          #endif /* USBFS_EXTERN_VND */
   98          
   99          
  100          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_VND                                                             04/01/2016 11:42:16 PAGE 3   
+C51 COMPILER V9.51   USBFS_VND                                                             07/29/2016 09:50:45 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
              ; FUNCTION USBFS_HandleVendorRqst (BEGIN)
-                                           ; SOURCE LINE # 56
-                                           ; SOURCE LINE # 57
-                                           ; SOURCE LINE # 58
+                                           ; SOURCE LINE # 49
+                                           ; SOURCE LINE # 50
+                                           ; SOURCE LINE # 51
 ;---- Variable 'requestHandled' assigned to Register 'R7' ----
 0000 E4                CLR     A
 0001 FF                MOV     R7,A
-                                           ; SOURCE LINE # 60
+                                           ; SOURCE LINE # 54
 0002 906000            MOV     DPTR,#06000H
 0005 E0                MOVX    A,@DPTR
 0006 5480              ANL     A,#080H
-0008 6480              XRL     A,#080H
-000A 7005              JNZ     ?C0001
-                                           ; SOURCE LINE # 61
-                                           ; SOURCE LINE # 63
-000C A3                INC     DPTR
-000D E0                MOVX    A,@DPTR
-000E FE                MOV     R6,A
-000F 8000              SJMP    ?C0001
-                                           ; SOURCE LINE # 64
-                                           ; SOURCE LINE # 65
+0008 6005              JZ      ?C0001
+                                           ; SOURCE LINE # 55
+                                           ; SOURCE LINE # 58
+000A A3                INC     DPTR
+000B E0                MOVX    A,@DPTR
+000C FE                MOV     R6,A
+000D 8000              SJMP    ?C0001
+                                           ; SOURCE LINE # 59
+                                           ; SOURCE LINE # 60
+                                           ; SOURCE LINE # 66
+                                           ; SOURCE LINE # 68
+                                           ; SOURCE LINE # 69
+                                           ; SOURCE LINE # 70
                                            ; SOURCE LINE # 71
-                                           ; SOURCE LINE # 72
-                                           ; SOURCE LINE # 73
-                                           ; SOURCE LINE # 74
-                                           ; SOURCE LINE # 75
-0011         ?C0001:
+000F         ?C0001:
+                                           ; SOURCE LINE # 84
                                            ; SOURCE LINE # 85
-                                           ; SOURCE LINE # 86
-0011         ?C0005:
-0011 22                RET     
+000F         ?C0005:
+000F 22                RET     
              ; FUNCTION USBFS_HandleVendorRqst (END)
 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     18    ----
+   CODE SIZE        =     16    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

@@ -1,6 +1,6 @@
 ;***************************************************************************
 ; FILENAME: cymem.a51
-; Version 5.20
+; Version 5.30
 ;
 ;  DESCRIPTION:
 ;    Specialized memory routines for Keil bootup. These functions accept

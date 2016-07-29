@@ -1,68 +1,72 @@
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/DP8051/DP8051_Keil_951/Debug/main.obj : J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT_aliases.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader_PVT.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Control.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyDmac.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyFlash.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyLib.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CySpc.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Morse_Counter.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/PSoC3_8051.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm_aliases.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp_aliases.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_audio.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_cdc.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_hid.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_midi.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_pvt.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyPm.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice_trm.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydisabledsheets.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter_cfg.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cypins.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cytypes.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/morse_isr.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/project.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/device.h J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/main.c 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/DP8051/DP8051_Keil_951/Debug/main.obj : C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT_aliases.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader_PVT.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Control.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyDmac.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyFlash.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyLib.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CySpc.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Morse_Counter.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/PSoC3_8051.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm_aliases.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp_aliases.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_audio.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_cdc.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_cydmac.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_hid.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_midi.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_msc.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_pvt.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyPm.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice_trm.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydisabledsheets.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter_cfg.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cypins.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cytypes.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/morse_isr.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/project.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/device.h C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/main.c 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT_aliases.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/BOOT_aliases.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader_PVT.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Bootloader_PVT.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Control.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Control.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyDmac.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyDmac.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyFlash.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyFlash.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyLib.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CyLib.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CySpc.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/CySpc.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Morse_Counter.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/Morse_Counter.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/PSoC3_8051.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/PSoC3_8051.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm_aliases.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dm_aliases.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp_aliases.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_Dp_aliases.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_audio.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_audio.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_cdc.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_cdc.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_hid.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_cydmac.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_midi.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_hid.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_pvt.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_midi.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyPm.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_msc.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/USBFS_pvt.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice_trm.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyPm.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydisabledsheets.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydevice_trm.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter_cfg.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cydisabledsheets.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cypins.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cytypes.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cyfitter_cfg.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/morse_isr.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cypins.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/project.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/cytypes.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/device.h : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/morse_isr.h : 
 
-J:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/main.c : 
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/Generated_Source/PSoC3/project.h : 
+
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/device.h : 
+
+C:/Ham\ Radio/ominaSDR/Hardware/Omnia-basic/firmware/omnia-sdr-basic/bootloader.cydsn/main.c : 
 

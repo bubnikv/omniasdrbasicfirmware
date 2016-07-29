@@ -1,6 +1,6 @@
 /****************************************************************************//**
 * \file Bootloader.c
-* \version 1.40
+* \version 1.50
 *
 * \brief
 *   Provides an API for the Bootloader component. The API includes functions
@@ -23,7 +23,7 @@
 #include <string.h>
 
 #if (CY_BOOT_VERSION < CY_BOOT_5_0)
-#error Component Bootloader_v1_40 requires cy_boot v5.00 or later
+#error Component Bootloader_v1_50 requires cy_boot v5.00 or later
 #endif /* (CY_BOOT_VERSION >= CY_BOOT_5_0) */
 
 /*******************************************************************************
@@ -51,11 +51,14 @@ const uint8  CYCODE *Bootloader_ChecksumAccess  = (const uint8  CYCODE *)(&Bootl
 
 #if defined(__ARMCC_VERSION) || defined (__GNUC__)
     __attribute__((section (".bootloader"), used))
+    const uint32 CYCODE Bootloader_SizeBytes = 0xFFFFFFFFu;
 #elif defined (__ICCARM__)
     #pragma location=".bootloader"
+    __root const uint32 CYCODE Bootloader_SizeBytes = 0xFFFFFFFFu;
+#elif defined (__C51__)
+    const uint32 CYCODE Bootloader_SizeBytes = 0xFFFFFFFFu;
 #endif  /* defined(__ARMCC_VERSION) || defined (__GNUC__) */
 
-const uint32 CYCODE Bootloader_SizeBytes = 0xFFFFFFFFu;
 const uint32 CYCODE *Bootloader_SizeBytesAccess = (const uint32 CYCODE *)(&Bootloader_SizeBytes);
 #endif /*(CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/
 
@@ -232,9 +235,9 @@ static  uint8 Bootloader_GetActiveAppFromMetadata(void) CYSMALL \
        
 {
     uint8 CYDATA result;
-    uint8 CYDATA app0 = Bootloader_GetMetadata(Bootloader_GET_BTLDB_ACTIVE, 
+    uint8 CYDATA app0 = (uint8)Bootloader_GetMetadata(Bootloader_GET_BTLDB_ACTIVE, 
                                                      Bootloader_MD_BTLDB_ACTIVE_0);
-    uint8 CYDATA app1 = Bootloader_GetMetadata(Bootloader_GET_BTLDB_ACTIVE, 
+    uint8 CYDATA app1 = (uint8)Bootloader_GetMetadata(Bootloader_GET_BTLDB_ACTIVE, 
                                                      Bootloader_MD_BTLDB_ACTIVE_1);        
 
     if (0u != app0)                                                     
@@ -850,11 +853,20 @@ void Bootloader_Start(void) CYSMALL
 
     #if(!CY_PSOC4)
         #if(0u != Bootloader_FAST_APP_VALIDATION)
+            /* Initialize flash subsystem for non-PSoC 4 devices */
+            if (CYRET_SUCCESS != CySetTemp())
+            {
+                CyHalt(0x00u);
+            }
+
             #if !defined(CY_BOOT_VERSION)
+                /* Not required with cy_boot 4.20 */
+                if (CYRET_SUCCESS != CySetFlashEEBuffer(Bootloader_flashBuffer))
+                {
+                    CyHalt(0x00u);
+                }
 
-                /* Not required starting from cy_boot 4.20 */
                 uint8 CYXDATA Bootloader_flashBuffer[Bootloader_FROW_SIZE];
-
             #endif /* !defined(CY_BOOT_VERSION) */
         #endif  /* (0u != Bootloader_FAST_APP_VALIDATION) */
     #endif  /* (!CY_PSOC4) */
@@ -1019,28 +1031,6 @@ void Bootloader_Start(void) CYSMALL
     #endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) */
 
     
-    /* Initialize flash subsystem for non-PSoC 4 devices */
-    #if(!CY_PSOC4)
-        #if(0u != Bootloader_FAST_APP_VALIDATION)
-
-            if (CYRET_SUCCESS != CySetTemp())
-            {
-                CyHalt(0x00u);
-            }
-
-            #if !defined(CY_BOOT_VERSION)
-
-                /* Not required with cy_boot 4.20 */
-                if (CYRET_SUCCESS != CySetFlashEEBuffer(Bootloader_flashBuffer))
-                {
-                    CyHalt(0x00u);
-                }
-
-            #endif /* !defined(CY_BOOT_VERSION) */
-        #endif  /* (0u != Bootloader_FAST_APP_VALIDATION) */
-    #endif  /* (CY_PSOC4) */
-
-
     /***********************************************************************
     * Bootloader Application Validation
     *
@@ -1880,7 +1870,7 @@ void Bootloader_HostLink(uint8 timeOut) CYLARGE
                         /* Both PSoC 3 and PSoC 5LP architecture have one EEPROM array. */
                         startAddr = CY_EEPROM_BASE + ((uint32)rowNum * CYDEV_EEPROM_ROW_SIZE);
                         rowSize = CYDEV_EEPROM_ROW_SIZE;
-                        upperRange = Bootloader_NUMBER_OF_ROWS_IN_EEPROM_ARRAY;    
+                        upperRange = Bootloader_NUMBER_OF_EEPROM_SECTORS * Bootloader_NUMBER_OF_ROWS_IN_EEPROM_SECTOR;
                     }
                     else if (btldrData < CY_FLASH_NUMBER_ARRAYS)    
                     {
@@ -2121,7 +2111,7 @@ void Bootloader_HostLink(uint8 timeOut) CYLARGE
 
                             /* Size of EEPROM row */
                             pktSize = CY_EEPROM_SIZEOF_ROW;                            
-                            upperRange = Bootloader_NUMBER_OF_ROWS_IN_EEPROM_ARRAY;
+                            upperRange = Bootloader_NUMBER_OF_EEPROM_SECTORS * Bootloader_NUMBER_OF_ROWS_IN_EEPROM_SECTOR;
                         }
                         else
                         {
@@ -2550,7 +2540,7 @@ void Bootloader_HostLink(uint8 timeOut) CYLARGE
                             
                             /* Checking if row number is within array address range */
                             ackCode = Bootloader_CHECK_ROW_NUMBER(rowNum, 
-                                                       Bootloader_NUMBER_OF_ROWS_IN_EEPROM_ARRAY);
+                                (Bootloader_NUMBER_OF_EEPROM_SECTORS * Bootloader_NUMBER_OF_ROWS_IN_EEPROM_SECTOR));
                     
                             if (CYRET_SUCCESS != ackCode)
                             {
@@ -2678,6 +2668,8 @@ void Bootloader_HostLink(uint8 timeOut) CYLARGE
                 Bootloader_isBootloading = Bootloader_BOOTLOADING_COMPLETED;
             #endif /* CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER */    
             
+                CyBtldrCommStop();
+                        
                 CySoftwareReset();
 
                 /* Will never get here */

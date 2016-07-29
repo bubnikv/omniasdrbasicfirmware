@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: CyDmac.c
-* Version 5.20
+* Version 5.30
 *
 * Description:
 *  Provides an API for the DMAC component. The API includes functions for the

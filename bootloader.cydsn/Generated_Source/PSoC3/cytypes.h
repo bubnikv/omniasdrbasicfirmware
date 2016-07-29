@@ -1,6 +1,6 @@
 /*******************************************************************************
 * FILENAME: cytypes.h
-* Version 5.20
+* Version 5.30
 *
 *  Description:
 *  CyTypes provides register access macros and approved types for use in
@@ -84,13 +84,28 @@
 #else
     #define CY_PSOC4_4100M (0u != 0u)
     #define CY_PSOC4_4200M (0u != 0u)
-#endif  /* CYDEV_CHIP_MEMBER_4F */
+#endif  /* CYDEV_CHIP_MEMBER_4M */
 
 #ifdef CYDEV_CHIP_MEMBER_4H
     #define CY_PSOC4_4200D (CYDEV_CHIP_MEMBER_USED == CYDEV_CHIP_MEMBER_4H)
 #else
     #define CY_PSOC4_4200D (0u != 0u)
+#endif  /* CYDEV_CHIP_MEMBER_4H */
+
+#ifdef CYDEV_CHIP_MEMBER_4L
+    #define CY_PSOC4_4200L (CYDEV_CHIP_MEMBER_USED == CYDEV_CHIP_MEMBER_4L)
+#else
+    #define CY_PSOC4_4200L (0u != 0u)
 #endif  /* CYDEV_CHIP_MEMBER_4F */
+
+#ifdef CYDEV_CHIP_MEMBER_4U
+    #define CY_PSOC4_4000U (CYDEV_CHIP_MEMBER_USED == CYDEV_CHIP_MEMBER_4U)
+#else
+    #define CY_PSOC4_4000U (0u != 0u)
+#endif  /* CYDEV_CHIP_MEMBER_4F */
+
+
+#define CY_IP_HOBTO_DEVICE      (!(0 == 1))
 
 
 /*******************************************************************************
@@ -99,55 +114,62 @@
 #if (CY_PSOC4)
 
     /* Using SRSSv2 or SRS-Lite */
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_SRSSV2            (0u == 0u)
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_SRSSV2            (0 != 0)
         #define CY_IP_SRSSLT            (!CY_IP_SRSSV2)
     #else
-        #define CY_IP_SRSSV2            (0u != 0u)
+        #define CY_IP_SRSSV2            (0 == 0)
         #define CY_IP_SRSSLT            (!CY_IP_SRSSV2)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_CPUSSV2           (0u != 0u)
-        #define CY_IP_CPUSS             (0u == 0u)
-    #else
-        #define CY_IP_CPUSSV2           (0u != 0u)
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_CPUSSV2           (0 != 0)
         #define CY_IP_CPUSS             (!CY_IP_CPUSSV2)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+    #else
+        #define CY_IP_CPUSSV2           (0 != 0)
+        #define CY_IP_CPUSS             (0 == 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
     /* Product uses FLASH-Lite or regular FLASH */
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_FM                (!CY_IP_FMLT)       /* Regular FLASH */
-        #define CY_IP_FMLT              (0u != 0u)          /* FLASH-Lite */
-        #define CY_IP_FS                (0u != 0u)          /* FS */
-        #define CY_IP_FSLT              (0u != 0u)          /* FSLT */
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_FM                (-1 == 0)
+        #define CY_IP_FMLT              (-1 == 1)
+        #define CY_IP_FS                (-1 == 2)
+        #define CY_IP_FSLT              (-1 == 3)
     #else
-        #define CY_IP_FM                (-1u == 0u)
-        #define CY_IP_FMLT              (-1u == 1u)
-        #define CY_IP_FS                (-1u == 2u)
-        #define CY_IP_FSLT              (-1u == 3u)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+        #define CY_IP_FM                (!CY_IP_FMLT)       /* Regular FLASH */
+        #define CY_IP_FMLT              (0 != 0)            /* FLASH-Lite */
+        #define CY_IP_FS                (0 != 0)            /* FS */
+        #define CY_IP_FSLT              (0 != 0)            /* FSLT */
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
     /* Number of interrupt request inputs to CM0 */
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_INT_NR            (32u)
-    #else
+    #if (CY_IP_HOBTO_DEVICE)
         #define CY_IP_INT_NR            (-1u)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+    #else
+        #define CY_IP_INT_NR            (32u)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
     /* Number of Flash macros used in the device (0, 1 or 2) */
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_FLASH_MACROS      (1u)
-    #else
+    #if (CY_IP_HOBTO_DEVICE)
         #define CY_IP_FLASH_MACROS      (-1u)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+    #else
+        #define CY_IP_FLASH_MACROS      (1u)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
     /* Presence of the BLESS IP block */
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_BLESS             (0u != 0u)
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_BLESS             (0 != 0)
     #else
-        #define CY_IP_BLESS             (0u != 0u)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+        #define CY_IP_BLESS             (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+
+
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_USBDEV            (0 != 0)
+    #else
+        #define CY_IP_USBDEV            (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
 
     /***************************************************************************
@@ -156,22 +178,117 @@
     * ensures that the charge pump clock and the higher frequency clock (HFCLK)
     * are set to the IMO at 48MHz prior to writing the flash.
     ***************************************************************************/
-    #if (CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_SPCIF_SYNCHRONOUS     (0u != 0u)
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_SPCIF_SYNCHRONOUS     (-1 == 1)
     #else
-        #define CY_IP_SPCIF_SYNCHRONOUS     (-1u != 0u)
-    #endif  /* (CY_PSOC4_4100 || CY_PSOC4_4200) */
+        #define CY_IP_SPCIF_SYNCHRONOUS     (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
 
     /* Watch Crystal Oscillator (WCO) is present (32kHz) */
-    #if (CY_PSOC4_4000 || CY_PSOC4_4100 || CY_PSOC4_4200)
-        #define CY_IP_WCO               (0u != 0u)
-    #elif CY_IP_BLESS || defined (CYIPBLOCK_m0s8wco_VERSION)
-        #define CY_IP_WCO               (0u == 0u)
-    #elif (CY_IP_SRSSV2)
-        #define CY_IP_WCO               (-1u)
+    #if (CY_IP_HOBTO_DEVICE)
+        #if (CY_IP_BLESS)
+            #define CY_IP_WCO_BLESS         (0 == 0)
+            #define CY_IP_WCO_WCO           (0 != 0)
+            #define CY_IP_WCO_SRSSV2        (0 != 0)
+        #else
+            #define CY_IP_WCO_BLESS         (0 != 0)
+            #define CY_IP_WCO_WCO           (0 == 1)
+            #define CY_IP_WCO_SRSSV2        (-1 == 1)
+        #endif  /* (CY_IP_BLESS) */
     #else
-        #define CY_IP_WCO               (0u != 0u)
-    #endif  /* (CY_PSOC4_4000 || CY_PSOC4_4100 || CY_PSOC4_4200) */
+        #define CY_IP_WCO_BLESS             (0 != 0)
+        #define CY_IP_WCO_WCO               (0 != 0)
+        #define CY_IP_WCO_SRSSV2            (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+
+    #define CY_IP_WCO   (CY_IP_WCO_BLESS || CY_IP_WCO_WCO || CY_IP_WCO_SRSSV2)
+
+
+    /* PLL is present */
+     #if (CY_IP_HOBTO_DEVICE && CY_IP_SRSSV2)
+         #define CY_IP_PLL           ((-1 != 0) || \
+                                      (-1 != 0))
+
+         #define CY_IP_PLL_NR         (-1u + \
+                                      -1u)
+     #else
+         #define CY_IP_PLL           (0 != 0)
+         #define CY_IP_PLL_NR        (0)
+     #endif  /* (CY_IP_HOBTO_DEVICE && CY_IP_SRSSV2) */
+
+
+    /* External Crystal Oscillator is present (high frequency) */
+    #if (CY_IP_HOBTO_DEVICE)
+        #if (CY_IP_BLESS)
+            #define CY_IP_ECO_BLESS         (0 == 0)
+            #define CY_IP_ECO_SRSSV2        (0 != 0)
+        #else
+            #define CY_IP_ECO_BLESS         (0 != 0)
+            #define CY_IP_ECO_SRSSV2        (-1 == 1)
+        #endif  /* (CY_IP_BLESS) */
+    #else
+        #define CY_IP_ECO_BLESS             (0 != 0)
+        #define CY_IP_ECO_SRSSV2            (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+
+    #define CY_IP_ECO   (CY_IP_ECO_BLESS || CY_IP_ECO_SRSSV2)
+
+
+    /* Clock Source clk_lf implemented in SysTick Counter. When 0, not implemented, 1=implemented */
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_SYSTICK_LFCLK_SOURCE     (-1 != 0)
+    #else
+        #define CY_SYSTICK_LFCLK_SOURCE     (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+
+
+    /* Flash Macro 0 has extra rows */
+    #if (CY_IP_HOBTO_DEVICE)
+        #ifdef CYREG_SFLASH_MACRO_0_FREE_SFLASH0
+            #define CY_SFLASH_XTRA_ROWS         (0 == 0)
+        #else
+            #define CY_SFLASH_XTRA_ROWS         (0 != 0)
+        #endif /* CYREG_SFLASH_MACRO_0_FREE_SFLASH0 */
+
+    #else
+        #define CY_SFLASH_XTRA_ROWS         (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+
+
+    #if (CY_IP_USBDEV)
+        #define CY_IP_IMO_TRIMMABLE_BY_USB  (0 == 0)
+    #else
+        #define CY_IP_IMO_TRIMMABLE_BY_USB  (0 != 0)
+    #endif  /* (CY_IP_USBDEV) */
+
+
+    #if (CY_IP_WCO_WCO || CY_IP_WCO_SRSSV2)
+        #define CY_IP_IMO_TRIMMABLE_BY_WCO  (0 == 0)
+    #else
+        #define CY_IP_IMO_TRIMMABLE_BY_WCO  (0 != 0)
+    #endif  /* (CY_IP_WCO_WCO || CY_IP_WCO_SRSSV2) */
+
+
+    /* DW/DMA Controller present (0=No, 1=Yes) */
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_DMAC_PRESENT      (-1 == 1)
+    #else
+        #define CY_IP_DMAC_PRESENT      (0 != 0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+
+	/* Number of external slave ports on System Interconnect */
+    #if (CY_IP_HOBTO_DEVICE)
+        #define CY_IP_SL_NR             (-1)
+    #else
+        #define CY_IP_SL_NR                 (0)
+    #endif  /* (CY_IP_HOBTO_DEVICE) */
+#else
+
+    #if (CY_PSOC3)
+        #define CY_SYSTICK_LFCLK_SOURCE     (0 != 0)
+    #else /* PSoC 5LP */
+        #define CY_SYSTICK_LFCLK_SOURCE     (0 == 0)
+    #endif /* (CY_PSOC3) */
 
 #endif  /* (CY_PSOC4) */
 
@@ -185,7 +302,8 @@
 #define CY_BOOT_5_0             (500u)
 #define CY_BOOT_5_10            (510u)
 #define CY_BOOT_5_20            (520u)
-#define CY_BOOT_VERSION         (CY_BOOT_5_20)
+#define CY_BOOT_5_30            (530u)
+#define CY_BOOT_VERSION         (CY_BOOT_5_30)
 
 
 /*******************************************************************************
@@ -386,6 +504,9 @@ typedef volatile uint32 CYXDATA reg32;
     #endif  /* defined (__ICCARM__) */
 
 #endif  /* (CY_PSOC3) */
+
+
+#define CY_M_PI                         (3.14159265358979323846264338327)
 
 
 /*******************************************************************************

@@ -28,9 +28,9 @@
 #define TRUE 1
 #define FALSE 0   
     
-#define FIRMWARE_VERSION 0x1410 // Version 16.20 --  {YY}.{[M]M}{Release Number}  (the bytes are reversed)  
+#define FIRMWARE_VERSION 0x4610 // Version 16.20 --  {YY}.{[M]M}{Release Number}  (the bytes are reversed)  
 #define FIRMWARE_VERSION_MAJOR 0x10
-#define FIRMWARE_VERSION_MINOR 0x14
+#define FIRMWARE_VERSION_MINOR 0x46
     
 typedef uint16 uint16_t;
 typedef uint8 uint8_t;

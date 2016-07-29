@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 1   
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_PM
@@ -9,524 +9,581 @@ COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creato
 
 line level    source
 
-   1          /*******************************************************************************
-   2          * File Name: USBFS_pm.c
-   3          * Version 2.80
+   1          /***************************************************************************//**
+   2          * \file USBFS_pm.c
+   3          * \version 3.0
    4          *
-   5          * Description:
-   6          *  This file provides Suspend/Resume APIs functionality.
+   5          * \brief
+   6          *  This file provides Suspend/Resume APIs implementation.
    7          *
-   8          * Note:
-   9          *
-  10          ********************************************************************************
-  11          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
-  12          * You may use this file only in accordance with the license, terms, conditions,
-  13          * disclaimers, and limitations in the end user license agreement accompanying
-  14          * the software package with which this file was provided.
-  15          *******************************************************************************/
-  16          
-  17          #include "project.h"
-  18          #include "USBFS.h"
-  19          #include "USBFS_pvt.h"
-  20          
-  21          
-  22          
-  23          /***************************************
-  24          * Custom Declarations
-  25          ***************************************/
-  26          /* `#START PM_CUSTOM_DECLARATIONS` Place your declaration here */
+   8          ********************************************************************************
+   9          * \copyright
+  10          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+  11          * You may use this file only in accordance with the license, terms, conditions,
+  12          * disclaimers, and limitations in the end user license agreement accompanying
+  13          * the software package with which this file was provided.
+  14          *******************************************************************************/
+  15          
+  16          #include "USBFS_pvt.h"
+  17          #include "USBFS_Dp.h"
+  18          
+  19          
+  20          /***************************************
+  21          * Custom Declarations
+  22          ***************************************/
+  23          /* `#START PM_CUSTOM_DECLARATIONS` Place your declaration here */
+  24          
+  25          /* `#END` */
+  26          
   27          
-  28          /* `#END` */
-  29          
-  30          
-  31          /***************************************
-  32          * Local data allocation
-  33          ***************************************/
-  34          
-  35          static USBFS_BACKUP_STRUCT  USBFS_backup;
-  36          
-  37          
-  38          #if(USBFS_DP_ISR_REMOVE == 0u)
-  39          
-  40              /*******************************************************************************
-  41              * Function Name: USBFS_DP_Interrupt
-  42              ********************************************************************************
-  43              *
-  44              * Summary:
-  45              *  This Interrupt Service Routine handles DP pin changes for wake-up from
-  46              *  the sleep mode.
-  47              *
-  48              * Parameters:
-  49              *  None.
-  50              *
-  51              * Return:
-  52              *  None.
-  53              *
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 2   
+  28          /***************************************
+  29          * Local data allocation
+  30          ***************************************/
+  31          
+  32          static USBFS_BACKUP_STRUCT  USBFS_backup;
+  33          
+  34          #if (USBFS_DP_ISR_ACTIVE)
+  35              /*******************************************************************************
+  36              * Function Name: USBFS_DP_ISR
+  37              ****************************************************************************//**
+  38              *
+  39              *  This Interrupt Service Routine handles DP pin changes for wake-up from
+  40              *  the sleep mode.
+  41              *
+  42              *******************************************************************************/
+  43              CY_ISR(USBFS_DP_ISR)
+  44              {
+  45   1          #ifdef USBFS_DP_ISR_ENTRY_CALLBACK
+                      USBFS_DP_ISR_EntryCallback();
+                  #endif /* (USBFS_DP_ISR_ENTRY_CALLBACK) */
+  48   1      
+  49   1              /* `#START DP_USER_CODE` Place your code here */
+  50   1      
+  51   1              /* `#END` */
+  52   1      
+  53   1              (void) USBFS_Dp_ClearInterrupt();
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 2   
 
-  54              *******************************************************************************/
-  55              CY_ISR(USBFS_DP_ISR)
-  56              {
-  57   1              #ifdef USBFS_DP_ISR_ENTRY_CALLBACK
-                          USBFS_DP_ISR_EntryCallback();
-                      #endif /* USBFS_DP_ISR_ENTRY_CALLBACK */
-  60   1      
-  61   1              /* `#START DP_USER_CODE` Place your code here */
-  62   1      
-  63   1              /* `#END` */
-  64   1      
-  65   1              /* Clears active interrupt */
-  66   1              CY_GET_REG8(USBFS_DP_INTSTAT_PTR);
-  67   1      
-  68   1              #ifdef USBFS_DP_ISR_EXIT_CALLBACK
-                          USBFS_DP_ISR_ExitCallback();
-                      #endif /* USBFS_DP_ISR_EXIT_CALLBACK */
-  71   1          }
-  72          
-  73          #endif /* (USBFS_DP_ISR_REMOVE == 0u) */
-  74          
-  75          
-  76          /*******************************************************************************
-  77          * Function Name: USBFS_SaveConfig
-  78          ********************************************************************************
-  79          *
-  80          * Summary:
-  81          *  Saves the current user configuration.
-  82          *
-  83          * Parameters:
-  84          *  None.
-  85          *
-  86          * Return:
-  87          *  None.
-  88          *
-  89          * Reentrant:
-  90          *  No.
-  91          *
-  92          *******************************************************************************/
-  93          void USBFS_SaveConfig(void) 
-  94          {
-  95   1      
-  96   1      }
+  54   1                      
+  55   1              #ifdef USBFS_DP_ISR_EXIT_CALLBACK
+                      USBFS_DP_ISR_ExitCallback();
+                  #endif /* (USBFS_DP_ISR_EXIT_CALLBACK) */
+  58   1          }
+  59          #endif /* (USBFS_DP_ISR_ACTIVE) */
+  60          
+  61          
+  62          /*******************************************************************************
+  63          * Function Name: USBFS_SaveConfig
+  64          ****************************************************************************//**
+  65          *
+  66          *  Saves the current user configuration.
+  67          *
+  68          * \reentrant
+  69          *  No.
+  70          *
+  71          *******************************************************************************/
+  72          void USBFS_SaveConfig(void) 
+  73          {
+  74   1          /* Empty function added for the compatibility purpose. */
+  75   1      }
+  76          
+  77          
+  78          /*******************************************************************************
+  79          * Function Name: USBFS_RestoreConfig
+  80          ****************************************************************************//**
+  81          *
+  82          *  Restores the current user configuration.
+  83          *
+  84          * \reentrant
+  85          *  No.
+  86          *
+  87          *******************************************************************************/
+  88          void USBFS_RestoreConfig(void) 
+  89          {
+  90   1          if (USBFS_configuration != 0u)
+  91   1          {
+  92   2              USBFS_ConfigReg();
+  93   2              USBFS_EpStateInit();
+  94   2          }
+  95   1      }
+  96          
   97          
-  98          
-  99          /*******************************************************************************
- 100          * Function Name: USBFS_RestoreConfig
- 101          ********************************************************************************
- 102          *
- 103          * Summary:
- 104          *  Restores the current user configuration.
- 105          *
- 106          * Parameters:
- 107          *  None.
- 108          *
- 109          * Return:
- 110          *  None.
- 111          *
- 112          * Reentrant:
- 113          *  No.
- 114          *
- 115          *******************************************************************************/
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 3   
+  98          /*******************************************************************************
+  99          * Function Name: USBFS_Suspend
+ 100          ****************************************************************************//**
+ 101          *
+ 102          *  This function prepares the USBFS component to enter low power mode. The 
+ 103          *  interrupt on falling edge on Dp pin is configured to wakeup device when the 
+ 104          *  host drives resume condition. The pull-up is enabled on the Dp line while 
+ 105          *  device is in low power mode. The supported low power modes are Deep Sleep 
+ 106          *  (PSoC 4200L) and Sleep (PSoC 3/ PSoC 5LP).
+ 107          *  
+ 108          *  *Note* For PSoC 4200L devices, this function should not be called before 
+ 109          *  entering Sleep.
+ 110          *  
+ 111          *  *Note* After enter low power mode, the data which is left in the IN or OUT 
+ 112          *  endpoint buffers is not restored after wakeup and lost. Therefore it should 
+ 113          *  be stored in the SRAM for OUT endpoint or read by the host for IN endpoint 
+ 114          *  before enter low power mode.
+ 115          *
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 3   
 
- 116          void USBFS_RestoreConfig(void) 
- 117          {
- 118   1          if(USBFS_configuration != 0u)
- 119   1          {
- 120   2              USBFS_ConfigReg();
- 121   2          }
- 122   1      }
- 123          
- 124          
- 125          /*******************************************************************************
- 126          * Function Name: USBFS_Suspend
- 127          ********************************************************************************
- 128          *
- 129          * Summary:
- 130          *  This function disables the USBFS block and prepares for power down mode.
- 131          *
- 132          * Parameters:
- 133          *  None.
- 134          *
- 135          * Return:
- 136          *   None.
- 137          *
- 138          * Global variables:
- 139          *  USBFS_backup.enable:  modified.
- 140          *
- 141          * Reentrant:
- 142          *  No.
- 143          *
- 144          *******************************************************************************/
- 145          void USBFS_Suspend(void) 
- 146          {
- 147   1          uint8 enableInterrupts;
- 148   1          enableInterrupts = CyEnterCriticalSection();
- 149   1      
- 150   1          if((CY_GET_REG8(USBFS_CR0_PTR) & USBFS_CR0_ENABLE) != 0u)
- 151   1          {   /* USB block is enabled */
- 152   2              USBFS_backup.enableState = 1u;
- 153   2      
- 154   2              #if(USBFS_EP_MM != USBFS__EP_MANUAL)
-                          USBFS_Stop_DMA(USBFS_MAX_EP);     /* Stop all DMAs */
-                      #endif   /*  USBFS_EP_MM != USBFS__EP_MANUAL */
- 157   2      
- 158   2              /* Ensure USB transmit enable is low (USB_USBIO_CR0.ten). - Manual Transmission - Disabled */
- 159   2              USBFS_USBIO_CR0_REG &= (uint8)~USBFS_USBIO_CR0_TEN;
- 160   2              CyDelayUs(0u);  /*~50ns delay */
- 161   2      
- 162   2              /* Disable the USBIO by asserting PM.USB_CR0.fsusbio_pd_n(Inverted) and pd_pullup_hv(Inverted) hig
+ 116          * \globalvars
+ 117          *  USBFS_backup.enable:  modified.
+ 118          *
+ 119          * \reentrant
+ 120          *  No.
+ 121          *
+ 122          *******************************************************************************/
+ 123          void USBFS_Suspend(void) 
+ 124          {
+ 125   1          uint8 enableInterrupts;
+ 126   1      
+ 127   1          enableInterrupts = CyEnterCriticalSection();
+ 128   1      
+ 129   1          if (0u != (USBFS_CR0_REG & USBFS_CR0_ENABLE))
+ 130   1          {
+ 131   2              /* USB block is enabled. */
+ 132   2              USBFS_backup.enableState = 1u;
+ 133   2      
+ 134   2          #if (USBFS_EP_MANAGEMENT_DMA)
+                      USBFS_Stop_DMA(USBFS_MAX_EP);
+                  #endif /* (USBFS_EP_MANAGEMENT_DMA) */
+ 137   2      
+ 138   2          #if (CY_PSOC4)
+                      /* Suspend enter sequence. */
+                      USBFS_POWER_CTRL_REG |= (USBFS_POWER_CTRL_SUSPEND |
+                                                          USBFS_POWER_CTRL_SUSPEND_DEL);
+              
+                      /* Store state of USB regulator and disable it. */
+                      USBFS_backup.mode = (uint8)  (USBFS_CR1_REG & USBFS_CR1_REG_ENABLE);
+                      USBFS_CR1_REG    &= (uint32) ~USBFS_CR1_REG_ENABLE;
+                      
+                      /* Store SIE interrupt sources. Valid bits are 0 - 4. */
+                      USBFS_backup.intrSeiMask = (uint8) USBFS_INTR_SIE_MASK_REG;
+              
+                  #else
+ 151   2              /* Ensure USB transmit enable is low (USB_USBIO_CR0.ten). - Manual Transmission - Disabled. */
+ 152   2              USBFS_USBIO_CR0_REG &= (uint8) ~USBFS_USBIO_CR0_TEN;
+ 153   2              CyDelayUs(USBFS_WAIT_REG_STABILITY_50NS);  /*~50ns delay. */
+ 154   2      
+ 155   2              /* Disable the USBIO by asserting PM.USB_CR0.fsusbio_pd_n(Inverted) and pd_pullup_hv(Inverted) hig
              -h. */
- 163   2              USBFS_PM_USB_CR0_REG &=
- 164   2                                      (uint8)~(USBFS_PM_USB_CR0_PD_N | USBFS_PM_USB_CR0_PD_PULLUP_N);
- 165   2      
- 166   2              /* Disable the SIE */
- 167   2              USBFS_CR0_REG &= (uint8)~USBFS_CR0_ENABLE;
+ 156   2              USBFS_PM_USB_CR0_REG &= (uint8) ~(USBFS_PM_USB_CR0_PD_N |
+ 157   2                                                           USBFS_PM_USB_CR0_PD_PULLUP_N);
+ 158   2      
+ 159   2              /* Disable the SIE. */
+ 160   2              USBFS_CR0_REG &= (uint8) ~USBFS_CR0_ENABLE;
+ 161   2      
+ 162   2              CyDelayUs(USBFS_WAIT_REG_STABILITY_50NS);  /* ~50ns delay. */
+ 163   2              /* Store mode and disable VRegulator. */
+ 164   2              USBFS_backup.mode = (uint8) (USBFS_CR1_REG & USBFS_CR1_REG_ENABLE);
+ 165   2              USBFS_CR1_REG    &= (uint8) ~USBFS_CR1_REG_ENABLE;
+ 166   2      
+ 167   2              CyDelayUs(USBFS_WAIT_REG_STABILITY_1US); /* min 0.5us delay required. */
  168   2      
- 169   2              CyDelayUs(0u);  /* ~50ns delay */
- 170   2              /* Store mode and Disable VRegulator*/
- 171   2              USBFS_backup.mode = USBFS_CR1_REG & USBFS_CR1_REG_ENABLE;
- 172   2              USBFS_CR1_REG &= (uint8)~USBFS_CR1_REG_ENABLE;
- 173   2      
- 174   2              CyDelayUs(1u);  /* 0.5 us min delay */
- 175   2              /* Disable the USBIO reference by setting PM.USB_CR0.fsusbio_ref_en.*/
- 176   2              USBFS_PM_USB_CR0_REG &= (uint8)~USBFS_PM_USB_CR0_REF_EN;
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 4   
+ 169   2              /* Disable the USBIO reference by setting PM.USB_CR0.fsusbio_ref_en.*/
+ 170   2              USBFS_PM_USB_CR0_REG &= (uint8) ~USBFS_PM_USB_CR0_REF_EN;
+ 171   2      
+ 172   2              /* Switch DP and DM terminals to GPIO mode and disconnect 1.5k pull-up. */
+ 173   2              USBFS_USBIO_CR1_REG |= USBFS_USBIO_CR1_IOMODE;
+ 174   2      
+ 175   2              /* Disable USBFS block. */
+ 176   2              /* Clear power active and standby mode templates: disable USB block. */
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 4   
 
- 177   2      
- 178   2              /* Switch DP and DM terminals to GPIO mode and disconnect 1.5k pullup*/
- 179   2              USBFS_USBIO_CR1_REG |= USBFS_USBIO_CR1_IOMODE;
- 180   2      
- 181   2              /* Disable USB in ACT PM */
- 182   2              USBFS_PM_ACT_CFG_REG &= (uint8)~USBFS_PM_ACT_EN_FSUSB;
- 183   2              /* Disable USB block for Standby Power Mode */
- 184   2              USBFS_PM_STBY_CFG_REG &= (uint8)~USBFS_PM_STBY_EN_FSUSB;
- 185   2              CyDelayUs(1u); /* min  0.5us delay required */
- 186   2      
- 187   2          }
- 188   1          else
- 189   1          {
- 190   2              USBFS_backup.enableState = 0u;
- 191   2          }
- 192   1      
- 193   1          CyExitCriticalSection(enableInterrupts);
+ 177   2              USBFS_PM_ACT_CFG_REG  &= (uint8) ~USBFS_PM_ACT_EN_FSUSB;
+ 178   2              USBFS_PM_STBY_CFG_REG &= (uint8) ~USBFS_PM_STBY_EN_FSUSB;
+ 179   2      
+ 180   2              CyDelayUs(USBFS_WAIT_REG_STABILITY_1US); /* min 0.5us delay required. */
+ 181   2          #endif /* (CY_PSOC4) */
+ 182   2          }
+ 183   1          else
+ 184   1          {
+ 185   2              USBFS_backup.enableState = 0u;
+ 186   2          }
+ 187   1      
+ 188   1          CyExitCriticalSection(enableInterrupts);
+ 189   1      
+ 190   1      #if (USBFS_DP_ISR_ACTIVE)
+ 191   1          /* Clear active mode Dp interrupt source history. */
+ 192   1          (void) USBFS_Dp_ClearInterrupt();
+ 193   1          CyIntClearPending(USBFS_DP_INTC_VECT_NUM);
  194   1      
- 195   1          /* Set the DP Interrupt for wake-up from sleep mode. */
- 196   1          #if(USBFS_DP_ISR_REMOVE == 0u)
- 197   1              (void) CyIntSetVector(USBFS_DP_INTC_VECT_NUM, &USBFS_DP_ISR);
- 198   1              CyIntSetPriority(USBFS_DP_INTC_VECT_NUM, USBFS_DP_INTC_PRIOR);
- 199   1              CyIntClearPending(USBFS_DP_INTC_VECT_NUM);
- 200   1              CyIntEnable(USBFS_DP_INTC_VECT_NUM);
- 201   1          #endif /* (USBFS_DP_ISR_REMOVE == 0u) */
- 202   1      }
- 203          
- 204          
- 205          /*******************************************************************************
- 206          * Function Name: USBFS_Resume
- 207          ********************************************************************************
- 208          *
- 209          * Summary:
- 210          *  This function enables the USBFS block after power down mode.
- 211          *
- 212          * Parameters:
- 213          *  None.
- 214          *
- 215          * Return:
- 216          *  None.
- 217          *
- 218          * Global variables:
- 219          *  USBFS_backup - checked.
- 220          *
- 221          * Reentrant:
- 222          *  No.
- 223          *
- 224          *******************************************************************************/
- 225          void USBFS_Resume(void) 
- 226          {
- 227   1          uint8 enableInterrupts;
- 228   1          enableInterrupts = CyEnterCriticalSection();
- 229   1      
- 230   1          if(USBFS_backup.enableState != 0u)
- 231   1          {
- 232   2              #if(USBFS_DP_ISR_REMOVE == 0u)
- 233   2                  CyIntDisable(USBFS_DP_INTC_VECT_NUM);
- 234   2              #endif /*  USBFS_DP_ISR_REMOVE */
- 235   2      
- 236   2              /* Enable USB block */
- 237   2              USBFS_PM_ACT_CFG_REG |= USBFS_PM_ACT_EN_FSUSB;
- 238   2              /* Enable USB block for Standby Power Mode */
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 5   
+ 195   1          CyIntEnable      (USBFS_DP_INTC_VECT_NUM);
+ 196   1      #endif /* (USBFS_DP_ISR_ACTIVE). */
+ 197   1      }
+ 198          
+ 199          
+ 200          /*******************************************************************************
+ 201          * Function Name: USBFS_Resume
+ 202          ****************************************************************************//**
+ 203          *
+ 204          *  This function prepares the USBFS component for active mode operation after 
+ 205          *  exit low power mode. It restores the component active mode configuration such 
+ 206          *  as device address assigned previously by the host, endpoints buffer and disables 
+ 207          *  interrupt on Dp pin.
+ 208          *  The supported low power modes are Deep Sleep (PSoC 4200L) and Sleep 
+ 209          *  (PSoC 3/ PSoC 5LP).
+ 210          *  
+ 211          *  *Note* For PSoC 4200L devices, this function should not be called after 
+ 212          *  exiting Sleep.
+ 213          *  
+ 214          *  *Note* To resume communication with the host, the data endpoints must be 
+ 215          *  managed: the OUT endpoints must be enabled and IN endpoints must be loaded 
+ 216          *  with data. For DMA with Automatic Buffer Management, all endpoints buffers 
+ 217          *  must be initialized again before making them available to the host.
+ 218          *
+ 219          *
+ 220          * \globalvars
+ 221          *  USBFS_backup - checked.
+ 222          *
+ 223          * \reentrant
+ 224          *  No.
+ 225          *
+ 226          *******************************************************************************/
+ 227          void USBFS_Resume(void) 
+ 228          {
+ 229   1          uint8 enableInterrupts;
+ 230   1      
+ 231   1          enableInterrupts = CyEnterCriticalSection();
+ 232   1      
+ 233   1          if (0u != USBFS_backup.enableState)
+ 234   1          {
+ 235   2          #if (USBFS_DP_ISR_ACTIVE)
+ 236   2              CyIntDisable(USBFS_DP_INTC_VECT_NUM);
+ 237   2          #endif /* (USBFS_DP_ISR_ACTIVE) */
+ 238   2      
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 5   
 
- 239   2              USBFS_PM_STBY_CFG_REG |= USBFS_PM_STBY_EN_FSUSB;
- 240   2              /* Enable core clock */
- 241   2              USBFS_USB_CLK_EN_REG |= USBFS_USB_CLK_ENABLE;
- 242   2      
- 243   2              /* Enable the USBIO reference by setting PM.USB_CR0.fsusbio_ref_en.*/
- 244   2              USBFS_PM_USB_CR0_REG |= USBFS_PM_USB_CR0_REF_EN;
- 245   2              /* The reference will be available ~40us after power restored */
- 246   2              CyDelayUs(40u);
- 247   2              /* Return VRegulator*/
- 248   2              USBFS_CR1_REG |= USBFS_backup.mode;
- 249   2              CyDelayUs(0u);  /*~50ns delay */
- 250   2              /* Enable USBIO */
- 251   2              USBFS_PM_USB_CR0_REG |= USBFS_PM_USB_CR0_PD_N;
- 252   2              CyDelayUs(2u);
- 253   2              /* Set the USBIO pull-up enable */
- 254   2              USBFS_PM_USB_CR0_REG |= USBFS_PM_USB_CR0_PD_PULLUP_N;
- 255   2      
- 256   2              /* Re-init Arbiter configuration for DMA transfers */
- 257   2              #if(USBFS_EP_MM != USBFS__EP_MANUAL)
-                          /* Usb arb interrupt enable */
-                          USBFS_ARB_INT_EN_REG = USBFS_ARB_INT_MASK;
-                          #if(USBFS_EP_MM == USBFS__EP_DMAMANUAL)
-                              USBFS_ARB_CFG_REG = USBFS_ARB_CFG_MANUAL_DMA;
-                          #endif   /*  USBFS_EP_MM == USBFS__EP_DMAMANUAL */
-                          #if(USBFS_EP_MM == USBFS__EP_DMAAUTO)
-                              /*Set cfg cmplt this rises DMA request when the full configuration is done */
-                              USBFS_ARB_CFG_REG = USBFS_ARB_CFG_AUTO_DMA | USBFS_ARB_CFG_AUTO_MEM;
-                          #endif   /*  USBFS_EP_MM == USBFS__EP_DMAAUTO */
-                      #endif   /*  USBFS_EP_MM != USBFS__EP_MANUAL */
- 268   2      
- 269   2              /* STALL_IN_OUT */
- 270   2              CY_SET_REG8(USBFS_EP0_CR_PTR, USBFS_MODE_STALL_IN_OUT);
- 271   2              /* Enable the SIE with a last address */
- 272   2              USBFS_CR0_REG |= USBFS_CR0_ENABLE;
- 273   2              CyDelayCycles(1u);
- 274   2              /* Finally, Enable d+ pullup and select iomode to USB mode*/
- 275   2              CY_SET_REG8(USBFS_USBIO_CR1_PTR, USBFS_USBIO_CR1_USBPUEN);
- 276   2      
- 277   2              /* Restore USB register settings */
- 278   2              USBFS_RestoreConfig();
- 279   2          }
- 280   1      
- 281   1          CyExitCriticalSection(enableInterrupts);
- 282   1      }
- 283          
- 284          
- 285          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 6   
+ 239   2          #if (CY_PSOC4)
+                      /* Enable clock to USB IP. */
+                      USBFS_USB_CLK_EN_REG |= USBFS_USB_CLK_CSR_CLK_EN;
+              
+                      /* Restore arbiter configuration for DMA transfers. */
+                      #if (USBFS_EP_MANAGEMENT_DMA)
+                          #if (USBFS_ARB_ISR_ACTIVE)
+                              /* Enable ARB EP interrupt sources. */
+                              USBFS_ARB_INT_EN_REG = USBFS_DEFAULT_ARB_INT_EN;
+                          #endif /* (USBFS_EP_MANAGEMENT_DMA) */
+              
+                          /* Configure arbiter for Manual or Auto DMA operation and clear 
+                          * configuration completion. 
+                          */
+                          USBFS_ARB_CFG_REG = USBFS_DEFAULT_ARB_CFG;
+                      #endif /* (USBFS_EP_MANAGEMENT_DMA) */
+              
+                      /* Restore level (hi, lo, med) for each interrupt source. */
+                      USBFS_INTR_LVL_SEL_REG = USBFS_DEFAULT_INTR_LVL_SEL;
+                      
+                      /* Store SIE interrupt sources. */
+                      USBFS_INTR_SIE_MASK_REG = (uint32) USBFS_backup.intrSeiMask;
+              
+                      /* Set EP0.CR: ACK Setup, NAK IN/OUT. */
+                      USBFS_EP0_CR_REG = USBFS_MODE_NAK_IN_OUT;
+              
+                      /* Restore data EP1-8 configuration. */
+                      USBFS_RestoreConfig();
+              
+                      /* Restore state of USB regulator and wait until it supples stable power. */
+                      USBFS_CR1_REG |= USBFS_backup.mode;
+                      CyDelayUs(USBFS_WAIT_VREF_STABILITY);
+              
+                      /* Suspend exit sequence. */
+                      USBFS_POWER_CTRL_REG &= (uint32) ~USBFS_POWER_CTRL_SUSPEND;
+                      CyDelayUs(USBFS_WAIT_SUSPEND_DEL_DISABLE);
+                      USBFS_POWER_CTRL_REG &= (uint32) ~USBFS_POWER_CTRL_SUSPEND_DEL;
+              
+                  #else
+ 278   2              /* Set power active and standby mode templates: enable USB block. */
+ 279   2              USBFS_PM_ACT_CFG_REG  |= USBFS_PM_ACT_EN_FSUSB;
+ 280   2              USBFS_PM_STBY_CFG_REG |= USBFS_PM_STBY_EN_FSUSB;
+ 281   2      
+ 282   2              /* Enable core clock. */
+ 283   2              USBFS_USB_CLK_EN_REG |= USBFS_USB_CLK_ENABLE;
+ 284   2      
+ 285   2              /* Enable the USBIO reference by setting PM.USB_CR0.fsusbio_ref_en.*/
+ 286   2              USBFS_PM_USB_CR0_REG |= USBFS_PM_USB_CR0_REF_EN;
+ 287   2      
+ 288   2              /* The reference is available ~40us after power restored. */
+ 289   2              CyDelayUs(USBFS_WAIT_VREF_RESTORE);
+ 290   2              /* Restore state of USB regulator and wait until it supples stable power. */
+ 291   2              USBFS_CR1_REG |= USBFS_backup.mode;
+ 292   2              CyDelayUs(USBFS_WAIT_VREF_STABILITY);   /*~50ns delay. */
+ 293   2      
+ 294   2              /* Enable USBIO. */
+ 295   2              USBFS_PM_USB_CR0_REG |= USBFS_PM_USB_CR0_PD_N;
+ 296   2              CyDelayUs(USBFS_WAIT_PD_PULLUP_N_ENABLE);
+ 297   2              /* Set the USBIO pull-up enable. */
+ 298   2              USBFS_PM_USB_CR0_REG |= USBFS_PM_USB_CR0_PD_PULLUP_N;
+ 299   2      
+ 300   2              /* Restore arbiter configuration for DMA transfers. */
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 6   
+
+ 301   2              #if (USBFS_EP_MANAGEMENT_DMA)
+                          #if (USBFS_ARB_ISR_ACTIVE)
+                              /* Enable ARB EP interrupt sources. */
+                              USBFS_ARB_INT_EN_REG = USBFS_DEFAULT_ARB_INT_EN;
+                          #endif /* (USBFS_EP_MANAGEMENT_DMA) */
+              
+                          /* Configure arbiter for Manual or Auto DMA operation and clear 
+                          * configuration completion. 
+                          */
+                          USBFS_ARB_CFG_REG = USBFS_DEFAULT_ARB_CFG;
+                      #endif /* (USBFS_EP_MANAGEMENT_DMA) */
+ 312   2      
+ 313   2              /* Set EP0.CR: ACK Setup, STALL IN/OUT. */
+ 314   2              USBFS_EP0_CR_REG = USBFS_MODE_STALL_IN_OUT;
+ 315   2      
+ 316   2              /* Enable the USB IP to respond to USB traffic with the last address. */
+ 317   2              USBFS_CR0_REG |= USBFS_CR0_ENABLE;
+ 318   2              CyDelayCycles(USBFS_WAIT_CR0_REG_STABILITY);
+ 319   2      
+ 320   2              /* Enable D+ pull-up and keep USB control on IO. */
+ 321   2              USBFS_USBIO_CR1_REG = USBFS_USBIO_CR1_USBPUEN;
+ 322   2      
+ 323   2              /* Restore data EP1-8 configuration. */
+ 324   2              USBFS_RestoreConfig();
+ 325   2          #endif /* (CY_PSOC4) */
+ 326   2          }
+ 327   1      
+ 328   1          CyExitCriticalSection(enableInterrupts);
+ 329   1      }
+ 330          
+ 331          
+ 332          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 7   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
              ; FUNCTION USBFS_DP_ISR (BEGIN)
 0000 C0E0              PUSH    ACC
-0002 C083              PUSH    DPH
-0004 C082              PUSH    DPL
-0006 C085              PUSH    DPH1
-0008 C084              PUSH    DPL1
-000A C086              PUSH    DPS
-000C 758600            MOV     DPS,#00H
-000F C000        E     PUSH    ?C?XPAGE1SFR
-0011 750000      E     MOV     ?C?XPAGE1SFR,#?C?XPAGE1RST
-0014 C0D0              PUSH    PSW
-0016 75D000            MOV     PSW,#00H
-0019 C007              PUSH    AR7
-                                           ; SOURCE LINE # 55
-                                           ; SOURCE LINE # 66
-001B 90458F            MOV     DPTR,#0458FH
-001E E0                MOVX    A,@DPTR
-001F FF                MOV     R7,A
-                                           ; SOURCE LINE # 71
-0020 D007              POP     AR7
-0022 D0D0              POP     PSW
-0024 D000        E     POP     ?C?XPAGE1SFR
-0026 D086              POP     DPS
-0028 D084              POP     DPL1
-002A D085              POP     DPH1
-002C D082              POP     DPL
-002E D083              POP     DPH
-0030 D0E0              POP     ACC
-0032 32                RETI    
+0002 C0F0              PUSH    B
+0004 C083              PUSH    DPH
+0006 C082              PUSH    DPL
+0008 C085              PUSH    DPH1
+000A C084              PUSH    DPL1
+000C C086              PUSH    DPS
+000E 758600            MOV     DPS,#00H
+0011 C000        E     PUSH    ?C?XPAGE1SFR
+0013 750000      E     MOV     ?C?XPAGE1SFR,#?C?XPAGE1RST
+0016 C0D0              PUSH    PSW
+0018 75D000            MOV     PSW,#00H
+001B C000              PUSH    AR0
+001D C001              PUSH    AR1
+001F C002              PUSH    AR2
+0021 C003              PUSH    AR3
+0023 C004              PUSH    AR4
+0025 C005              PUSH    AR5
+0027 C006              PUSH    AR6
+0029 C007              PUSH    AR7
+                                           ; SOURCE LINE # 43
+                                           ; SOURCE LINE # 53
+002B 120000      E     LCALL   USBFS_Dp_ClearInterrupt
+                                           ; SOURCE LINE # 58
+002E D007              POP     AR7
+0030 D006              POP     AR6
+0032 D005              POP     AR5
+0034 D004              POP     AR4
+0036 D003              POP     AR3
+0038 D002              POP     AR2
+003A D001              POP     AR1
+003C D000              POP     AR0
+003E D0D0              POP     PSW
+0040 D000        E     POP     ?C?XPAGE1SFR
+0042 D086              POP     DPS
+0044 D084              POP     DPL1
+0046 D085              POP     DPH1
+0048 D082              POP     DPL
+004A D083              POP     DPH
+004C D0F0              POP     B
+004E D0E0              POP     ACC
+0050 32                RETI    
              ; FUNCTION USBFS_DP_ISR (END)
 
              ; FUNCTION USBFS_SaveConfig (BEGIN)
-                                           ; SOURCE LINE # 93
-                                           ; SOURCE LINE # 94
-                                           ; SOURCE LINE # 96
+                                           ; SOURCE LINE # 72
+                                           ; SOURCE LINE # 73
+                                           ; SOURCE LINE # 75
 0000 22                RET     
              ; FUNCTION USBFS_SaveConfig (END)
 
              ; FUNCTION USBFS_RestoreConfig (BEGIN)
-                                           ; SOURCE LINE # 116
-                                           ; SOURCE LINE # 117
-                                           ; SOURCE LINE # 118
+                                           ; SOURCE LINE # 88
+                                           ; SOURCE LINE # 89
+                                           ; SOURCE LINE # 90
 0000 900000      E     MOV     DPTR,#USBFS_configuration
 0003 E0                MOVX    A,@DPTR
-0004 6003              JZ      ?C0004
-                                           ; SOURCE LINE # 119
-                                           ; SOURCE LINE # 120
+0004 6006              JZ      ?C0004
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 8   
+
+                                           ; SOURCE LINE # 91
+                                           ; SOURCE LINE # 92
 0006 120000      E     LCALL   USBFS_ConfigReg
-                                           ; SOURCE LINE # 121
-                                           ; SOURCE LINE # 122
-0009         ?C0004:
-0009 22                RET     
+                                           ; SOURCE LINE # 93
+0009 120000      E     LCALL   USBFS_EpStateInit
+                                           ; SOURCE LINE # 94
+                                           ; SOURCE LINE # 95
+000C         ?C0004:
+000C 22                RET     
              ; FUNCTION USBFS_RestoreConfig (END)
 
              ; FUNCTION USBFS_Suspend (BEGIN)
-                                           ; SOURCE LINE # 145
-                                           ; SOURCE LINE # 146
-                                           ; SOURCE LINE # 148
+                                           ; SOURCE LINE # 123
+                                           ; SOURCE LINE # 124
+                                           ; SOURCE LINE # 127
 0000 120000      E     LCALL   CyEnterCriticalSection
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 7   
-
 0003 900000      R     MOV     DPTR,#enableInterrupts
 0006 EF                MOV     A,R7
 0007 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 150
+                                           ; SOURCE LINE # 129
 0008 906008            MOV     DPTR,#06008H
 000B E0                MOVX    A,@DPTR
-000C 5480              ANL     A,#080H
-000E 6064              JZ      ?C0005
-                                           ; SOURCE LINE # 151
+000C 30E764            JNB     ACC.7,?C0005
+                                           ; SOURCE LINE # 130
+                                           ; SOURCE LINE # 132
+000F 900000      R     MOV     DPTR,#USBFS_backup
+0012 7401              MOV     A,#01H
+0014 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 152
-0010 900000      R     MOV     DPTR,#USBFS_backup
-0013 7401              MOV     A,#01H
-0015 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 159
-0016 906010            MOV     DPTR,#06010H
-0019 E0                MOVX    A,@DPTR
-001A 547F              ANL     A,#07FH
-001C F0                MOVX    @DPTR,A
+0015 906010            MOV     DPTR,#06010H
+0018 E0                MOVX    A,@DPTR
+0019 547F              ANL     A,#07FH
+001B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 153
+001C E4                CLR     A
+001D FF                MOV     R7,A
+001E FE                MOV     R6,A
+001F 120000      E     LCALL   _CyDelayUs
+                                           ; SOURCE LINE # 156
+0022 904394            MOV     DPTR,#04394H
+0025 E0                MOVX    A,@DPTR
+0026 54F9              ANL     A,#0F9H
+0028 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 160
-001D E4                CLR     A
-001E FF                MOV     R7,A
-001F FE                MOV     R6,A
-0020 120000      E     LCALL   _CyDelayUs
+0029 906008            MOV     DPTR,#06008H
+002C E0                MOVX    A,@DPTR
+002D 547F              ANL     A,#07FH
+002F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 162
+0030 E4                CLR     A
+0031 FF                MOV     R7,A
+0032 FE                MOV     R6,A
+0033 120000      E     LCALL   _CyDelayUs
                                            ; SOURCE LINE # 164
-0023 904394            MOV     DPTR,#04394H
-0026 E0                MOVX    A,@DPTR
-0027 54F9              ANL     A,#0F9H
-0029 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 167
-002A 906008            MOV     DPTR,#06008H
-002D E0                MOVX    A,@DPTR
-002E 547F              ANL     A,#07FH
-0030 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 169
-0031 E4                CLR     A
-0032 FF                MOV     R7,A
-0033 FE                MOV     R6,A
-0034 120000      E     LCALL   _CyDelayUs
-                                           ; SOURCE LINE # 171
-0037 906009            MOV     DPTR,#06009H
-003A E0                MOVX    A,@DPTR
-003B 5401              ANL     A,#01H
-003D 900000      R     MOV     DPTR,#USBFS_backup+01H
-0040 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 172
-0041 906009            MOV     DPTR,#06009H
-0044 E0                MOVX    A,@DPTR
-0045 54FE              ANL     A,#0FEH
-0047 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 174
-0048 7F01              MOV     R7,#01H
-004A 7E00              MOV     R6,#00H
-004C 120000      E     LCALL   _CyDelayUs
-                                           ; SOURCE LINE # 176
-004F 904394            MOV     DPTR,#04394H
-0052 E0                MOVX    A,@DPTR
-0053 54FE              ANL     A,#0FEH
-0055 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 179
-0056 906012            MOV     DPTR,#06012H
-0059 E0                MOVX    A,@DPTR
-005A 4420              ORL     A,#020H
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 8   
+0036 906009            MOV     DPTR,#06009H
+0039 E0                MOVX    A,@DPTR
+003A 5401              ANL     A,#01H
+003C 900000      R     MOV     DPTR,#USBFS_backup+01H
+003F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 165
+0040 906009            MOV     DPTR,#06009H
+0043 E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 9   
 
-005C F0                MOVX    @DPTR,A
+0044 54FE              ANL     A,#0FEH
+0046 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 167
+0047 7F01              MOV     R7,#01H
+0049 7E00              MOV     R6,#00H
+004B 120000      E     LCALL   _CyDelayUs
+                                           ; SOURCE LINE # 170
+004E 904394            MOV     DPTR,#04394H
+0051 E0                MOVX    A,@DPTR
+0052 54FE              ANL     A,#0FEH
+0054 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 173
+0055 906012            MOV     DPTR,#06012H
+0058 E0                MOVX    A,@DPTR
+0059 4420              ORL     A,#020H
+005B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 177
+005C 9043A5            MOV     DPTR,#043A5H
+005F E0                MOVX    A,@DPTR
+0060 54FE              ANL     A,#0FEH
+0062 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 178
+0063 9043B5            MOV     DPTR,#043B5H
+0066 E0                MOVX    A,@DPTR
+0067 54FE              ANL     A,#0FEH
+0069 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 180
+006A 7F01              MOV     R7,#01H
+006C 7E00              MOV     R6,#00H
+006E 120000      E     LCALL   _CyDelayUs
                                            ; SOURCE LINE # 182
-005D 9043A5            MOV     DPTR,#043A5H
-0060 E0                MOVX    A,@DPTR
-0061 54FE              ANL     A,#0FEH
-0063 F0                MOVX    @DPTR,A
+0071 8005              SJMP    ?C0006
+0073         ?C0005:
                                            ; SOURCE LINE # 184
-0064 9043B5            MOV     DPTR,#043B5H
-0067 E0                MOVX    A,@DPTR
-0068 54FE              ANL     A,#0FEH
-006A F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 185
-006B 7F01              MOV     R7,#01H
-006D 7E00              MOV     R6,#00H
-006F 120000      E     LCALL   _CyDelayUs
-                                           ; SOURCE LINE # 187
-0072 8005              SJMP    ?C0006
-0074         ?C0005:
-                                           ; SOURCE LINE # 189
-                                           ; SOURCE LINE # 190
-0074 E4                CLR     A
-0075 900000      R     MOV     DPTR,#USBFS_backup
-0078 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 191
-0079         ?C0006:
+0073 E4                CLR     A
+0074 900000      R     MOV     DPTR,#USBFS_backup
+0077 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 186
+0078         ?C0006:
+                                           ; SOURCE LINE # 188
+0078 900000      R     MOV     DPTR,#enableInterrupts
+007B E0                MOVX    A,@DPTR
+007C FF                MOV     R7,A
+007D 120000      E     LCALL   _CyExitCriticalSection
+                                           ; SOURCE LINE # 192
+0080 120000      E     LCALL   USBFS_Dp_ClearInterrupt
                                            ; SOURCE LINE # 193
-0079 900000      R     MOV     DPTR,#enableInterrupts
-007C E0                MOVX    A,@DPTR
-007D FF                MOV     R7,A
-007E 120000      E     LCALL   _CyExitCriticalSection
+0083 9044D9            MOV     DPTR,#044D9H
+0086 7410              MOV     A,#010H
+0088 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 195
+0089 9044C1            MOV     DPTR,#044C1H
+008C F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 197
-0081 7C00        R     MOV     R4,#HIGH USBFS_DP_ISR
-0083 7D00        R     MOV     R5,#LOW USBFS_DP_ISR
-0085 7F0C              MOV     R7,#0CH
-0087 120000      E     LCALL   _CyIntSetVector
-                                           ; SOURCE LINE # 198
-008A 7D07              MOV     R5,#07H
-008C 7F0C              MOV     R7,#0CH
-008E 120000      E     LCALL   _CyIntSetPriority
-                                           ; SOURCE LINE # 199
-0091 9044D9            MOV     DPTR,#044D9H
-0094 7410              MOV     A,#010H
-0096 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 200
-0097 9044C1            MOV     DPTR,#044C1H
-009A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 202
-009B 22                RET     
+008D 22                RET     
              ; FUNCTION USBFS_Suspend (END)
 
              ; FUNCTION USBFS_Resume (BEGIN)
-                                           ; SOURCE LINE # 225
-                                           ; SOURCE LINE # 226
+                                           ; SOURCE LINE # 227
                                            ; SOURCE LINE # 228
+                                           ; SOURCE LINE # 231
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 10  
+
 0000 120000      E     LCALL   CyEnterCriticalSection
 0003 900000      R     MOV     DPTR,#enableInterrupts
 0006 EF                MOV     A,R7
 0007 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 230
+                                           ; SOURCE LINE # 233
 0008 900000      R     MOV     DPTR,#USBFS_backup
 000B E0                MOVX    A,@DPTR
 000C 6078              JZ      ?C0008
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 9   
-
-                                           ; SOURCE LINE # 231
-                                           ; SOURCE LINE # 233
+                                           ; SOURCE LINE # 234
+                                           ; SOURCE LINE # 236
 000E 9044C9            MOV     DPTR,#044C9H
 0011 7410              MOV     A,#010H
 0013 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 237
+                                           ; SOURCE LINE # 279
 0014 9043A5            MOV     DPTR,#043A5H
 0017 E0                MOVX    A,@DPTR
 0018 4401              ORL     A,#01H
 001A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 239
+                                           ; SOURCE LINE # 280
 001B 9043B5            MOV     DPTR,#043B5H
 001E E0                MOVX    A,@DPTR
 001F 4401              ORL     A,#01H
 0021 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 241
+                                           ; SOURCE LINE # 283
 0022 90609D            MOV     DPTR,#0609DH
 0025 E0                MOVX    A,@DPTR
 0026 4401              ORL     A,#01H
 0028 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 244
+                                           ; SOURCE LINE # 286
 0029 904394            MOV     DPTR,#04394H
 002C E0                MOVX    A,@DPTR
 002D 4401              ORL     A,#01H
 002F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 246
+                                           ; SOURCE LINE # 289
 0030 7F28              MOV     R7,#028H
 0032 7E00              MOV     R6,#00H
 0034 120000      E     LCALL   _CyDelayUs
-                                           ; SOURCE LINE # 248
+                                           ; SOURCE LINE # 291
 0037 906009            MOV     DPTR,#06009H
 003A C083              PUSH    DPH
 003C C082              PUSH    DPL
@@ -540,64 +597,64 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0047 D082              POP     DPL
 0049 D083              POP     DPH
 004B F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 249
+                                           ; SOURCE LINE # 292
 004C E4                CLR     A
 004D FF                MOV     R7,A
 004E FE                MOV     R6,A
 004F 120000      E     LCALL   _CyDelayUs
-                                           ; SOURCE LINE # 251
+                                           ; SOURCE LINE # 295
 0052 904394            MOV     DPTR,#04394H
 0055 E0                MOVX    A,@DPTR
 0056 4402              ORL     A,#02H
 0058 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 252
+                                           ; SOURCE LINE # 296
+C51 COMPILER V9.51   USBFS_PM                                                              07/29/2016 09:50:44 PAGE 11  
+
 0059 7F02              MOV     R7,#02H
 005B 7E00              MOV     R6,#00H
 005D 120000      E     LCALL   _CyDelayUs
-                                           ; SOURCE LINE # 254
+                                           ; SOURCE LINE # 298
 0060 904394            MOV     DPTR,#04394H
 0063 E0                MOVX    A,@DPTR
 0064 4404              ORL     A,#04H
 0066 F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   USBFS_PM                                                              04/01/2016 11:42:16 PAGE 10  
-
-                                           ; SOURCE LINE # 270
+                                           ; SOURCE LINE # 314
 0067 906028            MOV     DPTR,#06028H
 006A 7403              MOV     A,#03H
 006C F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 272
+                                           ; SOURCE LINE # 317
 006D 906008            MOV     DPTR,#06008H
 0070 E0                MOVX    A,@DPTR
 0071 4480              ORL     A,#080H
 0073 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 273
+                                           ; SOURCE LINE # 318
 0074 E4                CLR     A
 0075 7F01              MOV     R7,#01H
 0077 FE                MOV     R6,A
 0078 FD                MOV     R5,A
 0079 FC                MOV     R4,A
 007A 120000      E     LCALL   _CyDelayCycles
-                                           ; SOURCE LINE # 275
+                                           ; SOURCE LINE # 321
 007D 906012            MOV     DPTR,#06012H
 0080 7404              MOV     A,#04H
 0082 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 278
+                                           ; SOURCE LINE # 324
 0083 120000      R     LCALL   USBFS_RestoreConfig
-                                           ; SOURCE LINE # 279
+                                           ; SOURCE LINE # 326
 0086         ?C0008:
-                                           ; SOURCE LINE # 281
+                                           ; SOURCE LINE # 328
 0086 900000      R     MOV     DPTR,#enableInterrupts
 0089 E0                MOVX    A,@DPTR
 008A FF                MOV     R7,A
 008B 120000      E     LCALL   _CyExitCriticalSection
-                                           ; SOURCE LINE # 282
+                                           ; SOURCE LINE # 329
 008E 22                RET     
              ; FUNCTION USBFS_Resume (END)
 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    361    ----
+   CODE SIZE        =    380    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      2       2
    PDATA SIZE       =   ----    ----

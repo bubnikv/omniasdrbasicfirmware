@@ -1,4 +1,4 @@
-C51 COMPILER V9.51   CONTROL_PM                                                            04/01/2016 11:42:17 PAGE 1   
+C51 COMPILER V9.51   CONTROL_PM                                                            07/29/2016 09:50:46 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE CONTROL_PM
@@ -62,7 +62,7 @@ line level    source
   50          * Summary:
   51          *  Restores the control register value.
   52          *
-C51 COMPILER V9.51   CONTROL_PM                                                            04/01/2016 11:42:17 PAGE 2   
+C51 COMPILER V9.51   CONTROL_PM                                                            07/29/2016 09:50:46 PAGE 2   
 
   53          * Parameters:
   54          *  None
@@ -121,7 +121,7 @@ line level    source
  107          
  108          
  109          /* [] END OF FILE */
-C51 COMPILER V9.51   CONTROL_PM                                                            04/01/2016 11:42:17 PAGE 3   
+C51 COMPILER V9.51   CONTROL_PM                                                            07/29/2016 09:50:46 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 

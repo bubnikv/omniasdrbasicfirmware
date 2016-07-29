@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: CyLib.c
-* Version 5.20
+* Version 5.30
 *
 *  Description:
 *   Provides a system API for the clocking, interrupts and watchdog timer.
@@ -54,6 +54,11 @@ static void CyBusClk_Internal_SetDivider(uint16 divider);
     static void CySysTickServiceCallbacks(void);
     uint32 CySysTickInitVar = 0u;
 #endif  /* (CY_PSOC5) */
+
+
+#if(CY_PSOC3)
+    CY_ISR_PROTO(IntDefaultHandler);
+#endif /* (CY_PSOC3) */
 
 
 /*******************************************************************************
@@ -1872,7 +1877,7 @@ void CyWdtClear(void)
 *  low-voltage event instead of generating an interrupt.
 *
 *  Note The associated interrupt enable/disable state is not changed by the
-*  function. The Interrupt component’s API should be used to register the
+*  function. The Interrupt component API should be used to register the
 *  interrupt service routine and to enable/disable associated interrupt.
 *
 * Parameters:
@@ -1957,7 +1962,7 @@ void CyVdLvDigitEnable(uint8 reset, uint8 threshold)
 *  low-voltage event instead of generating an interrupt.
 *
 *  Note The associated interrupt enable/disable state is not changed by the
-*  function. The Interrupt component’s API should be used to register the
+*  function. The Interrupt component API should be used to register the
 *  interrupt service routine and to enable/disable associated interrupt.
 *
 * Parameters:
@@ -2041,7 +2046,7 @@ void CyVdLvAnalogEnable(uint8 reset, uint8 threshold)
 *
 *  Note The associated interrupt enable/disable state is not changed by the
 *  function. The pending interrupt status is not cleared. The Interrupt
-*  component’s API should be used to manipulate with the associated interrupts.
+*  component API should be used to manipulate with the associated interrupts.
 *
 * Parameters:
 *  None
@@ -2073,7 +2078,7 @@ void CyVdLvDigitDisable(void)
 *
 *  Note The associated interrupt enable/disable state is not changed by the
 *  function. The pending interrupt status is not cleared. The Interrupt
-*  component’s API should be used to manipulate with the associated interrupts.
+*  component API should be used to manipulate with the associated interrupts.
 *
 * Parameters:
 *  None
@@ -2102,7 +2107,7 @@ void CyVdLvAnalogDisable(void)
 *  threshold detection for Vdda.
 *
 *  Note The associated interrupt enable/disable state is not changed by the
-*  function. The Interrupt component’s API should be used to register the
+*  function. The Interrupt component API should be used to register the
 *  interrupt service routine and to enable/disable associated interrupt.
 *
 * Parameters:
@@ -2154,7 +2159,7 @@ void CyVdHvAnalogEnable(void)
 *
 *  Note The associated interrupt enable/disable state is not changed by the
 *  function. The pending interrupt status is not cleared. The Interrupt
-*  component’s API should be used to manipulate with the associated interrupts.
+*  component API should be used to manipulate with the associated interrupts.
 *
 * Parameters:
 *  None
@@ -2180,7 +2185,7 @@ void CyVdHvAnalogDisable(void)
 * Summary:
 *  Reads and clears the voltage detection status bits in the RESET_SR0 register.
 *  The bits are set to 1 by the voltage monitor circuit when the supply is
-*  outside the detector’s trip point. They stay set to 1 until they are read or
+*  outside the detector trip point. They stay set to 1 until they are read or
 *  a POR / LVI / PRES reset occurs. This function uses a shadow register, so
 *  only the bits passed in the parameter will be cleared in the shadow register.
 *
@@ -2622,6 +2627,65 @@ void CyEnableInts(uint32 mask)
 
 #else   /* PSoC3 */
 
+    /*******************************************************************************
+    * Function Name: IntDefaultHandler
+    ********************************************************************************
+    *
+    * Summary:
+    *  This function is called for all interrupts, other than a reset that gets
+    *  called before the system is setup.
+    *
+    * Parameters:
+    *  None
+    *
+    * Return:
+    *  None
+    *
+    * Theory:
+    *  Any value other than zero is acceptable.
+    *
+    *******************************************************************************/
+    CY_ISR(IntDefaultHandler)
+    {
+        #ifdef CY_BOOT_INT_DEFAULT_HANDLER_EXCEPTION_ENTRY_CALLBACK
+            CyBoot_IntDefaultHandler_Exception_EntryCallback();
+        #endif /* CY_BOOT_INT_DEFAULT_HANDLER_EXCEPTION_ENTRY_CALLBACK */
+
+        while(1)
+        {
+            /***********************************************************************
+            * We must not get here. If we do, a serious problem occurs, so go
+            * into an infinite loop.
+            ***********************************************************************/
+        }
+    }
+
+
+    /*******************************************************************************
+    * Function Name: IntDefaultHandler
+    ********************************************************************************
+    *
+    * Summary:
+    *  This function is called during startup to initialize interrupt address vector
+    *  registers with the address of the IntDefaultHandler().
+    *
+    * Parameters:
+    *  None
+    *
+    * Return:
+    *  None
+    *
+    *******************************************************************************/
+    void CyIntInitVectors(void) 
+    {
+        uint8 i;
+
+        for (i = 0; i <= CY_INT_NUMBER_MAX; i++)
+        {
+            CY_SET_REG16(&CY_INT_VECT_TABLE[i], (uint16) &IntDefaultHandler);
+        }
+    }
+
 
     /*******************************************************************************
     * Function Name: CyIntSetVector
@@ -2757,7 +2821,6 @@ void CyEnableInts(uint32 mask)
         return ((0u != (*stateReg & ((uint8)(1u << (0x07u & number))))) ? ((uint8)(1u)) : ((uint8)(0u)));
     }
 
-
 #endif  /* (CY_PSOC5) */
 
 
@@ -2889,7 +2952,7 @@ void CyEnableInts(uint32 mask)
     *  Initializes the callback addresses with pointers to NULL, associates the
     *  SysTick system vector with the function that is responsible for calling
     *  registered callback functions, configures SysTick timer to generate interrupt
-    * every 1 ms.
+    *  every 1 ms.
     *
     * Parameters:
     *  None
@@ -3084,22 +3147,24 @@ void CyEnableInts(uint32 mask)
     * Summary:
     *  Sets the clock source for the SysTick counter.
     *
+    *  Clears SysTick count flag if it was set. If clock source is not ready this
+    *  function call will have no effect. After changing clock source to the low
+    *  frequency clock the counter and reload register values will remain unchanged
+    *  so time to the interrupt will be significantly bigger and vice versa.
+    *
+    *  The function is not available on PSoC 4000, PSoC 4100, and PSoC 42000
+    *  devices. The SysTick timer clocked by the System clock on these devices.
+    *
     * Parameters:
     *  clockSource: Clock source for SysTick counter
     *         Define                     Clock Source
     *   CY_SYS_SYST_CSR_CLK_SRC_SYSCLK     SysTick is clocked by CPU clock.
     *   CY_SYS_SYST_CSR_CLK_SRC_LFCLK      SysTick is clocked by the low frequency
-    *                                      clock (ILO 100 KHz for PSoC 5LP, and
+    *                                      clock. (ILO 100 KHz for PSoC 5LP, and
     *                                      LFCLK for PSoC 4).
     *
     * Return:
     *  None
-    *
-    * Side Effects:
-    *  Clears SysTick count flag if it was set. If clock source is not ready this
-    *  function call will have no effect. After changing clock source to the low
-    *  frequency clock the counter and reload register values will remain unchanged
-    *  so time to the interrupt will be significantly bigger and vice versa.
     *
     *******************************************************************************/
     void CySysTickSetClockSource(uint32 clockSource)

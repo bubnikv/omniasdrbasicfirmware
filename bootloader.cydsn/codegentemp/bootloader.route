@@ -1,9 +1,5 @@
 net ClockBlock_BUS_CLK
 	term   ":clockblockcell.clk_bus_glb"
-	switch ":clockblockcell.clk_bus_glb==>:ioport15:pin6.in_clock"
-	term   ":ioport15:pin6.in_clock"
-	switch ":clockblockcell.clk_bus_glb==>:ioport1:pin5.in_clock"
-	term   ":ioport1:pin5.in_clock"
 	switch ":clockblockcell.clk_bus_glb==>:interrupt_12.clock"
 	term   ":interrupt_12.clock"
 	switch ":clockblockcell.clk_bus_glb==>:interrupt_1.clock"
@@ -69,28 +65,28 @@ net \USBFS:Net_1010\
 	switch ":interrupt_idmux_12.interrupt_idmux_12__out==>:interrupt_12.interrupt"
 	term   ":interrupt_12.interrupt"
 end \USBFS:Net_1010\
-net \USBFS:Net_79\
-	term   ":usbcell.arb_int"
-	switch ":usbcell.arb_int==>Stub-:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v25+:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v27"
-	switch "Stub-:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v25+:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v27==>:interrupt_idmux_22.in_0"
-	switch ":interrupt_idmux_22.interrupt_idmux_22__out==>:interrupt_22.interrupt"
-	term   ":interrupt_22.interrupt"
-end \USBFS:Net_79\
-net \USBFS:Net_81\
+net \USBFS:Net_1876\
 	term   ":usbcell.usb_int"
 	switch ":usbcell.usb_int==>Stub-:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v24+:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v26"
 	switch "Stub-:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v24+:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v26==>:interrupt_idmux_23.in_0"
 	switch ":interrupt_idmux_23.interrupt_idmux_23__out==>:interrupt_23.interrupt"
 	term   ":interrupt_23.interrupt"
-end \USBFS:Net_81\
-net \USBFS:ept_int_0\
+end \USBFS:Net_1876\
+net \USBFS:Net_1889\
+	term   ":usbcell.arb_int"
+	switch ":usbcell.arb_int==>Stub-:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v25+:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v27"
+	switch "Stub-:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v25+:dsiswitch_top@[DSI=(0,1)][side=top]:dsihc_top:v27==>:interrupt_idmux_22.in_0"
+	switch ":interrupt_idmux_22.interrupt_idmux_22__out==>:interrupt_22.interrupt"
+	term   ":interrupt_22.interrupt"
+end \USBFS:Net_1889\
+net \USBFS:ep_int_0\
 	term   ":usbcell.ept_int_0"
 	switch ":usbcell.ept_int_0==>Stub-:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v5+:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v7"
 	switch "Stub-:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v5+:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v7==>:interrupt_idmux_24.in_0"
 	switch ":interrupt_idmux_24.interrupt_idmux_24__out==>:interrupt_24.interrupt"
 	term   ":interrupt_24.interrupt"
-end \USBFS:ept_int_0\
-net \USBFS:ept_int_1\
+end \USBFS:ep_int_0\
+net \USBFS:ep_int_1\
 	term   ":usbcell.ept_int_1"
 	switch ":usbcell.ept_int_1==>Stub-:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v10+:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v8"
 	switch "OStub-:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v10+:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v8"
@@ -108,8 +104,8 @@ net \USBFS:ept_int_1\
 	switch "Stub-:dsiswitch_bottom@[DSI=(1,5)][side=bottom]:dsihc_bottom:v48+:dsiswitch_bottom@[DSI=(1,5)][side=bottom]:dsihc_bottom:v50==>:interrupt_idmux_0.in_2"
 	switch ":interrupt_idmux_0.interrupt_idmux_0__out==>:interrupt_0.interrupt"
 	term   ":interrupt_0.interrupt"
-end \USBFS:ept_int_1\
-net \USBFS:ept_int_2\
+end \USBFS:ep_int_1\
+net \USBFS:ep_int_2\
 	term   ":usbcell.ept_int_2"
 	switch ":usbcell.ept_int_2==>Stub-:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v11+:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v9"
 	switch "OStub-:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v11+:dsiswitch_top@[DSI=(0,2)][side=top]:dsihc_top:v9"
@@ -127,7 +123,7 @@ net \USBFS:ept_int_2\
 	switch "Stub-:dsiswitch_bottom@[DSI=(1,5)][side=bottom]:dsihc_bottom:v49+:dsiswitch_bottom@[DSI=(1,5)][side=bottom]:dsihc_bottom:v51==>:interrupt_idmux_1.in_2"
 	switch ":interrupt_idmux_1.interrupt_idmux_1__out==>:interrupt_1.interrupt"
 	term   ":interrupt_1.interrupt"
-end \USBFS:ept_int_2\
+end \USBFS:ep_int_2\
 net __ZERO__
 	term   ":udb@[UDB=(0,4)]:pld0:mc0.q"
 	switch ":udb@[UDB=(0,4)]:pld0:mc0.q==>:udb@[UDB=(0,4)]:pld0:output_permute0.q_0"

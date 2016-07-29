@@ -1,6 +1,6 @@
 /****************************************************************************//**
 * \file Bootloader.c
-* \version 1.40
+* \version 1.50
 *
 * \brief
 *   Provides an API for the Bootloader.
@@ -29,7 +29,7 @@ typedef struct
 
 
 #define Bootloader_VERSION        {\
-                                            (uint8)40, \
+                                            (uint8)50, \
                                             (uint8)1, \
                                             (uint8)0x01u \
                                         }
@@ -266,7 +266,8 @@ Bootloader_ValidateBootloadable()
 
 /* Definition of row amount in EEPROM array */
 #if (!CY_PSOC4)
-    #define Bootloader_NUMBER_OF_ROWS_IN_EEPROM_ARRAY  (CYDEV_EEPROM_SECTOR_SIZE/CYDEV_EEPROM_ROW_SIZE)
+    #define Bootloader_NUMBER_OF_ROWS_IN_EEPROM_SECTOR (CYDEV_EEPROM_SECTOR_SIZE/CYDEV_EEPROM_ROW_SIZE)
+    #define Bootloader_NUMBER_OF_EEPROM_SECTORS        (CY_EEPROM_NUMBER_SECTORS)
 #endif /*(!CY_PSOC4)*/
 
 /* Macro to check if row number is within array address range */

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: cyPm.c
-* Version 5.20
+* Version 5.30
 *
 * Description:
 *  Provides an API for the power management.

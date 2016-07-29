@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: CySpc.c
-* Version 5.20
+* Version 5.30
 *
 * Description:
 *  Provides definitions for the System Performance Component API.

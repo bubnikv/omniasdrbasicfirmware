@@ -1,10 +1,10 @@
 (DELAYFILE
  (SDFVERSION "IEEE 1497 4.0")
- (DATE "2016-04-01T15:42:12Z")
+ (DATE "2016-07-29T13:50:38Z")
  (DESIGN "bootloader")
  (VENDOR "Cypress Semiconductor")
  (PROGRAM "PSoC Creator")
- (VERSION " 3.3 CP2")
+ (VERSION " 3.3 CP3")
  (DIVIDER .)
  (TIMESCALE 1 ns)
  (CELL
@@ -30,8 +30,8 @@
     (INTERCONNECT \\Control\:Sync\:ctrl_reg\\.control_0 LED1\(0\).pin_input (5.397:5.397:5.397))
     (INTERCONNECT \\Control\:Sync\:ctrl_reg\\.control_0 LED2\(0\).pin_input (5.397:5.397:5.397))
     (INTERCONNECT \\USBFS\:Dp\\.interrupt \\USBFS\:dp_int\\.interrupt (1.000:1.000:1.000))
-    (INTERCONNECT \\USBFS\:USB\\.arb_int \\USBFS\:arb_int\\.interrupt (1.000:1.000:1.000))
     (INTERCONNECT \\USBFS\:USB\\.usb_int \\USBFS\:bus_reset\\.interrupt (1.000:1.000:1.000))
+    (INTERCONNECT \\USBFS\:USB\\.arb_int \\USBFS\:arb_int\\.interrupt (1.000:1.000:1.000))
     (INTERCONNECT \\USBFS\:USB\\.ept_int_0 \\USBFS\:ep_0\\.interrupt (1.000:1.000:1.000))
     (INTERCONNECT \\USBFS\:USB\\.ept_int_1 \\USBFS\:ep_1\\.interrupt (9.058:9.058:9.058))
     (INTERCONNECT \\USBFS\:USB\\.ept_int_2 \\USBFS\:ep_2\\.interrupt (9.092:9.092:9.092))
