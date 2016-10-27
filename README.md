@@ -1,8 +1,7 @@
-# AE9RB Peaberry SDR
+# Omnia SDR Basic
 
-An amateur HF transceiver designed by the Free and Open Source community.
 
-Kits available from http://AE9RB.com/
+Kits available from http://omnia-sdr.com
 
 ## Features
 
@@ -13,7 +12,7 @@ Kits available from http://AE9RB.com/
 
 ## Building Firmware
 
-The project was built with PSoC Creator 3.1 SP1 (3.1.0.1722):
+The project was built with PSoC Creator 3.3 SP1 
 http://www.cypress.com/
 
 It is normal to get errors about missing files until you have built
