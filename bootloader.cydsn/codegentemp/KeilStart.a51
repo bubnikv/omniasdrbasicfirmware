@@ -1,12 +1,12 @@
 ;*******************************************************************************
 ; FILENAME: KeilStart.a51
-; Version 5.30
+; Version 4.20
 ;
 ;  DESCRIPTION:
 ;   Bootup Code for PSoC3 chips using the Keil toolchain.
 ;
 ;*******************************************************************************
-; Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+; Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
 ; You may use this file only in accordance with the license, terms, conditions,
 ; disclaimers, and limitations in the end user license agreement accompanying
 ; the software package with which this file was provided.
@@ -58,12 +58,8 @@ IF DMA_CHANNELS_USED__MASK0 <> 0
 ENDIF
 
 IF CYDEV_BOOTLOADER_ENABLE <> 0
-IF CYDEV_PROJ_TYPE <> CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER
                 EXTRN CODE (CyBtldr_CheckLaunch)
 ENDIF
-ENDIF
-
-                EXTRN CODE (CyIntInitVectors)
 
                 PUBLIC  ?C_STARTUP, ?C?XPAGE1SFR, ?C?XPAGE1RST
                 PUBLIC  STARTUP1   ; include STARTUP1 for bootloader
@@ -136,7 +132,7 @@ ENDIF
 
 
 IF (CYDEV_CHIP_REVISION_USED > CYDEV_CHIP_REVISION_3A_ES2)
-  IF (CYDEV_PROJ_TYPE <> CYDEV_PROJ_TYPE_LOADABLE AND CYDEV_PROJ_TYPE <> CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
+  IF (CYDEV_PROJ_TYPE <> CYDEV_PROJ_TYPE_LOADABLE)
            ; Handles the  case where Software Reset is needed in order to ensure NVLs have been setup properly on TO5
            ; R0 - Used to indicate the Debugger Attached
            ; R1 - Used to hold the CYREG_MLOGIC_REV_ID value
@@ -193,13 +189,11 @@ ENDIF
        mov      sp, #?STACK-1                       ; Set the stack pointer.
 
 IF CYDEV_BOOTLOADER_ENABLE <> 0
-    IF CYDEV_PROJ_TYPE <> CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER
        ;* Checks if there is a need to start a loadable application, bootloaders always do this check first so
        ;* that the device does not get configured before we launch the user application which
        ;* has its own unique configuration
        lcall    CyBtldr_CheckLaunch
 Btldr_NoLaunch:
-    ENDIF
 ENDIF
 
 IF (CYDEV_CONFIGURATION_CLEAR_SRAM <> 0)
@@ -351,9 +345,6 @@ IF PBPSTACK <> 0
        ;* ?C_XBP acts as a base pointer to the reentrant stack for the COMPACT model.
        mov      ?C_PBP, #LOW PBPSTACKTOP
 ENDIF
-
-       ;* Initialize the interrupt address vector registers.
-       lcall    CyIntInitVectors
 
        ;* Initialize the configuration registers.
        lcall    cyfitter_cfg

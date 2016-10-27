@@ -1,20 +1,20 @@
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 1   
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_MIDI
 OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_midi.obj
 COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
                     -.\Generated_Source\PSoC3\USBFS_midi.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DEB
-                    -UG) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_midi.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_midi.o
+                    -UG) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_midi.lst) CD OT(2,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_midi.o
                     -bj)
 
 line level    source
 
-   1          /***************************************************************************//**
-   2          * \file USBFS_midi.c
-   3          * \version 3.0
+   1          /*******************************************************************************
+   2          * File Name: USBFS_midi.c
+   3          * Version 2.80
    4          *
-   5          * \brief
+   5          * Description:
    6          *  MIDI Streaming request handler.
    7          *  This file contains routines for sending and receiving MIDI
    8          *  messages, and handles running status in both directions.
@@ -24,18 +24,20 @@ line level    source
   12          *  MIDI 1.0 Detailed Specification Document Version 4.2
   13          *
   14          ********************************************************************************
-  15          * \copyright
-  16          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
-  17          * You may use this file only in accordance with the license, terms, conditions,
-  18          * disclaimers, and limitations in the end user license agreement accompanying
-  19          * the software package with which this file was provided.
-  20          *******************************************************************************/
-  21          
-  22          #include "USBFS_midi.h"
-  23          #include "USBFS_pvt.h"
-  24          
-  25          
-  26          #if defined(USBFS_ENABLE_MIDI_STREAMING)
+  15          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  16          * You may use this file only in accordance with the license, terms, conditions,
+  17          * disclaimers, and limitations in the end user license agreement accompanying
+  18          * the software package with which this file was provided.
+  19          *******************************************************************************/
+  20          
+  21          #include "USBFS.h"
+  22          
+  23          #if defined(USBFS_ENABLE_MIDI_STREAMING)
+              
+              #include "USBFS_midi.h"
+              #include "USBFS_pvt.h"
+              
+              
               
               /***************************************
               *    MIDI Constants
@@ -60,10 +62,10 @@ line level    source
                   /*  Program Change                          */ 0x02u,
                   /*  Channel Pressure                        */ 0x02u,
                   /*  PitchBend Change                        */ 0x03u,
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 2   
+
                   /*  Single Byte                             */ 0x01u
                   };
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 2   
-
               #endif  /* USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF */
               
               
@@ -72,67 +74,31 @@ line level    source
               *  Global variables
               ***************************************/
               
-              
               #if (USBFS_MIDI_IN_BUFF_SIZE > 0)
                   #if (USBFS_MIDI_IN_BUFF_SIZE >= 256)
-                      /** Input endpoint buffer pointer. This pointer is used as an index for the
-                      * USBMIDI_midiInBuffer to write data. It is cleared to zero by the
-                      * USBMIDI_MIDI_EP_Init() function.*/
                       volatile uint16 USBFS_midiInPointer;                            /* Input endpoint buffer pointer *
              -/
                   #else
                       volatile uint8 USBFS_midiInPointer;                             /* Input endpoint buffer pointer *
              -/
                   #endif /* (USBFS_MIDI_IN_BUFF_SIZE >= 256) */
-                  /** Contains the midi IN endpoint number, It is initialized after a
-                   * SET_CONFIGURATION request based on a user descriptor. It is used in MIDI
-                   * APIs to send data to the host.*/
-                  volatile uint8 USBFS_midi_in_ep;
-                  /** Input endpoint buffer with a length equal to MIDI IN EP Max Packet Size.
-                   * This buffer is used to save and combine the data received from the UARTs,
-                   * generated internally by USBMIDI_PutUsbMidiIn() function messages, or both.
-                   * The USBMIDI_MIDI_IN_Service() function transfers the data from this buffer to the host.*/
+                  volatile uint8 USBFS_midi_in_ep;                                    /* Input endpoint number */
                   uint8 USBFS_midiInBuffer[USBFS_MIDI_IN_BUFF_SIZE];       /* Input endpoint buffer */
               #endif /* (USBFS_MIDI_IN_BUFF_SIZE > 0) */
               
               #if (USBFS_MIDI_OUT_BUFF_SIZE > 0)
-                  /** Contains the midi OUT endpoint number. It is initialized after a
-                   * SET_CONFIGURATION request based on a user descriptor. It is used in
-                   * MIDI APIs to receive data from the host.*/
                   volatile uint8 USBFS_midi_out_ep;                                   /* Output endpoint number */
-                  /** Output endpoint buffer with a length equal to MIDI OUT EP Max Packet Size.
-                   * This buffer is used by the USBMIDI_MIDI_OUT_EP_Service() function to save
-                   * the data received from the host. The received data is then parsed. The
-                   * parsed data is transferred to the UARTs buffer and also used for internal
-                   * processing by the USBMIDI_callbackLocalMidiEvent() function.*/
                   uint8 USBFS_midiOutBuffer[USBFS_MIDI_OUT_BUFF_SIZE];     /* Output endpoint buffer */
               #endif /* (USBFS_MIDI_OUT_BUFF_SIZE > 0) */
               
               #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
-              
                   static USBFS_MIDI_RX_STATUS USBFS_MIDI1_Event;            /* MIDI RX status structure */
                   static volatile uint8 USBFS_MIDI1_TxRunStat;                         /* MIDI Output running status */
-                  /** The USBFS supports a maximum of two external Jacks. The two flag variables
-                   * are used to represent the status of two external Jacks. These optional variables
-                   * are allocated when External Mode is enabled. The following flags help to
-                   * detect and generate responses for SysEx messages. The USBMIDI_MIDI2_InqFlags
-                   * is optional and is not available when only one external Jack is configured.
-                   * Flag                          | Description
-                   * ------------------------------|---------------------------------------
-                   * USBMIDI_INQ_SYSEX_FLAG        | Non-real-time SysEx message received.
-                   * USBMIDI_INQ_IDENTITY_REQ_FLAG | Identity Request received. You should clear this bit when an Identi
-             -ty Reply message is generated.
-                   * SysEX messages are intended for local device and shouldn't go out on the
-                   * external MIDI jack, this flag indicates when a MIDI SysEx OUT message is
-                   * in progress for the application */
                   volatile uint8 USBFS_MIDI1_InqFlags;                                 /* Device inquiry flag */
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 3   
-
               
                   #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
                       static USBFS_MIDI_RX_STATUS USBFS_MIDI2_Event;        /* MIDI RX status structure */
                       static volatile uint8 USBFS_MIDI2_TxRunStat;                     /* MIDI Output running status */
-                      /** See description of \ref USBFS_MIDI1_InqFlags*/
                       volatile uint8 USBFS_MIDI2_InqFlags;                             /* Device inquiry flag */
                   #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
               #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
@@ -147,213 +113,238 @@ line level    source
               /* `#END` */
               
               
+              /***************************************
+              * Optional MIDI APIs
+              ***************************************/
               #if (USBFS_ENABLE_MIDI_API != 0u)
+              
+              
               /*******************************************************************************
-              * Function Name: USBFS_MIDI_Init
-              ****************************************************************************//**
+              * Function Name: USBFS_MIDI_EP_Init
+              ********************************************************************************
               *
+              * Summary:
               *  This function initializes the MIDI interface and UART(s) to be ready to
               *   receive data from the PC and MIDI ports.
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 3   
+
               *
-              * \globalvars
+              * Parameters:
+              *  None
               *
-              *  \ref USBFS_midiInBuffer: This buffer is used for saving and combining
+              * Return:
+              *  None
+              *
+              * Global variables:
+              *  USBFS_midiInBuffer: This buffer is used for saving and combining
               *    the received data from UART(s) and(or) generated internally by
               *    PutUsbMidiIn() function messages. USBFS_MIDI_IN_EP_Service()
               *    function transfers the data from this buffer to the PC.
-              *
-              *  \ref USBFS_midiOutBuffer: This buffer is used by the
-              *    USBFS_MIDI_OUT_Service() function for saving the received
+              *  USBFS_midiOutBuffer: This buffer is used by the
+              *    USBFS_MIDI_OUT_EP_Service() function for saving the received
               *    from the PC data, then the data are parsed and transferred to UART(s)
               *    buffer and to the internal processing by the
+              *    USBFS_callbackLocalMidiEvent function.
+              *  USBFS_midi_out_ep: Used as an OUT endpoint number.
+              *  USBFS_midi_in_ep: Used as an IN endpoint number.
+              *   USBFS_midiInPointer: Initialized to zero.
               *
-              *  \ref USBFS_callbackLocalMidiEvent function.
-              *
-              *  \ref USBFS_midi_out_ep: Used as an OUT endpoint number.
-              *
-              *  \ref USBFS_midi_in_ep: Used as an IN endpoint number.
-              *
-              *   \ref USBFS_midiInPointer: Initialized to zero.
-              *
-              * \sideeffect
-              *   The priority of the UART RX ISR should be higher than UART TX ISR. To do
-              *   that this function changes the priority of the UARTs TX and RX interrupts.
-              *
-              * \reentrant
+              * Reentrant:
               *  No
               *
               *******************************************************************************/
-              void USBFS_MIDI_Init(void) 
+              void USBFS_MIDI_EP_Init(void) 
               {
-              #if (USBFS_MIDI_IN_BUFF_SIZE > 0)
-                 USBFS_midiInPointer = 0u;
-              #endif /* (USBFS_MIDI_IN_BUFF_SIZE > 0) */
-              
-              #if (USBFS_EP_MANAGEMENT_DMA_AUTO)
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 4   
-
                   #if (USBFS_MIDI_IN_BUFF_SIZE > 0)
-                      /* Provide buffer for IN endpoint. */
-                      USBFS_LoadInEP(USBFS_midi_in_ep, USBFS_midiInBuffer,
-                                                                             USBFS_MIDI_IN_BUFF_SIZE);
-                  #endif  /* (USBFS_MIDI_IN_BUFF_SIZE > 0) */
+                     USBFS_midiInPointer = 0u;
+                  #endif /* (USBFS_MIDI_IN_BUFF_SIZE > 0) */
+              
+                  #if(USBFS_EP_MM == USBFS__EP_DMAAUTO)
+                      #if (USBFS_MIDI_IN_BUFF_SIZE > 0)
+                          /* Init DMA configurations for IN EP*/
+                          USBFS_LoadInEP(USBFS_midi_in_ep, USBFS_midiInBuffer,
+                                                                                              USBFS_MIDI_IN_BUFF_SIZE);
+              
+                      #endif  /* (USBFS_MIDI_IN_BUFF_SIZE > 0) */
+                      #if (USBFS_MIDI_OUT_BUFF_SIZE > 0)
+                          /* Init DMA configurations for OUT EP*/
+                          (void)USBFS_ReadOutEP(USBFS_midi_out_ep, USBFS_midiOutBuffer,
+                                                                                              USBFS_MIDI_OUT_BUFF_SIZE);
+                      #endif /* (USBFS_MIDI_OUT_BUFF_SIZE > 0) */
+                  #endif /* (USBFS_EP_MM == USBFS__EP_DMAAUTO) */
               
                   #if (USBFS_MIDI_OUT_BUFF_SIZE > 0)
-                      /* Provide buffer for OUT endpoint. */
-                      (void)USBFS_ReadOutEP(USBFS_midi_out_ep, USBFS_midiOutBuffer,
-                                                                                     USBFS_MIDI_OUT_BUFF_SIZE);
+                      USBFS_EnableOutEP(USBFS_midi_out_ep);
                   #endif /* (USBFS_MIDI_OUT_BUFF_SIZE > 0) */
-              #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-              
-              #if (USBFS_MIDI_OUT_BUFF_SIZE > 0)
-                  USBFS_EnableOutEP(USBFS_midi_out_ep);
-              #endif /* (USBFS_MIDI_OUT_BUFF_SIZE > 0) */
               
                   /* Initialize the MIDI port(s) */
-              #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
-                  USBFS_MIDI_InitInterface();
-              #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
+                  #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
+                      USBFS_MIDI_Init();
+                  #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
               }
               
-              
               #if (USBFS_MIDI_OUT_BUFF_SIZE > 0)
+              
+              
                   /*******************************************************************************
-                  * Function Name: USBFS_MIDI_OUT_Service
-                  ****************************************************************************//**
+                  * Function Name: USBFS_MIDI_OUT_EP_Service
+                  ********************************************************************************
                   *
-                  *  This function services the traffic from the USBMIDI OUT endpoint and
-                  *  sends the data to the MIDI output ports (TX UARTs). It is blocked by the
-                  *  UART when not enough space is available in the UART TX buffer.
-                  *  This function is automatically called from OUT EP ISR in DMA with
-                  *  Automatic Memory Management mode. In Manual and DMA with Manual EP
-                  *  Management modes you must call it from the main foreground task.
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 4   
+
+                  * Summary:
+                  *  Services the USB MIDI OUT endpoints.
+                  *  This function is called from OUT EP ISR. It transfers the received from PC
+                  *  data to the external MIDI port(UART TX buffer) and calls the
+                  *  USBFS_callbackLocalMidiEvent() function to internal process
+                  *  of the MIDI data.
+                  *  This function is blocked by UART, if not enough space is available in UART
+                  *  TX buffer. Therefore it is recommended to use large UART TX buffer size.
                   *
-                  * \globalvars
+                  * Parameters:
+                  *  None
                   *
-                  *  \ref USBFS_midiOutBuffer: Used as temporary buffer between USB
-                  *       internal memory and UART TX buffer.
+                  * Return:
+                  *  None
                   *
-                  *  \ref USBFS_midi_out_ep: Used as an OUT endpoint number.
+                  * Global variables:
+                  *  USBFS_midiOutBuffer: Used as temporary buffer between USB internal
+                  *   memory and UART TX buffer.
+                  *  USBFS_midi_out_ep: Used as an OUT endpoint number.
                   *
-                  * \reentrant
+                  * Reentrant:
                   *  No
                   *
                   *******************************************************************************/
-                  void USBFS_MIDI_OUT_Service(void) 
+                  void USBFS_MIDI_OUT_EP_Service(void) 
                   {
-                  #if (USBFS_MIDI_OUT_BUFF_SIZE >= 256)
-                      uint16 outLength;
-                      uint16 outPointer;
-                  #else
-                      uint8 outLength;
-                      uint8 outPointer;
-                  #endif /* (USBFS_MIDI_OUT_BUFF_SIZE >= 256) */
-              
-                      /* Service the USB MIDI output endpoint. */
-                      if (USBFS_OUT_BUFFER_FULL == USBFS_GetEPState(USBFS_midi_out_ep))
-                      {
-                      #if (USBFS_MIDI_OUT_BUFF_SIZE >= 256)
-                          outLength = USBFS_GetEPCount(USBFS_midi_out_ep);
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 5   
-
+                      #if USBFS_MIDI_OUT_BUFF_SIZE >= 256
+                          uint16 outLength;
+                          uint16 outPointer;
                       #else
-                          outLength = (uint8)USBFS_GetEPCount(USBFS_midi_out_ep);
-                      #endif /* (USBFS_MIDI_OUT_BUFF_SIZE >= 256) */
+                          uint8 outLength;
+                          uint8 outPointer;
+                      #endif /*  USBFS_MIDI_OUT_BUFF_SIZE >=256 */
               
-                      #if (!USBFS_EP_MANAGEMENT_DMA_AUTO)
-                          #if (USBFS_MIDI_OUT_BUFF_SIZE >= 256)
-                              outLength = USBFS_ReadOutEP(USBFS_midi_out_ep,
-                                                                     USBFS_midiOutBuffer, outLength);
+                      uint8 dmaState = 0u;
+              
+                      /* Service the USB MIDI output endpoint */
+                      if (USBFS_GetEPState(USBFS_midi_out_ep) == USBFS_OUT_BUFFER_FULL)
+                      {
+                          #if(USBFS_MIDI_OUT_BUFF_SIZE >= 256)
+                              outLength = USBFS_GetEPCount(USBFS_midi_out_ep);
                           #else
-                              outLength = (uint8)USBFS_ReadOutEP(USBFS_midi_out_ep,
-                                                                            USBFS_midiOutBuffer, (uint16) outLength);
+                              outLength = (uint8)USBFS_GetEPCount(USBFS_midi_out_ep);
                           #endif /* (USBFS_MIDI_OUT_BUFF_SIZE >= 256) */
               
-                          #if (USBFS_EP_MANAGEMENT_DMA_MANUAL)
-                              /* Wait until DMA complete transferring data from OUT endpoint buffer. */
-                              while (USBFS_OUT_BUFFER_FULL == USBFS_GetEPState(USBFS_midi_out_ep))
-                              {
-                              }
+                          #if(USBFS_EP_MM != USBFS__EP_DMAAUTO)
+                              #if (USBFS_MIDI_OUT_BUFF_SIZE >= 256)
+                                  outLength = USBFS_ReadOutEP(USBFS_midi_out_ep,
+                                                                                  USBFS_midiOutBuffer, outLength);
+                              #else
+                                  outLength = (uint8)USBFS_ReadOutEP(USBFS_midi_out_ep,
+                                                                                  USBFS_midiOutBuffer, (uint16)outLength
+             -);
+                              #endif /* (USBFS_MIDI_OUT_BUFF_SIZE >= 256) */
               
-                              /* Enable OUT endpoint for communication with host. */
-                              USBFS_EnableOutEP(USBFS_midi_out_ep);
-                          #endif /* (USBFS_EP_MANAGEMENT_DMA_MANUAL) */
-                      #endif /* (!USBFS_EP_MANAGEMENT_DMA_AUTO) */
+                              #if(USBFS_EP_MM == USBFS__EP_DMAMANUAL)
+                                  do  /* wait for DMA transfer complete */
+                                  {
+                                      (void) CyDmaChStatus(USBFS_DmaChan[USBFS_midi_out_ep], NULL, &dmaState);
+                                  }
+                                  while((dmaState & (STATUS_TD_ACTIVE | STATUS_CHAIN_ACTIVE)) != 0u);
+                              #endif /* (USBFS_EP_MM == USBFS__EP_DMAMANUAL) */
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 5   
+
+              
+                          #endif /* (USBFS_EP_MM != USBFS__EP_DMAAUTO) */
+              
+                          if(dmaState != 0u)
+                          {
+                              /* Suppress compiler warning */
+                          }
               
                           if (outLength >= USBFS_EVENT_LENGTH)
                           {
                               outPointer = 0u;
                               while (outPointer < outLength)
                               {
-                                  /* In some OS OUT packet could be appended by nulls which could be skipped. */
+                                  /* In some OS OUT packet could be appended by nulls which could be skipped */
                                   if (USBFS_midiOutBuffer[outPointer] == 0u)
                                   {
                                       break;
                                   }
+                                  /* Route USB MIDI to the External connection */
+                                  #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
+                                      if ((USBFS_midiOutBuffer[outPointer] & USBFS_CABLE_MASK) ==
+                                          USBFS_MIDI_CABLE_00)
+                                      {
+                                          USBFS_MIDI1_ProcessUsbOut(&USBFS_midiOutBuffer[outPointer]);
+                                      }
+                                      else if ((USBFS_midiOutBuffer[outPointer] & USBFS_CABLE_MASK) ==
+                                               USBFS_MIDI_CABLE_01)
+                                      {
+                                          #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
+                                              USBFS_MIDI2_ProcessUsbOut(&USBFS_midiOutBuffer[outPointer]);
+                                          #endif /*  USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF */
+                                      }
+                                      else
+                                      {
+                                          /* `#START CUSTOM_MIDI_OUT_EP_SERV` Place your code here */
               
-                              /* Route USB MIDI to the External connection */
-                              #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
-                                  if ((USBFS_midiOutBuffer[outPointer] & USBFS_CABLE_MASK) ==
-                                       USBFS_MIDI_CABLE_00)
-                                  {
-                                      USBFS_MIDI1_ProcessUsbOut(&USBFS_midiOutBuffer[outPointer]);
-                                  }
-                                  else if ((USBFS_midiOutBuffer[outPointer] & USBFS_CABLE_MASK) ==
-                                           USBFS_MIDI_CABLE_01)
-                                  {
-                                  #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
-                                       USBFS_MIDI2_ProcessUsbOut(&USBFS_midiOutBuffer[outPointer]);
-                                  #endif /*  USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF */
-                                  }
-                                  else
-                                  {
-                                      /* `#START CUSTOM_MIDI_OUT_EP_SERV` Place your code here */
+                                          /* `#END` */
               
-                                      /* `#END` */
-              
-                                      #ifdef USBFS_MIDI_OUT_EP_SERVICE_CALLBACK
-                                          USBFS_MIDI_OUT_EP_Service_Callback();
-                                      #endif /* USBFS_MIDI_OUT_EP_SERVICE_CALLBACK */
-                                  }
-                              #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
+                                          #ifdef USBFS_MIDI_OUT_EP_SERVICE_CALLBACK
+                                              USBFS_MIDI_OUT_EP_Service_Callback();
+                                          #endif /* USBFS_MIDI_OUT_EP_SERVICE_CALLBACK */
+                                      }
+                                  #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
               
                                   /* Process any local MIDI output functions */
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 6   
-
-                                  USBFS_callbackLocalMidiEvent(USBFS_midiOutBuffer[outPointer] & USBFS_CABLE_MASK,
-                                                                          &USBFS_midiOutBuffer[outPointer + USBFS_EVENT_
-             -BYTE1]);
+                                  USBFS_callbackLocalMidiEvent(
+                                      USBFS_midiOutBuffer[outPointer] & USBFS_CABLE_MASK,
+                                      &USBFS_midiOutBuffer[outPointer + USBFS_EVENT_BYTE1]);
                                   outPointer += USBFS_EVENT_LENGTH;
                               }
                           }
-              
-                      #if (USBFS_EP_MANAGEMENT_DMA_AUTO)
-                          /* Enable OUT endpoint for communiation. */
-                          USBFS_EnableOutEP(USBFS_midi_out_ep);
-                      #endif  /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
+                          #if(USBFS_EP_MM == USBFS__EP_DMAAUTO)
+                              /* Enable Out EP*/
+                              USBFS_EnableOutEP(USBFS_midi_out_ep);
+                          #endif  /* (USBFS_EP_MM == USBFS__EP_DMAAUTO) */
                       }
                   }
-              #endif /* (USBFS_MIDI_OUT_BUFF_SIZE > 0) */
               
+              #endif /* #if (USBFS_MIDI_OUT_BUFF_SIZE > 0) */
               
               #if (USBFS_MIDI_IN_BUFF_SIZE > 0)
+              
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 6   
+
+              
                   /*******************************************************************************
                   * Function Name: USBFS_MIDI_IN_EP_Service
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Services the USB MIDI IN endpoint. Non-blocking.
                   *  Checks that previous packet was processed by HOST, otherwise service the
                   *  input endpoint on the subsequent call. It is called from the
                   *  USBFS_MIDI_IN_Service() and from the
                   *  USBFS_PutUsbMidiIn() function.
                   *
-                  * \globalvars
+                  * Parameters:
+                  *  None
+                  *
+                  * Return:
+                  *  None
+                  *
+                  * Global variables:
                   *  USBFS_midi_in_ep: Used as an IN endpoint number.
                   *  USBFS_midiInBuffer: Function loads the data from this buffer to
                   *    the USB IN endpoint.
                   *   USBFS_midiInPointer: Cleared to zero when data are sent.
                   *
-                  * \reentrant
+                  * Reentrant:
                   *  No
                   *
                   *******************************************************************************/
@@ -365,47 +356,51 @@ line level    source
                       {
                           if(USBFS_GetEPState(USBFS_midi_in_ep) == USBFS_EVENT_PENDING)
                           {
-                          #if (USBFS_EP_MANAGEMENT_DMA_AUTO)
-                              USBFS_LoadInEP(USBFS_midi_in_ep, NULL, (uint16)USBFS_midiInPointer);
-                          #else
+                          #if(USBFS_EP_MM != USBFS__EP_DMAAUTO)
                               USBFS_LoadInEP(USBFS_midi_in_ep, USBFS_midiInBuffer,
-                                                                            (uint16) USBFS_midiInPointer);
-                          #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
+                                                                                              (uint16)USBFS_midiInPointe
+             -r);
+                          #else /* USBFS_EP_MM != USBFS__EP_DMAAUTO */
+                              /* rearm IN EP */
+                              USBFS_LoadInEP(USBFS_midi_in_ep, NULL, (uint16)USBFS_midiInPointer);
+                          #endif /* (USBFS_EP_MM != USBFS__EP_DMAAUTO) */
               
                           /* Clear the midiInPointer. For DMA mode, clear this pointer in the ARB ISR when data are move
              -d by DMA */
-                          #if (USBFS_EP_MANAGEMENT_MANUAL)
+                          #if(USBFS_EP_MM == USBFS__EP_MANUAL)
                               USBFS_midiInPointer = 0u;
-                          #endif /* (USBFS_EP_MANAGEMENT_MANUAL) */
+                          #endif /* (USBFS_EP_MM == USBFS__EP_MANUAL) */
                           }
                       }
                   }
               
               
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 7   
-
                   /*******************************************************************************
                   * Function Name: USBFS_MIDI_IN_Service
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  This function services the traffic from the MIDI input ports (RX UART)
-                  *  and prepare data in USB MIDI IN endpoint buffer.
+                  * Summary:
+                  *  Services the traffic from the MIDI input ports (RX UART) and prepare data
+                  *  in USB MIDI IN endpoint buffer.
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 7   
+
                   *  Calls the USBFS_MIDI_IN_EP_Service() function to sent the
                   *  data from buffer to PC. Non-blocking. Should be called from main foreground
                   *  task.
                   *  This function is not protected from the reentrant calls. When it is required
                   *  to use this function in UART RX ISR to guaranty low latency, care should be
                   *  taken to protect from reentrant calls.
-                  *  In PSoC 3, if this function is called from an ISR, you must declare this
-                  *  function as re-entrant so that different variable storage space is
-                  *  created by the compiler. This is automatically taken care for PSoC 4 and
-                  *  PSoC 5LP devices by the compiler.
                   *
-                  * \globalvars
+                  * Parameters:
+                  *  None
                   *
+                  * Return:
+                  *  None
+                  *
+                  * Global variables:
                   *   USBFS_midiInPointer: Cleared to zero when data are sent.
                   *
-                  * \reentrant
+                  * Reentrant:
                   *  No
                   *
                   *******************************************************************************/
@@ -414,119 +409,109 @@ line level    source
                       /* Service the MIDI UART inputs until either both receivers have no more
                       *  events or until the input endpoint buffer fills up.
                       */
-                  #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
+                      #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
                           uint8 m1 = 0u;
                           uint8 m2 = 0u;
-              
-                      if (0u == USBFS_midiInPointer)
-                      {
                           do
                           {
-                              if (USBFS_midiInPointer <= (USBFS_MIDI_IN_BUFF_SIZE - USBFS_EVENT_LENGTH))
+                              if (USBFS_midiInPointer <=
+                                  (USBFS_MIDI_IN_BUFF_SIZE - USBFS_EVENT_LENGTH))
                               {
                                   /* Check MIDI1 input port for a complete event */
                                   m1 = USBFS_MIDI1_GetEvent();
                                   if (m1 != 0u)
                                   {
                                       USBFS_PrepareInBuffer(m1, (uint8 *)&USBFS_MIDI1_Event.msgBuff[0],
-                                                                                     USBFS_MIDI1_Event.size, USBFS_MIDI_
-             -CABLE_00);
+                                                                  USBFS_MIDI1_Event.size, USBFS_MIDI_CABLE_00);
                                   }
                               }
               
                           #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
-                              if (USBFS_midiInPointer <= (USBFS_MIDI_IN_BUFF_SIZE - USBFS_EVENT_LENGTH))
+                              if (USBFS_midiInPointer <=
+                                  (USBFS_MIDI_IN_BUFF_SIZE - USBFS_EVENT_LENGTH))
                               {
                                   /* Check MIDI2 input port for a complete event */
                                   m2 = USBFS_MIDI2_GetEvent();
                                   if (m2 != 0u)
                                   {
                                       USBFS_PrepareInBuffer(m2, (uint8 *)&USBFS_MIDI2_Event.msgBuff[0],
-                                                                                     USBFS_MIDI2_Event.size, USBFS_MIDI_
-             -CABLE_01);
+                                                                  USBFS_MIDI2_Event.size, USBFS_MIDI_CABLE_01);
                                   }
                               }
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 8   
-
                           #endif /*  USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF */
-                          }
-                          while((USBFS_midiInPointer <= (USBFS_MIDI_IN_BUFF_SIZE - USBFS_EVENT_LENGTH)) &&
-                                ((m1 != 0u) || (m2 != 0u)));
-                      }
-                  #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
+              
+                          }while( (USBFS_midiInPointer <=
+                                  (USBFS_MIDI_IN_BUFF_SIZE - USBFS_EVENT_LENGTH)) &&
+                                  ((m1 != 0u) || (m2 != 0u)) );
+                      #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
               
                       /* Service the USB MIDI input endpoint */
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 8   
+
                       USBFS_MIDI_IN_EP_Service();
                   }
               
               
-                  /***************************************************************************
+                  /*******************************************************************************
                   * Function Name: USBFS_PutUsbMidiIn
-                  ************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  This function puts one MIDI message into the USB MIDI In endpoint buffer.
-                  *  This is a MIDI input message to the host. This function is used only if
-                  *  the device has internal MIDI input functionality.
-                  *  The USBFS_MIDI_IN_Service() function should also be called to
-                  *  send the message from local buffer to the IN endpoint.
+                  * Summary:
+                  *  Puts one MIDI messages into the USB MIDI In endpoint buffer. These are
+                  *  MIDI input messages to the host. This function is only used if the device
+                  *  has internal MIDI input functionality. USBMIDI_MIDI_IN_Service() function
+                  *  should additionally be called to send the message from local buffer to
+                  *  IN endpoint.
                   *
-                  *  \param ic: The length of the MIDI message or command is described on the
-                  *  following table.
-                  *  Value          | Description
-                  *  ---------------|---------------------------------------------------------
-                  *  0              | No message (should never happen)
-                  *  1 - 3          | Complete MIDI message in midiMsg
-                  *  3 IN EP LENGTH | Complete SySEx message(without EOSEX byte) in midiMsg. The length is limited by th
-             -e max BULK EP size(64)
-                  *  MIDI_SYSEX     | Start or continuation of SysEx message (put event bytes in midiMsg buffer)
-                  *  MIDI_EOSEX     | End of SysEx message (put event bytes in midiMsg buffer)
-                  *  MIDI_TUNEREQ   | Tune Request message (single byte system common msg)
-                  *  0xF8 - 0xFF    | Single byte real-time message
+                  * Parameters:
+                  *  ic:   0 = No message (should never happen)
+                  *        1 - 3 = Complete MIDI message in midiMsg
+                  *        3 - IN EP LENGTH = Complete SySEx message(without EOSEX byte) in
+                  *            midiMsg. The length is limited by the max BULK EP size(64)
+                  *        MIDI_SYSEX = Start or continuation of SysEx message
+                  *                     (put event bytes in midiMsg buffer)
+                  *        MIDI_EOSEX = End of SysEx message
+                  *                     (put event bytes in midiMsg buffer)
+                  *        MIDI_TUNEREQ = Tune Request message (single byte system common msg)
+                  *        0xf8 - 0xff = Single byte real-time message
+                  *  midiMsg: pointer to MIDI message.
+                  *  cable:   cable number.
                   *
-                  *  \param midiMsg: pointer to MIDI message.
-                  *  \param cable:   cable number.
+                  * Return:
+                  *  USBFS_TRUE if error.
+                  *  USBFS_FALSE if success.
                   *
-                  * \return
-                  *   Return Value          | Description
-                  *   ----------------------|-----------------------------------------
-                  *  USBFS_TRUE  | Host is not ready to receive this message
-                  *  USBFS_FALSE | Success transfer
+                  * Global variables:
+                  *  USBFS_midi_in_ep: MIDI IN endpoint number used for sending data.
+                  *  USBFS_midiInPointer: Checked this variable to see if there is
+                  *    enough free space in the IN endpoint buffer. If buffer is full, initiate
+                  *    sending to PC.
                   *
-                  * \globalvars
-                  *
-                  *  \ref USBFS_midi_in_ep: MIDI IN endpoint number used for
-                  *        sending data.
-                  *
-                  *  \ref USBFS_midiInPointer: Checked this variable to see if
-                  *        there is enough free space in the IN endpoint buffer. If buffer is
-                  *        full, initiate sending to PC.
-                  *
-                  * \reentrant
+                  * Reentrant:
                   *  No
                   *
-                  ***************************************************************************/
+                  *******************************************************************************/
                   uint8 USBFS_PutUsbMidiIn(uint8 ic, const uint8 midiMsg[], uint8 cable)
                                                                               
                   {
                       uint8 retError = USBFS_FALSE;
                       uint8 msgIndex;
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 9   
-
               
                       /* Protect PrepareInBuffer() function from concurrent calls */
-                  #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
-                      MIDI1_UART_DisableRxInt();
-                      #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
-                          MIDI2_UART_DisableRxInt();
-                      #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
-                  #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
+                      #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
+                          MIDI1_UART_DisableRxInt();
+                          #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
+                              MIDI2_UART_DisableRxInt();
+                          #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
+                      #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
               
                       if (USBFS_midiInPointer >
                                   (USBFS_EP[USBFS_midi_in_ep].bufferSize - USBFS_EVENT_LENGTH))
                       {
                           USBFS_MIDI_IN_EP_Service();
                       }
-              
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 9   
+
                       if (USBFS_midiInPointer <=
                                   (USBFS_EP[USBFS_midi_in_ep].bufferSize - USBFS_EVENT_LENGTH))
                       {
@@ -535,25 +520,20 @@ line level    source
                               USBFS_PrepareInBuffer(ic, midiMsg, ic, cable);
                           }
                           else
-                          {
-                              /* Only SysEx message is greater than 4 bytes */
+                          {   /* Only SysEx message is greater than 4 bytes */
                               msgIndex = 0u;
-              
                               do
                               {
                                   USBFS_PrepareInBuffer(USBFS_MIDI_SYSEX, &midiMsg[msgIndex],
                                                                    USBFS_EVENT_BYTE3, cable);
-              
                                   ic -= USBFS_EVENT_BYTE3;
                                   msgIndex += USBFS_EVENT_BYTE3;
-              
                                   if (USBFS_midiInPointer >
                                       (USBFS_EP[USBFS_midi_in_ep].bufferSize - USBFS_EVENT_LENGTH))
                                   {
                                       USBFS_MIDI_IN_EP_Service();
-              
-                                      if (USBFS_midiInPointer >
-                                         (USBFS_EP[USBFS_midi_in_ep].bufferSize - USBFS_EVENT_LENGTH))
+                                      if(USBFS_midiInPointer >
+                                        (USBFS_EP[USBFS_midi_in_ep].bufferSize - USBFS_EVENT_LENGTH))
                                       {
                                           /* Error condition. HOST is not ready to receive this packet. */
                                           retError = USBFS_TRUE;
@@ -561,9 +541,9 @@ line level    source
                                       }
                                   }
                               }
-                              while (ic > USBFS_EVENT_BYTE3);
+                              while(ic > USBFS_EVENT_BYTE3);
               
-                              if (retError == USBFS_FALSE)
+                              if(retError == USBFS_FALSE)
                               {
                                   USBFS_PrepareInBuffer(USBFS_MIDI_EOSEX, midiMsg, ic, cable);
                               }
@@ -574,15 +554,13 @@ line level    source
                           /* Error condition. HOST is not ready to receive this packet. */
                           retError = USBFS_TRUE;
                       }
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 10  
-
               
-                  #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
-                      MIDI1_UART_EnableRxInt();
-                      #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
-                          MIDI2_UART_EnableRxInt();
-                      #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
-                  #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
+                      #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
+                          MIDI1_UART_EnableRxInt();
+                          #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
+                              MIDI2_UART_EnableRxInt();
+                          #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
+                      #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
               
                       return (retError);
                   }
@@ -590,12 +568,16 @@ line level    source
               
                   /*******************************************************************************
                   * Function Name: USBFS_PrepareInBuffer
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Builds a USB MIDI event in the input endpoint buffer at the current pointer.
                   *  Puts one MIDI message into the USB MIDI In endpoint buffer.
                   *
-                  *  \param ic:   0 = No message (should never happen)
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 10  
+
+                  * Parameters:
+                  *  ic:   0 = No message (should never happen)
                   *        1 - 3 = Complete MIDI message at pMdat[0]
                   *        MIDI_SYSEX = Start or continuation of SysEx message
                   *                     (put eventLen bytes in buffer)
@@ -605,18 +587,21 @@ line level    source
                   *        MIDI_TUNEREQ = Tune Request message (single byte system common msg)
                   *        0xf8 - 0xff = Single byte real-time message
                   *
-                  *  \param srcBuff: pointer to MIDI data
-                  *  \param eventLen: number of bytes in MIDI event
-                  *  \param cable: MIDI source port number
+                  *  srcBuff: pointer to MIDI data
+                  *  eventLen: number of bytes in MIDI event
+                  *  cable: MIDI source port number
                   *
-                  * \globalvars
+                  * Return:
+                  *  None
+                  *
+                  * Global variables:
                   *  USBFS_midiInBuffer: This buffer is used for saving and combine the
                   *    received from UART(s) and(or) generated internally by
                   *    USBFS_PutUsbMidiIn() function messages.
                   *  USBFS_midiInPointer: Used as an index for midiInBuffer to
                   *     write data.
                   *
-                  * \reentrant
+                  * Reentrant:
                   *  No
                   *
                   *******************************************************************************/
@@ -638,8 +623,6 @@ line level    source
                           USBFS_midiInBuffer[USBFS_midiInPointer] = 0u;
                           USBFS_midiInPointer++;
                           USBFS_midiInBuffer[USBFS_midiInPointer] = 0u;
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 11  
-
                           USBFS_midiInPointer++;
                       }
                       else if((ic < USBFS_EVENT_LENGTH) || (ic == USBFS_MIDI_SYSEX))
@@ -655,6 +638,8 @@ line level    source
                               USBFS_midiInPointer++;
                           }
                           else if (srcBuffZero == USBFS_MIDI_TUNEREQ)
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 11  
+
                           {
                               USBFS_midiInBuffer[USBFS_midiInPointer] = USBFS_1BYTE_COMMON | cable;
                               USBFS_midiInPointer++;
@@ -702,8 +687,6 @@ line level    source
                                   USBFS_midiInBuffer[USBFS_midiInPointer] = srcBuffZero;
                                   USBFS_midiInPointer++;
                                   USBFS_midiInBuffer[USBFS_midiInPointer] = USBFS_MIDI_EOSEX;
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 12  
-
                                   USBFS_midiInPointer++;
                                   USBFS_midiInBuffer[USBFS_midiInPointer] = 0u;
                                   USBFS_midiInPointer++;
@@ -719,6 +702,8 @@ line level    source
                                   USBFS_midiInBuffer[USBFS_midiInPointer] = USBFS_MIDI_EOSEX;
                                   USBFS_midiInPointer++;
                                   break;
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 12  
+
                               default:
                                   break;
                           }
@@ -728,82 +713,89 @@ line level    source
                       }
                   }
               
-              #endif /* (USBFS_MIDI_IN_BUFF_SIZE > 0) */
+              #endif /* #if (USBFS_MIDI_IN_BUFF_SIZE > 0) */
               
               
               /* The implementation for external serial input and output connections
               *  to route USB MIDI data to and from those connections.
               */
               #if (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF)
+              
+              
                   /*******************************************************************************
-                  * Function Name: USBFS_MIDI_InitInterface
-                  ****************************************************************************//**
+                  * Function Name: USBFS_MIDI_Init
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Initializes MIDI variables and starts the UART(s) hardware block(s).
                   *
-                  * \sideeffect
+                  * Parameters:
+                  *  None
+                  *
+                  * Return:
+                  *  None
+                  *
+                  * Side Effects:
                   *  Change the priority of the UART(s) TX interrupts to be higher than the
                   *  default EP ISR priority.
                   *
-                  * \globalvars
+                  * Global variables:
                   *   USBFS_MIDI_Event: initialized to zero.
                   *   USBFS_MIDI_TxRunStat: initialized to zero.
                   *
                   *******************************************************************************/
-                  void USBFS_MIDI_InitInterface(void) 
+                  void USBFS_MIDI_Init(void) 
                   {
-                      USBFS_MIDI1_Event.length  = 0u;
-                      USBFS_MIDI1_Event.count   = 0u;
-                      USBFS_MIDI1_Event.size    = 0u;
+                      USBFS_MIDI1_Event.length = 0u;
+                      USBFS_MIDI1_Event.count = 0u;
+                      USBFS_MIDI1_Event.size = 0u;
                       USBFS_MIDI1_Event.runstat = 0u;
-                      USBFS_MIDI1_TxRunStat     = 0u;
-                      USBFS_MIDI1_InqFlags      = 0u;
-              
+                      USBFS_MIDI1_TxRunStat = 0u;
+                      USBFS_MIDI1_InqFlags = 0u;
                       /* Start UART block */
                       MIDI1_UART_Start();
-              
                       /* Change the priority of the UART TX and RX interrupt */
                       CyIntSetPriority(MIDI1_UART_TX_VECT_NUM, USBFS_CUSTOM_UART_TX_PRIOR_NUM);
                       CyIntSetPriority(MIDI1_UART_RX_VECT_NUM, USBFS_CUSTOM_UART_RX_PRIOR_NUM);
               
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 13  
+                      #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
+                          USBFS_MIDI2_Event.length = 0u;
+                          USBFS_MIDI2_Event.count = 0u;
+                          USBFS_MIDI2_Event.size = 0u;
+                          USBFS_MIDI2_Event.runstat = 0u;
+                          USBFS_MIDI2_TxRunStat = 0u;
+                          USBFS_MIDI2_InqFlags = 0u;
+                          /* Start second UART block */
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 13  
 
-                  #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
-                      USBFS_MIDI2_Event.length  = 0u;
-                      USBFS_MIDI2_Event.count   = 0u;
-                      USBFS_MIDI2_Event.size    = 0u;
-                      USBFS_MIDI2_Event.runstat = 0u;
-                      USBFS_MIDI2_TxRunStat     = 0u;
-                      USBFS_MIDI2_InqFlags      = 0u;
-              
-                      /* Start second UART block */
-                      MIDI2_UART_Start();
-              
-                      /* Change the priority of the UART TX interrupt */
-                      CyIntSetPriority(MIDI2_UART_TX_VECT_NUM, USBFS_CUSTOM_UART_TX_PRIOR_NUM);
-                      CyIntSetPriority(MIDI2_UART_RX_VECT_NUM, USBFS_CUSTOM_UART_RX_PRIOR_NUM);
-                  #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
+                          MIDI2_UART_Start();
+                          /* Change the priority of the UART TX interrupt */
+                          CyIntSetPriority(MIDI2_UART_TX_VECT_NUM, USBFS_CUSTOM_UART_TX_PRIOR_NUM);
+                          CyIntSetPriority(MIDI2_UART_RX_VECT_NUM, USBFS_CUSTOM_UART_RX_PRIOR_NUM);
+                      #endif /*  USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF*/
               
                       /* `#START MIDI_INIT_CUSTOM` Init other extended UARTs here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_MIDI_INIT_CALLBACK
-                      USBFS_MIDI_Init_Callback();
-                  #endif /* (USBFS_MIDI_INIT_CALLBACK) */
+                      #ifdef USBFS_MIDI_INIT_CALLBACK
+                          USBFS_MIDI_Init_Callback();
+                      #endif /* USBFS_MIDI_INIT_CALLBACK */
                   }
               
               
                   /*******************************************************************************
                   * Function Name: USBFS_ProcessMidiIn
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Processes one byte of incoming MIDI data.
                   *
+                  * Parameters:
                   *   mData = current MIDI input data byte
                   *   *rxStat = pointer to a MIDI_RX_STATUS structure
                   *
-                  * \return
+                  * Return:
                   *   0, if no complete message
                   *   1 - 4, if message complete
                   *   MIDI_SYSEX, if start or continuation of system exclusive
@@ -830,8 +822,6 @@ line level    source
                               }
                               else                              /* System Common Messages */
                               {
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 14  
-
                                   switch (mData)
                                   {
                                       case USBFS_MIDI_SYSEX:
@@ -840,6 +830,8 @@ line level    source
                                           rxStat->count = 1u;
                                           rxStat->length = 3u;
                                           break;
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 14  
+
                                       case USBFS_MIDI_EOSEX:
                                           rxStat->runstat = 0u;
                                           rxStat->size = rxStat->count;
@@ -894,8 +886,6 @@ line level    source
                                   case USBFS_MIDI_CHANNEL_PRESSURE:
                                       rxStat->length = 2u;
                                       break;
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 15  
-
                                   default:
                                       rxStat->runstat = 0u;
                                       rxStat->count = 0u;
@@ -904,6 +894,8 @@ line level    source
                           }
                       }
               
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 15  
+
                       /* Otherwise, it's a data byte */
                       else
                       {
@@ -945,7 +937,7 @@ line level    source
                                       break;
                                   case USBFS_MIDI_PROGRAM_CHANGE:
                                   case USBFS_MIDI_CHANNEL_PRESSURE:
-                                      rxStat->size = rxStat->count;
+                                      rxStat->size =rxStat->count;
                                       rxStat->count = 0u;
                                       midiReturn = rxStat->size;
                                       break;
@@ -958,27 +950,31 @@ line level    source
                           {
                           }
                       }
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 16  
-
                       return (midiReturn);
                   }
               
               
                   /*******************************************************************************
                   * Function Name: USBFS_MIDI1_GetEvent
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 16  
+
+                  * Summary:
                   *  Checks for incoming MIDI data, calls the MIDI event builder if so.
                   *  Returns either empty or with a complete event.
                   *
-                  * \return
+                  * Parameters:
+                  *  None
+                  *
+                  * Return:
                   *   0, if no complete message
                   *   1 - 4, if message complete
                   *   MIDI_SYSEX, if start or continuation of system exclusive
                   *   MIDI_EOSEX, if end of system exclusive
                   *   0xf8 - 0xff, if single byte real time message
                   *
-                  * \globalvars
+                  * Global variables:
                   *  USBFS_MIDI1_Event: RX status structure used to parse received
                   *    data.
                   *
@@ -1000,13 +996,12 @@ line level    source
                       /* Read buffer loop condition to the local variable */
                       rxBufferLoopDetect = MIDI1_UART_rxBufferLoopDetect;
               
-                      if ((MIDI1_UART_rxBufferRead != MIDI1_UART_rxBufferWrite) || (rxBufferLoopDetect != 0u))
+                      if ( (MIDI1_UART_rxBufferRead != MIDI1_UART_rxBufferWrite) || (rxBufferLoopDetect != 0u) )
                       {
                           /* Protect variables that could change on interrupt by disabling Rx interrupt.*/
                           #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
                               CyIntDisable(MIDI1_UART_RX_VECT_NUM);
                           #endif /* ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
-              
                           rxBufferRead = MIDI1_UART_rxBufferRead;
                           #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
                               rxBufferWrite = MIDI1_UART_rxBufferWrite;
@@ -1022,36 +1017,34 @@ line level    source
               
                           #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
                               while ( ((rxBufferRead != rxBufferWrite) || (rxBufferLoopDetect != 0u)) && (msgRtn == 0u) 
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 17  
-
              -)
                           #else
                               while ( ((rxBufferRead != MIDI1_UART_rxBufferWrite) || (rxBufferLoopDetect != 0u)) && (msg
              -Rtn == 0u) )
                           #endif /*  ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 17  
+
                               {
                                   rxData = MIDI1_UART_rxBuffer[rxBufferRead];
                                   /* Increment pointer with a wrap */
                                   rxBufferRead++;
-                                  if (rxBufferRead >= MIDI1_UART_RXBUFFERSIZE)
+                                  if(rxBufferRead >= MIDI1_UART_RXBUFFERSIZE)
                                   {
                                       rxBufferRead = 0u;
                                   }
-              
                                   /* If loop condition was set - update real read buffer pointer
                                   *  to avoid overflow status
                                   */
-                                  if (rxBufferLoopDetect != 0u )
+                                  if(rxBufferLoopDetect != 0u )
                                   {
                                       MIDI1_UART_rxBufferLoopDetect = 0u;
-                                  #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                                      CyIntDisable(MIDI1_UART_RX_VECT_NUM);
-                                  #endif /*  MIDI1_UART_RXBUFFERSIZE >= 256 */
-              
+                                      #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                                          CyIntDisable(MIDI1_UART_RX_VECT_NUM);
+                                      #endif /*  MIDI1_UART_RXBUFFERSIZE >= 256 */
                                       MIDI1_UART_rxBufferRead = rxBufferRead;
-                                  #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                                      CyIntEnable(MIDI1_UART_RX_VECT_NUM);
-                                  #endif /*  MIDI1_UART_RXBUFFERSIZE >= 256 */
+                                      #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                                          CyIntEnable(MIDI1_UART_RX_VECT_NUM);
+                                      #endif /*  MIDI1_UART_RXBUFFERSIZE >= 256 */
                                   }
               
                                   msgRtn = USBFS_ProcessMidiIn(rxData,
@@ -1064,14 +1057,13 @@ line level    source
                           /* Finally, update the real output pointer, then return with
                           *  an indication as to whether there's a complete message in the buffer.
                           */
-                      #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                          CyIntDisable(MIDI1_UART_RX_VECT_NUM);
-                      #endif /* ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
-              
-                      MIDI1_UART_rxBufferRead = rxBufferRead;
-                      #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                          CyIntEnable(MIDI1_UART_RX_VECT_NUM);
-                      #endif /* ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
+                          #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                              CyIntDisable(MIDI1_UART_RX_VECT_NUM);
+                          #endif /* ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
+                          MIDI1_UART_rxBufferRead = rxBufferRead;
+                          #if ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                              CyIntEnable(MIDI1_UART_RX_VECT_NUM);
+                          #endif /* ((MIDI1_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
                       }
               
                       return (msgRtn);
@@ -1080,17 +1072,22 @@ line level    source
               
                   /*******************************************************************************
                   * Function Name: USBFS_MIDI1_ProcessUsbOut
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Process a USB MIDI output event.
                   *  Puts data into the MIDI TX output buffer.
                   *
-                  *  \param *epBuf: pointer on MIDI event.
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 18  
-
+                  * Parameters:
+                  *  *epBuf: pointer on MIDI event.
                   *
-                  * \globalvars
+                  * Return:
+                  *   None
+                  *
+                  * Global variables:
                   *  USBFS_MIDI1_TxRunStat: This variable used to save the MIDI
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 18  
+
                   *    status byte and skip to send the repeated status byte in subsequent event.
                   *  USBFS_MIDI1_InqFlags: The following flags are set when SysEx
                   *    message comes.
@@ -1111,23 +1108,21 @@ line level    source
               
                       /* `#END` */
               
-                  #ifdef USBFS_MIDI1_PROCESS_USB_OUT_ENTRY_CALLBACK
-                      USBFS_MIDI1_ProcessUsbOut_EntryCallback();
-                  #endif /* (USBFS_MIDI1_PROCESS_USB_OUT_ENTRY_CALLBACK) */
+                      #ifdef USBFS_MIDI1_PROCESS_USB_OUT_ENTRY_CALLBACK
+                          USBFS_MIDI1_ProcessUsbOut_EntryCallback();
+                      #endif /* USBFS_MIDI1_PROCESS_USB_OUT_ENTRY_CALLBACK */
               
                       cmd = epBuf[USBFS_EVENT_BYTE0] & USBFS_CIN_MASK;
-              
-                      if ((cmd != USBFS_RESERVED0) && (cmd != USBFS_RESERVED1))
+                      if((cmd != USBFS_RESERVED0) && (cmd != USBFS_RESERVED1))
                       {
                           len = USBFS_MIDI_SIZE[cmd];
                           i = USBFS_EVENT_BYTE1;
                           /* Universal System Exclusive message parsing */
-                          if (cmd == USBFS_SYSEX)
+                          if(cmd == USBFS_SYSEX)
                           {
-                              if ((epBuf[USBFS_EVENT_BYTE1] == USBFS_MIDI_SYSEX) &&
-                                  (epBuf[USBFS_EVENT_BYTE2] == USBFS_MIDI_SYSEX_NON_REAL_TIME))
-                              {
-                                  /* Non-Real Time SySEx starts */
+                              if((epBuf[USBFS_EVENT_BYTE1] == USBFS_MIDI_SYSEX) &&
+                                 (epBuf[USBFS_EVENT_BYTE2] == USBFS_MIDI_SYSEX_NON_REAL_TIME))
+                              {   /* Non-Real Time SySEx starts */
                                   USBFS_MIDI1_InqFlags |= USBFS_INQ_SYSEX_FLAG;
                               }
                               else
@@ -1135,63 +1130,56 @@ line level    source
                                   USBFS_MIDI1_InqFlags &= (uint8)~USBFS_INQ_SYSEX_FLAG;
                               }
                           }
-                          else if (cmd == USBFS_SYSEX_ENDS_WITH1)
+                          else if(cmd == USBFS_SYSEX_ENDS_WITH1)
                           {
                               USBFS_MIDI1_InqFlags &= (uint8)~USBFS_INQ_SYSEX_FLAG;
                           }
-                          else if (cmd == USBFS_SYSEX_ENDS_WITH2)
+                          else if(cmd == USBFS_SYSEX_ENDS_WITH2)
                           {
                               USBFS_MIDI1_InqFlags &= (uint8)~USBFS_INQ_SYSEX_FLAG;
                           }
-                          else if (cmd == USBFS_SYSEX_ENDS_WITH3)
+                          else if(cmd == USBFS_SYSEX_ENDS_WITH3)
                           {
                               /* Identify Request support */
-                              if ((USBFS_MIDI1_InqFlags & USBFS_INQ_SYSEX_FLAG) != 0u)
+                              if((USBFS_MIDI1_InqFlags & USBFS_INQ_SYSEX_FLAG) != 0u)
                               {
                                   USBFS_MIDI1_InqFlags &= (uint8)~USBFS_INQ_SYSEX_FLAG;
-                                  if ((epBuf[USBFS_EVENT_BYTE1] == USBFS_MIDI_SYSEX_GEN_INFORMATION) &&
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 19  
-
-                                      (epBuf[USBFS_EVENT_BYTE2] == USBFS_MIDI_SYSEX_IDENTITY_REQ))
-                                  {
-                                      /* Set the flag about received the Identity Request.
+                                  if((epBuf[USBFS_EVENT_BYTE1] == USBFS_MIDI_SYSEX_GEN_INFORMATION) &&
+                                  (epBuf[USBFS_EVENT_BYTE2] == USBFS_MIDI_SYSEX_IDENTITY_REQ))
+                                  {   /* Set the flag about received the Identity Request.
                                       *  The Identity Reply message may be send by user code.
                                       */
                                       USBFS_MIDI1_InqFlags |= USBFS_INQ_IDENTITY_REQ_FLAG;
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 19  
+
                                   }
                               }
                           }
                           else /* Do nothing for other command */
                           {
                           }
-              
                           /* Running Status for Voice and Mode messages only. */
-                          if ((cmd >= USBFS_NOTE_OFF) && (cmd <= USBFS_PITCH_BEND_CHANGE))
+                          if((cmd >= USBFS_NOTE_OFF) && ( cmd <= USBFS_PITCH_BEND_CHANGE))
                           {
-                              if (USBFS_MIDI1_TxRunStat == epBuf[USBFS_EVENT_BYTE1])
-                              {
-                                  /* Skip the repeated Status byte */
+                              if(USBFS_MIDI1_TxRunStat == epBuf[USBFS_EVENT_BYTE1])
+                              {   /* Skip the repeated Status byte */
                                   i++;
                               }
                               else
-                              {
-                                  /* Save Status byte for next event */
+                              {   /* Save Status byte for next event */
                                   USBFS_MIDI1_TxRunStat = epBuf[USBFS_EVENT_BYTE1];
                               }
                           }
                           else
-                          {
-                              /* Clear Running Status */
+                          {   /* Clear Running Status */
                               USBFS_MIDI1_TxRunStat = 0u;
                           }
-              
                           /* Puts data into the MIDI TX output buffer.*/
                           do
                           {
                               MIDI1_UART_PutChar(epBuf[i]);
                               i++;
-                          }
-                          while (i <= len);
+                          } while (i <= len);
                       }
               
                       /* User code is required at the end of the procedure */
@@ -1199,30 +1187,36 @@ line level    source
               
                       /* `#END` */
               
-                  #ifdef USBFS_MIDI1_PROCESS_USB_OUT_EXIT_CALLBACK
-                      USBFS_MIDI1_ProcessUsbOut_ExitCallback();
-                  #endif /* (USBFS_MIDI1_PROCESS_USB_OUT_EXIT_CALLBACK) */
+                      #ifdef USBFS_MIDI1_PROCESS_USB_OUT_EXIT_CALLBACK
+                          USBFS_MIDI1_ProcessUsbOut_ExitCallback();
+                      #endif /* USBFS_MIDI1_PROCESS_USB_OUT_EXIT_CALLBACK */
                   }
               
               
               #if (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF)
+              
+              
                   /*******************************************************************************
                   * Function Name: USBFS_MIDI2_GetEvent
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Checks for incoming MIDI data, calls the MIDI event builder if so.
                   *  Returns either empty or with a complete event.
                   *
-                  * \return
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 20  
-
+                  * Parameters:
+                  *  None
+                  *
+                  * Return:
                   *   0, if no complete message
                   *   1 - 4, if message complete
                   *   MIDI_SYSEX, if start or continuation of system exclusive
                   *   MIDI_EOSEX, if end of system exclusive
                   *   0xf8 - 0xff, if single byte real time message
                   *
-                  * \globalvars
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 20  
+
+                  * Global variables:
                   *  USBFS_MIDI2_Event: RX status structure used to parse received
                   *    data.
                   *
@@ -1231,7 +1225,6 @@ line level    source
                   {
                       uint8 msgRtn = 0u;
                       uint8 rxData;
-              
                       #if (MIDI2_UART_RXBUFFERSIZE >= 256u)
                           uint16 rxBufferRead;
                           #if (CY_PSOC3) /* This local variable required only for PSOC3 and large buffer */
@@ -1278,23 +1271,21 @@ line level    source
                                   {
                                       rxBufferRead = 0u;
                                   }
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 21  
-
-              
                                   /* If loop condition was set - update real read buffer pointer
                                   *  to avoid overflow status
                                   */
-                                  if (rxBufferLoopDetect != 0u)
+                                  if(rxBufferLoopDetect != 0u )
                                   {
                                       MIDI2_UART_rxBufferLoopDetect = 0u;
-                                  #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                                      CyIntDisable(MIDI2_UART_RX_VECT_NUM);
-                                  #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
-              
+                                      #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 21  
+
+                                          CyIntDisable(MIDI2_UART_RX_VECT_NUM);
+                                      #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
                                       MIDI2_UART_rxBufferRead = rxBufferRead;
-                                  #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                                      CyIntEnable(MIDI2_UART_RX_VECT_NUM);
-                                  #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
+                                      #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                                          CyIntEnable(MIDI2_UART_RX_VECT_NUM);
+                                      #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
                                   }
               
                                   msgRtn = USBFS_ProcessMidiIn(rxData,
@@ -1307,14 +1298,13 @@ line level    source
                           /* Finally, update the real output pointer, then return with
                           *  an indication as to whether there's a complete message in the buffer.
                           */
-                      #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                          CyIntDisable(MIDI2_UART_RX_VECT_NUM);
-                      #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
-              
+                          #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                              CyIntDisable(MIDI2_UART_RX_VECT_NUM);
+                          #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
                           MIDI2_UART_rxBufferRead = rxBufferRead;
-                      #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
-                          CyIntEnable(MIDI2_UART_RX_VECT_NUM);
-                      #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
+                          #if ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3))
+                              CyIntEnable(MIDI2_UART_RX_VECT_NUM);
+                          #endif /* ((MIDI2_UART_RXBUFFERSIZE >= 256u) && (CY_PSOC3)) */
                       }
               
                       return (msgRtn);
@@ -1323,14 +1313,19 @@ line level    source
               
                   /*******************************************************************************
                   * Function Name: USBFS_MIDI2_ProcessUsbOut
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Process a USB MIDI output event.
                   *  Puts data into the MIDI TX output buffer.
                   *
-                  *  \param *epBuf: pointer on MIDI event.
+                  * Parameters:
+                  *  *epBuf: pointer on MIDI event.
                   *
-                  * \globalvars
+                  * Return:
+                  *   None
+                  *
+                  * Global variables:
                   *  USBFS_MIDI2_TxRunStat: This variable used to save the MIDI
                   *    status byte and skip to send the repeated status byte in subsequent event.
                   *  USBFS_MIDI2_InqFlags: The following flags are set when SysEx
@@ -1342,36 +1337,33 @@ line level    source
                   *******************************************************************************/
                   void USBFS_MIDI2_ProcessUsbOut(const uint8 epBuf[])
                                                                           
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 22  
-
                   {
                       uint8 cmd;
                       uint8 len;
                       uint8 i;
               
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 22  
+
                       /* User code is required at the beginning of the procedure */
                       /* `#START MIDI2_PROCESS_OUT_START` */
               
                       /* `#END` */
               
-                  #ifdef USBFS_MIDI2_PROCESS_USB_OUT_ENTRY_CALLBACK
-                      USBFS_MIDI2_ProcessUsbOut_EntryCallback();
-                  #endif /* (USBFS_MIDI2_PROCESS_USB_OUT_ENTRY_CALLBACK) */
+                      #ifdef USBFS_MIDI2_PROCESS_USB_OUT_ENTRY_CALLBACK
+                          USBFS_MIDI2_ProcessUsbOut_EntryCallback();
+                      #endif /* USBFS_MIDI2_PROCESS_USB_OUT_ENTRY_CALLBACK */
               
                       cmd = epBuf[USBFS_EVENT_BYTE0] & USBFS_CIN_MASK;
-              
-                      if ((cmd != USBFS_RESERVED0) && (cmd != USBFS_RESERVED1))
+                      if((cmd != USBFS_RESERVED0) && (cmd != USBFS_RESERVED1))
                       {
                           len = USBFS_MIDI_SIZE[cmd];
                           i = USBFS_EVENT_BYTE1;
-              
                           /* Universal System Exclusive message parsing */
                           if(cmd == USBFS_SYSEX)
                           {
                               if((epBuf[USBFS_EVENT_BYTE1] == USBFS_MIDI_SYSEX) &&
                                  (epBuf[USBFS_EVENT_BYTE2] == USBFS_MIDI_SYSEX_NON_REAL_TIME))
-                              {
-                                  /* SySEx starts */
+                              {   /* SySEx starts */
                                   USBFS_MIDI2_InqFlags |= USBFS_INQ_SYSEX_FLAG;
                               }
                               else
@@ -1390,10 +1382,9 @@ line level    source
                           else if(cmd == USBFS_SYSEX_ENDS_WITH3)
                           {
                               /* Identify Request support */
-                              if ((USBFS_MIDI2_InqFlags & USBFS_INQ_SYSEX_FLAG) != 0u)
+                              if((USBFS_MIDI2_InqFlags & USBFS_INQ_SYSEX_FLAG) != 0u)
                               {
                                   USBFS_MIDI2_InqFlags &= (uint8)~USBFS_INQ_SYSEX_FLAG;
-              
                                   if((epBuf[USBFS_EVENT_BYTE1] == USBFS_MIDI_SYSEX_GEN_INFORMATION) &&
                                      (epBuf[USBFS_EVENT_BYTE2] == USBFS_MIDI_SYSEX_IDENTITY_REQ))
                                   {   /* Set the flag about received the Identity Request.
@@ -1406,18 +1397,17 @@ line level    source
                           else /* Do nothing for other command */
                           {
                           }
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 23  
-
-              
                           /* Running Status for Voice and Mode messages only. */
-                          if ((cmd >= USBFS_NOTE_OFF) && ( cmd <= USBFS_PITCH_BEND_CHANGE))
+                          if((cmd >= USBFS_NOTE_OFF) && ( cmd <= USBFS_PITCH_BEND_CHANGE))
                           {
-                              if (USBFS_MIDI2_TxRunStat == epBuf[USBFS_EVENT_BYTE1])
+                              if(USBFS_MIDI2_TxRunStat == epBuf[USBFS_EVENT_BYTE1])
                               {   /* Skip the repeated Status byte */
                                   i++;
                               }
                               else
                               {   /* Save Status byte for next event */
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 23  
+
                                   USBFS_MIDI2_TxRunStat = epBuf[USBFS_EVENT_BYTE1];
                               }
                           }
@@ -1425,14 +1415,12 @@ line level    source
                           {   /* Clear Running Status */
                               USBFS_MIDI2_TxRunStat = 0u;
                           }
-              
                           /* Puts data into the MIDI TX output buffer.*/
                           do
                           {
                               MIDI2_UART_PutChar(epBuf[i]);
                               i++;
-                          }
-                          while (i <= len);
+                          } while (i <= len);
                       }
               
                       /* User code is required at the end of the procedure */
@@ -1440,9 +1428,9 @@ line level    source
               
                       /* `#END` */
               
-                  #ifdef USBFS_MIDI2_PROCESS_USB_OUT_EXIT_CALLBACK
-                      USBFS_MIDI2_ProcessUsbOut_ExitCallback();
-                  #endif /* (USBFS_MIDI2_PROCESS_USB_OUT_EXIT_CALLBACK) */
+                      #ifdef USBFS_MIDI2_PROCESS_USB_OUT_EXIT_CALLBACK
+                          USBFS_MIDI2_ProcessUsbOut_ExitCallback();
+                      #endif /* USBFS_MIDI2_PROCESS_USB_OUT_EXIT_CALLBACK */
                   }
               #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_TWO_EXT_INTRF) */
               #endif /* (USBFS_MIDI_EXT_MODE >= USBFS_ONE_EXT_INTRF) */
@@ -1454,11 +1442,11 @@ line level    source
               
               /* `#END` */
               
-              #endif  /* defined(USBFS_ENABLE_MIDI_STREAMING) */
-1389          
-1390          
-1391          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_MIDI                                                            07/29/2016 09:50:45 PAGE 24  
+              #endif  /*  defined(USBFS_ENABLE_MIDI_STREAMING) */
+1380          
+1381          
+1382          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_MIDI                                                            10/03/2016 19:53:28 PAGE 24  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 

@@ -1,23 +1,23 @@
-C51 COMPILER V9.51   CYUTILS                                                               07/29/2016 09:50:47 PAGE 1   
+C51 COMPILER V9.51   CYUTILS                                                               10/03/2016 19:53:30 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE CYUTILS
 OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\cyutils.obj
 COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
                     -.\Generated_Source\PSoC3\cyutils.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DEBUG)
-                    - WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/cyutils.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\cyutils.obj)
+                    - WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/cyutils.lst) CD OT(2,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\cyutils.obj)
 
 line level    source
 
    1          /*******************************************************************************
    2          * FILENAME: cyutils.c
-   3          * Version 5.30
+   3          * Version 4.20
    4          *
    5          *  Description:
    6          *   CyUtils provides a function to handle 24-bit value writes.
    7          *
    8          ********************************************************************************
-   9          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+   9          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
   10          * You may use this file only in accordance with the license, terms, conditions,
   11          * disclaimers, and limitations in the end user license agreement accompanying
   12          * the software package with which this file was provided.
@@ -62,7 +62,7 @@ line level    source
                       /***************************************************************************
                       * Function Name: CyGetReg24
                       ****************************************************************************
-C51 COMPILER V9.51   CYUTILS                                                               07/29/2016 09:50:47 PAGE 2   
+C51 COMPILER V9.51   CYUTILS                                                               10/03/2016 19:53:30 PAGE 2   
 
                       *
                       * Summary:
@@ -98,7 +98,7 @@ line level    source
   85          
   86          
   87          /* [] END OF FILE */
-C51 COMPILER V9.51   CYUTILS                                                               07/29/2016 09:50:47 PAGE 3   
+C51 COMPILER V9.51   CYUTILS                                                               10/03/2016 19:53:30 PAGE 3   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 

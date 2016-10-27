@@ -1,1523 +1,1830 @@
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 1   
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_HID
 OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_hid.obj
 COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
                     -.\Generated_Source\PSoC3\USBFS_hid.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DEBU
-                    -G) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_hid.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_hid.obj)
+                    -G) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_hid.lst) CD OT(2,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_hid.obj)
 
 line level    source
 
-   1          /***************************************************************************//**
-   2          * \file USBFS_hid.c
-   3          * \version 3.0
+   1          /*******************************************************************************
+   2          * File Name: USBFS_hid.c
+   3          * Version 2.80
    4          *
-   5          * \brief
-   6          *  This file contains the USB HID Class request handler. 
+   5          * Description:
+   6          *  USB HID Class request handler.
    7          *
    8          * Related Document:
    9          *  Device Class Definition for Human Interface Devices (HID) Version 1.11
   10          *
-  11          ********************************************************************************
-  12          * \copyright
-  13          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
-  14          * You may use this file only in accordance with the license, terms, conditions,
-  15          * disclaimers, and limitations in the end user license agreement accompanying
-  16          * the software package with which this file was provided.
-  17          *******************************************************************************/
-  18          
-  19          #include "USBFS_hid.h"
-  20          #include "USBFS_pvt.h"
+  11          * Note:
+  12          *
+  13          ********************************************************************************
+  14          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  15          * You may use this file only in accordance with the license, terms, conditions,
+  16          * disclaimers, and limitations in the end user license agreement accompanying
+  17          * the software package with which this file was provided.
+  18          *******************************************************************************/
+  19          
+  20          #include "USBFS.h"
   21          
-  22          
+  22          #if defined(USBFS_ENABLE_HID_CLASS)
   23          
-  24          #if defined(USBFS_ENABLE_HID_CLASS)
-  25          
-  26          /***************************************
-  27          *    HID Variables
-  28          ***************************************/
-  29          /** This variable is initialized in the USBFS_InitComponent() API to the 
-  30           * PROTOCOL_REPORT value. It is controlled by the host using the 
-  31           * HID_SET_PROTOCOL request. The value is returned to the user code by the 
-  32           * USBFS_GetProtocol() API.*/
-  33          volatile uint8 USBFS_hidProtocol[USBFS_MAX_INTERFACES_NUMBER];
-  34          
-  35          /** This variable controls the HID report rate. It is controlled by the host 
-  36           * using the HID_SET_IDLE request and used by the USBFS_UpdateHIDTimer() API to 
-  37           * reload timer.*/
-  38          volatile uint8 USBFS_hidIdleRate[USBFS_MAX_INTERFACES_NUMBER];
-  39          
-  40          /** This variable contains the timer counter, which is decremented and reloaded 
-  41           * by the USBFS_UpdateHIDTimer() API.*/
-  42          volatile uint8 USBFS_hidIdleTimer[USBFS_MAX_INTERFACES_NUMBER]; /* HID device idle rate value */
+  24          #include "USBFS_pvt.h"
+  25          #include "USBFS_hid.h"
+  26          
+  27          
+  28          
+  29          /***************************************
+  30          *    HID Variables
+  31          ***************************************/
+  32          
+  33          volatile uint8 USBFS_hidProtocol[USBFS_MAX_INTERFACES_NUMBER];  /* HID device protocol status */
+  34          volatile uint8 USBFS_hidIdleRate[USBFS_MAX_INTERFACES_NUMBER];  /* HID device idle reload value */
+  35          volatile uint8 USBFS_hidIdleTimer[USBFS_MAX_INTERFACES_NUMBER]; /* HID device idle rate value */
+  36          
+  37          
+  38          /***************************************
+  39          * Custom Declarations
+  40          ***************************************/
+  41          
+  42          /* `#START HID_CUSTOM_DECLARATIONS` Place your declaration here */
   43          
-  44          
-  45          /***************************************
-  46          * Custom Declarations
-  47          ***************************************/
-  48          
-  49          /* `#START HID_CUSTOM_DECLARATIONS` Place your declaration here */
-  50          
-  51          /* `#END` */
-  52          
-  53          
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 2   
+  44          /* `#END` */
+  45          
+  46          
+  47          /*******************************************************************************
+  48          * Function Name: USBFS_UpdateHIDTimer
+  49          ********************************************************************************
+  50          *
+  51          * Summary:
+  52          *  Updates the HID report timer and reloads it if expired
+  53          *
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 2   
 
-  54          /*******************************************************************************
-  55          * Function Name: USBFS_UpdateHIDTimer
-  56          ****************************************************************************//**
-  57          *
-  58          *  This function updates the HID Report idle timer and returns the status and 
-  59          *  reloads the timer if it expires.
-  60          *
-  61          *  \param interface Contains the interface number.
+  54          * Parameters:
+  55          *  interface:  Interface Number.
+  56          *
+  57          * Return:
+  58          *  status.
+  59          *
+  60          * Reentrant:
+  61          *  No.
   62          *
-  63          * \return
-  64          *  Returns the state of the HID timer. Symbolic names and their associated values are given here:
-  65          *  Return Value               |Notes
-  66          *  ---------------------------|------------------------------------------------
-  67          *  USBFS_IDLE_TIMER_EXPIRED   | The timer expired.
-  68          *  USBFS_IDLE_TIMER_RUNNING   | The timer is running.
-  69          *  USBFS_IDLE_TIMER_IDEFINITE | The report is sent when data or state changes.
-  70          *
-  71          *
-  72          * \reentrant
-  73          *  No.
-  74          *
-  75          *******************************************************************************/
-  76          uint8 USBFS_UpdateHIDTimer(uint8 interface) 
-  77          {
-  78   1          uint8 stat = USBFS_IDLE_TIMER_INDEFINITE;
-  79   1      
-  80   1          if(USBFS_hidIdleRate[interface] != 0u)
-  81   1          {
-  82   2              if(USBFS_hidIdleTimer[interface] > 0u)
-  83   2              {
-  84   3                  USBFS_hidIdleTimer[interface]--;
-  85   3                  stat = USBFS_IDLE_TIMER_RUNNING;
-  86   3              }
-  87   2              else
-  88   2              {
-  89   3                  USBFS_hidIdleTimer[interface] = USBFS_hidIdleRate[interface];
-  90   3                  stat = USBFS_IDLE_TIMER_EXPIRED;
-  91   3              }
-  92   2          }
-  93   1      
-  94   1          return((uint8)stat);
-  95   1      }
-  96          
-  97          
-  98          /*******************************************************************************
-  99          * Function Name: USBFS_GetProtocol
- 100          ****************************************************************************//**
- 101          *
- 102          *  This function returns the HID protocol value for the selected interface.
- 103          *
- 104          *  \param interface:  Contains the interface number.
- 105          *
- 106          *  \return
- 107          *  Returns the protocol value. 
- 108          *
- 109          *******************************************************************************/
- 110          uint8 USBFS_GetProtocol(uint8 interface) 
- 111          {
- 112   1          return(USBFS_hidProtocol[interface]);
- 113   1      }
- 114          
- 115          
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 3   
+  63          *******************************************************************************/
+  64          uint8 USBFS_UpdateHIDTimer(uint8 interface) 
+  65          {
+  66   1          uint8 stat = USBFS_IDLE_TIMER_INDEFINITE;
+  67   1      
+  68   1          if(USBFS_hidIdleRate[interface] != 0u)
+  69   1          {
+  70   2              if(USBFS_hidIdleTimer[interface] > 0u)
+  71   2              {
+  72   3                  USBFS_hidIdleTimer[interface]--;
+  73   3                  stat = USBFS_IDLE_TIMER_RUNNING;
+  74   3              }
+  75   2              else
+  76   2              {
+  77   3                  USBFS_hidIdleTimer[interface] = USBFS_hidIdleRate[interface];
+  78   3                  stat = USBFS_IDLE_TIMER_EXPIRED;
+  79   3              }
+  80   2          }
+  81   1      
+  82   1          return(stat);
+  83   1      }
+  84          
+  85          
+  86          /*******************************************************************************
+  87          * Function Name: USBFS_GetProtocol
+  88          ********************************************************************************
+  89          *
+  90          * Summary:
+  91          *  Returns the selected protocol value to the application
+  92          *
+  93          * Parameters:
+  94          *  interface:  Interface Number.
+  95          *
+  96          * Return:
+  97          *  Interface protocol.
+  98          *
+  99          *******************************************************************************/
+ 100          uint8 USBFS_GetProtocol(uint8 interface) 
+ 101          {
+ 102   1          return(USBFS_hidProtocol[interface]);
+ 103   1      }
+ 104          
+ 105          
+ 106          /*******************************************************************************
+ 107          * Function Name: USBFS_DispatchHIDClassRqst
+ 108          ********************************************************************************
+ 109          *
+ 110          * Summary:
+ 111          *  This routine dispatches class requests
+ 112          *
+ 113          * Parameters:
+ 114          *  None.
+ 115          *
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 3   
 
- 116          /*******************************************************************************
- 117          * Function Name: USBFS_DispatchHIDClassRqst
- 118          ****************************************************************************//**
- 119          *
- 120          *  This routine dispatches class requests
+ 116          * Return:
+ 117          *  requestHandled
+ 118          *
+ 119          * Reentrant:
+ 120          *  No.
  121          *
- 122          * \return
- 123          *  Results of HID Class request handling: 
- 124          *  - USBFS_TRUE  - request was handled without errors
- 125          *  - USBFS_FALSE - error occurs during handling of request  
- 126          *
- 127          * \reentrant
- 128          *  No.
- 129          *
- 130          *******************************************************************************/
- 131          uint8 USBFS_DispatchHIDClassRqst(void) 
- 132          {
- 133   1          uint8 requestHandled = USBFS_FALSE;
- 134   1      
- 135   1          uint8 interfaceNumber = (uint8) USBFS_wIndexLoReg;
- 136   1          
- 137   1          /* Check request direction: D2H or H2D. */
- 138   1          if (0u != (USBFS_bmRequestTypeReg & USBFS_RQST_DIR_D2H))
- 139   1          {
- 140   2              /* Handle direction from device to host. */
- 141   2              
- 142   2              switch (USBFS_bRequestReg)
- 143   2              {
- 144   3                  case USBFS_GET_DESCRIPTOR:
- 145   3                      if (USBFS_wValueHiReg == USBFS_DESCR_HID_CLASS)
- 146   3                      {
- 147   4                          USBFS_FindHidClassDecriptor();
- 148   4                          if (USBFS_currentTD.count != 0u)
- 149   4                          {
- 150   5                              requestHandled = USBFS_InitControlRead();
- 151   5                          }
+ 122          *******************************************************************************/
+ 123          uint8 USBFS_DispatchHIDClassRqst(void) 
+ 124          {
+ 125   1          uint8 requestHandled = USBFS_FALSE;
+ 126   1          uint8 interfaceNumber;
+ 127   1      
+ 128   1          interfaceNumber = CY_GET_REG8(USBFS_wIndexLo);
+ 129   1          if ((CY_GET_REG8(USBFS_bmRequestType) & USBFS_RQST_DIR_MASK) == USBFS_RQST_DIR_D2H)
+ 130   1          {   /* Control Read */
+ 131   2              switch (CY_GET_REG8(USBFS_bRequest))
+ 132   2              {
+ 133   3                  case USBFS_GET_DESCRIPTOR:
+ 134   3                      if (CY_GET_REG8(USBFS_wValueHi) == USBFS_DESCR_HID_CLASS)
+ 135   3                      {
+ 136   4                          USBFS_FindHidClassDecriptor();
+ 137   4                          if (USBFS_currentTD.count != 0u)
+ 138   4                          {
+ 139   5                              requestHandled = USBFS_InitControlRead();
+ 140   5                          }
+ 141   4                      }
+ 142   3                      else if (CY_GET_REG8(USBFS_wValueHi) == USBFS_DESCR_HID_REPORT)
+ 143   3                      {
+ 144   4                          USBFS_FindReportDescriptor();
+ 145   4                          if (USBFS_currentTD.count != 0u)
+ 146   4                          {
+ 147   5                              requestHandled = USBFS_InitControlRead();
+ 148   5                          }
+ 149   4                      }
+ 150   3                      else
+ 151   3                      {   /* requestHandled is initialezed as FALSE by default */
  152   4                      }
- 153   3                      else if (USBFS_wValueHiReg == USBFS_DESCR_HID_REPORT)
- 154   3                      {
- 155   4                          USBFS_FindReportDescriptor();
- 156   4                          if (USBFS_currentTD.count != 0u)
- 157   4                          {
- 158   5                              requestHandled = USBFS_InitControlRead();
- 159   5                          }
- 160   4                      }
- 161   3                      else
- 162   3                      {   
- 163   4                          /* Do not handle this request. */
- 164   4                      }
- 165   3                      break;
- 166   3                      
- 167   3                  case USBFS_HID_GET_REPORT:
- 168   3                      USBFS_FindReport();
- 169   3                      if (USBFS_currentTD.count != 0u)
- 170   3                      {
- 171   4                          requestHandled = USBFS_InitControlRead();
- 172   4                      }
- 173   3                      break;
- 174   3      
- 175   3                  case USBFS_HID_GET_IDLE:
- 176   3                      /* This function does not support multiple reports per interface*/
- 177   3                      /* Validate interfaceNumber and Report ID (should be 0): Do not support Idle per Report ID
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 4   
+ 153   3                      break;
+ 154   3                  case USBFS_HID_GET_REPORT:
+ 155   3                      USBFS_FindReport();
+ 156   3                      if (USBFS_currentTD.count != 0u)
+ 157   3                      {
+ 158   4                          requestHandled = USBFS_InitControlRead();
+ 159   4                      }
+ 160   3                      break;
+ 161   3      
+ 162   3                  case USBFS_HID_GET_IDLE:
+ 163   3                      /* This function does not support multiple reports per interface*/
+ 164   3                      /* Validate interfaceNumber and Report ID (should be 0) */
+ 165   3                      if( (interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) &&
+ 166   3                          (CY_GET_REG8(USBFS_wValueLo) == 0u ) ) /* Do not support Idle per Report ID */
+ 167   3                      {
+ 168   4                          USBFS_currentTD.count = 1u;
+ 169   4                          USBFS_currentTD.pData = &USBFS_hidIdleRate[interfaceNumber];
+ 170   4                          requestHandled  = USBFS_InitControlRead();
+ 171   4                      }
+ 172   3                      break;
+ 173   3                  case USBFS_HID_GET_PROTOCOL:
+ 174   3                      /* Validate interfaceNumber */
+ 175   3                      if( interfaceNumber < USBFS_MAX_INTERFACES_NUMBER)
+ 176   3                      {
+ 177   4                          USBFS_currentTD.count = 1u;
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 4   
 
-             - */
- 178   3                      if ((interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) && (USBFS_wValueLoReg == 0u)) 
- 179   3                      {
- 180   4                          USBFS_currentTD.count = 1u;
- 181   4                          USBFS_currentTD.pData = &USBFS_hidIdleRate[interfaceNumber];
- 182   4                          requestHandled  = USBFS_InitControlRead();
- 183   4                      }
- 184   3                      break;
- 185   3                      
- 186   3                  case USBFS_HID_GET_PROTOCOL:
- 187   3                      /* Validate interfaceNumber */
- 188   3                      if( interfaceNumber < USBFS_MAX_INTERFACES_NUMBER)
- 189   3                      {
- 190   4                          USBFS_currentTD.count = 1u;
- 191   4                          USBFS_currentTD.pData = &USBFS_hidProtocol[interfaceNumber];
- 192   4                          requestHandled  = USBFS_InitControlRead();
- 193   4                      }
- 194   3                      break;
- 195   3                      
- 196   3                  default:    /* requestHandled is initialized as FALSE by default */
+ 178   4                          USBFS_currentTD.pData = &USBFS_hidProtocol[interfaceNumber];
+ 179   4                          requestHandled  = USBFS_InitControlRead();
+ 180   4                      }
+ 181   3                      break;
+ 182   3                  default:    /* requestHandled is initialized as FALSE by default */
+ 183   3                      break;
+ 184   3              }
+ 185   2          }
+ 186   1          else if ((CY_GET_REG8(USBFS_bmRequestType) & USBFS_RQST_DIR_MASK) ==
+ 187   1                                                                                  USBFS_RQST_DIR_H2D)
+ 188   1          {   /* Control Write */
+ 189   2              switch (CY_GET_REG8(USBFS_bRequest))
+ 190   2              {
+ 191   3                  case USBFS_HID_SET_REPORT:
+ 192   3                      USBFS_FindReport();
+ 193   3                      if (USBFS_currentTD.count != 0u)
+ 194   3                      {
+ 195   4                          requestHandled = USBFS_InitControlWrite();
+ 196   4                      }
  197   3                      break;
- 198   3              }
- 199   2          }
- 200   1          else
- 201   1          {   
- 202   2              /* Handle direction from host to device. */
- 203   2              
- 204   2              switch (USBFS_bRequestReg)
- 205   2              {
- 206   3                  case USBFS_HID_SET_REPORT:
- 207   3                      USBFS_FindReport();
- 208   3                      if (USBFS_currentTD.count != 0u)
- 209   3                      {
- 210   4                          requestHandled = USBFS_InitControlWrite();
- 211   4                      }
- 212   3                      break;
- 213   3                      
- 214   3                  case USBFS_HID_SET_IDLE:
- 215   3                      /* This function does not support multiple reports per interface */
- 216   3                      /* Validate interfaceNumber and Report ID (should be 0): Do not support Idle per Report ID
-             - */
- 217   3                      if ((interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) && (USBFS_wValueLoReg == 0u))
- 218   3                      {
- 219   4                          USBFS_hidIdleRate[interfaceNumber] = (uint8)USBFS_wValueHiReg;
- 220   4                          /* With regards to HID spec: "7.2.4 Set_Idle Request"
- 221   4                          *  Latency. If the current period has gone past the
- 222   4                          *  newly proscribed time duration, then a report
- 223   4                          *  will be generated immediately.
- 224   4                          */
- 225   4                          if(USBFS_hidIdleRate[interfaceNumber] <
- 226   4                             USBFS_hidIdleTimer[interfaceNumber])
- 227   4                          {
- 228   5                              /* Set the timer to zero and let the UpdateHIDTimer() API return IDLE_TIMER_EXPIRE
+ 198   3                  case USBFS_HID_SET_IDLE:
+ 199   3                      /* This function does not support multiple reports per interface */
+ 200   3                      /* Validate interfaceNumber and Report ID (should be 0) */
+ 201   3                      if( (interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) &&
+ 202   3                          (CY_GET_REG8(USBFS_wValueLo) == 0u ) ) /* Do not support Idle per Report ID */
+ 203   3                      {
+ 204   4                          USBFS_hidIdleRate[interfaceNumber] = CY_GET_REG8(USBFS_wValueHi);
+ 205   4                          /* With regards to HID spec: "7.2.4 Set_Idle Request"
+ 206   4                          *  Latency. If the current period has gone past the
+ 207   4                          *  newly proscribed time duration, then a report
+ 208   4                          *  will be generated immediately.
+ 209   4                          */
+ 210   4                          if(USBFS_hidIdleRate[interfaceNumber] <
+ 211   4                             USBFS_hidIdleTimer[interfaceNumber])
+ 212   4                          {
+ 213   5                              /* Set the timer to zero and let the UpdateHIDTimer() API return IDLE_TIMER_EXPIRE
              -D status*/
- 229   5                              USBFS_hidIdleTimer[interfaceNumber] = 0u;
- 230   5                          }
- 231   4                          /* If the new request is received within 4 milliseconds
- 232   4                          *  (1 count) of the end of the current period, then the
- 233   4                          *  new request will have no effect until after the report.
- 234   4                          */
- 235   4                          else if(USBFS_hidIdleTimer[interfaceNumber] <= 1u)
- 236   4                          {
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 5   
+ 214   5                              USBFS_hidIdleTimer[interfaceNumber] = 0u;
+ 215   5                          }
+ 216   4                          /* If the new request is received within 4 milliseconds
+ 217   4                          *  (1 count) of the end of the current period, then the
+ 218   4                          *  new request will have no effect until after the report.
+ 219   4                          */
+ 220   4                          else if(USBFS_hidIdleTimer[interfaceNumber] <= 1u)
+ 221   4                          {
+ 222   5                              /* Do nothing.
+ 223   5                              *  Let the UpdateHIDTimer() API continue to work and
+ 224   5                              *  return IDLE_TIMER_EXPIRED status
+ 225   5                              */
+ 226   5                          }
+ 227   4                          else
+ 228   4                          {   /* Reload the timer*/
+ 229   5                              USBFS_hidIdleTimer[interfaceNumber] =
+ 230   5                              USBFS_hidIdleRate[interfaceNumber];
+ 231   5                          }
+ 232   4                          requestHandled = USBFS_InitNoDataControlTransfer();
+ 233   4                      }
+ 234   3                      break;
+ 235   3      
+ 236   3                  case USBFS_HID_SET_PROTOCOL:
+ 237   3                      /* Validate interfaceNumber and protocol (must be 0 or 1) */
+ 238   3                      if( (interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) &&
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 5   
 
- 237   5                              /* Do nothing.
- 238   5                              *  Let the UpdateHIDTimer() API continue to work and
- 239   5                              *  return IDLE_TIMER_EXPIRED status
- 240   5                              */
- 241   5                          }
- 242   4                          else
- 243   4                          {   /* Reload the timer*/
- 244   5                              USBFS_hidIdleTimer[interfaceNumber] =
- 245   5                              USBFS_hidIdleRate[interfaceNumber];
- 246   5                          }
- 247   4                          requestHandled = USBFS_InitNoDataControlTransfer();
- 248   4                      }
- 249   3                      break;
- 250   3      
- 251   3                  case USBFS_HID_SET_PROTOCOL:
- 252   3                      /* Validate interfaceNumber and protocol (must be 0 or 1) */
- 253   3                      if ((interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) && (USBFS_wValueLoReg <= 1u))
- 254   3                      {
- 255   4                          USBFS_hidProtocol[interfaceNumber] = (uint8)USBFS_wValueLoReg;
- 256   4                          requestHandled = USBFS_InitNoDataControlTransfer();
- 257   4                      }
- 258   3                      break;
- 259   3                  
- 260   3                  default:    
- 261   3                      /* Unknown class request is not handled. */
- 262   3                      break;
- 263   3              }
- 264   2          }
- 265   1      
- 266   1          return (requestHandled);
- 267   1      }
- 268          
- 269          
- 270          /*******************************************************************************
- 271          * Function Name: USB_FindHidClassDescriptor
- 272          ****************************************************************************//**
- 273          *
- 274          *  This routine find Hid Class Descriptor pointer based on the Interface number
- 275          *  and Alternate setting then loads the currentTD structure with the address of
- 276          *  the buffer and the size.
- 277          *  The HID Class Descriptor resides inside the config descriptor.
- 278          *
- 279          * \return
- 280          *  currentTD
- 281          *
- 282          * \reentrant
- 283          *  No.
- 284          *
- 285          *******************************************************************************/
- 286          void USBFS_FindHidClassDecriptor(void) 
- 287          {
- 288   1          const T_USBFS_LUT CYCODE *pTmp;
- 289   1          volatile uint8 *pDescr;
- 290   1          uint8 interfaceN;
- 291   1      
- 292   1          pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
- 293   1          
- 294   1          interfaceN = (uint8) USBFS_wIndexLoReg;
- 295   1          /* Third entry in the LUT starts the Interface Table pointers */
- 296   1          /* Now use the request interface number*/
- 297   1          pTmp = &pTmp[interfaceN + 2u];
- 298   1          
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 6   
+ 239   3                          (CY_GET_REG8(USBFS_wValueLo) <= 1u) )
+ 240   3                      {
+ 241   4                          USBFS_hidProtocol[interfaceNumber] = CY_GET_REG8(USBFS_wValueLo);
+ 242   4                          requestHandled = USBFS_InitNoDataControlTransfer();
+ 243   4                      }
+ 244   3                      break;
+ 245   3                  default:    /* requestHandled is initialized as FALSE by default */
+ 246   3                      break;
+ 247   3              }
+ 248   2          }
+ 249   1          else
+ 250   1          {   /* requestHandled is initialized as FALSE by default */
+ 251   2          }
+ 252   1      
+ 253   1          return(requestHandled);
+ 254   1      }
+ 255          
+ 256          
+ 257          /*******************************************************************************
+ 258          * Function Name: USB_FindHidClassDescriptor
+ 259          ********************************************************************************
+ 260          *
+ 261          * Summary:
+ 262          *  This routine find Hid Class Descriptor pointer based on the Interface number
+ 263          *  and Alternate setting then loads the currentTD structure with the address of
+ 264          *  the buffer and the size.
+ 265          *  The HID Class Descriptor resides inside the config descriptor.
+ 266          *
+ 267          * Parameters:
+ 268          *  None.
+ 269          *
+ 270          * Return:
+ 271          *  currentTD
+ 272          *
+ 273          * Reentrant:
+ 274          *  No.
+ 275          *
+ 276          *******************************************************************************/
+ 277          void USBFS_FindHidClassDecriptor(void) 
+ 278          {
+ 279   1          const T_USBFS_LUT CYCODE *pTmp;
+ 280   1          volatile uint8 *pDescr;
+ 281   1          uint8 interfaceN;
+ 282   1      
+ 283   1          pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
+ 284   1          interfaceN = CY_GET_REG8(USBFS_wIndexLo);
+ 285   1          /* Third entry in the LUT starts the Interface Table pointers */
+ 286   1          /* Now use the request interface number*/
+ 287   1          pTmp = &pTmp[interfaceN + 2u];
+ 288   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
+ 289   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
+ 290   1          /* Now use Alternate setting number */
+ 291   1          pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
+ 292   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
+ 293   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
+ 294   1          /* Fifth entry in the LUT points to Hid Class Descriptor in Configuration Descriptor */
+ 295   1          pTmp = &pTmp[4u];
+ 296   1          pDescr = (volatile uint8 *)pTmp->p_list;
+ 297   1          /* The first byte contains the descriptor length */
+ 298   1          USBFS_currentTD.count = *pDescr;
+ 299   1          USBFS_currentTD.pData = pDescr;
+ 300   1      }
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 6   
 
- 299   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
- 300   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
- 301   1          
- 302   1          /* Now use Alternate setting number */
- 303   1          pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
- 304   1          
- 305   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
- 306   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
- 307   1          
- 308   1          /* Fifth entry in the LUT points to Hid Class Descriptor in Configuration Descriptor */
- 309   1          pTmp = &pTmp[4u];
- 310   1          pDescr = (volatile uint8 *)pTmp->p_list;
- 311   1          
- 312   1          /* The first byte contains the descriptor length */
- 313   1          USBFS_currentTD.count = *pDescr;
- 314   1          USBFS_currentTD.pData = pDescr;
- 315   1      }
- 316          
- 317          
- 318          /*******************************************************************************
- 319          * Function Name: USB_FindReportDescriptor
- 320          ****************************************************************************//**
+ 301          
+ 302          
+ 303          /*******************************************************************************
+ 304          * Function Name: USB_FindReportDescriptor
+ 305          ********************************************************************************
+ 306          *
+ 307          * Summary:
+ 308          *  This routine find Hid Report Descriptor pointer based on the Interface
+ 309          *  number, then loads the currentTD structure with the address of the buffer
+ 310          *  and the size.
+ 311          *  Hid Report Descriptor is located after IN/OUT/FEATURE reports.
+ 312          *
+ 313          * Parameters:
+ 314          *   void
+ 315          *
+ 316          * Return:
+ 317          *  currentTD
+ 318          *
+ 319          * Reentrant:
+ 320          *  No.
  321          *
- 322          *  This routine find Hid Report Descriptor pointer based on the Interface
- 323          *  number, then loads the currentTD structure with the address of the buffer
- 324          *  and the size.
- 325          *  Hid Report Descriptor is located after IN/OUT/FEATURE reports.
- 326          *
- 327          * \return
- 328          *  currentTD
- 329          *
- 330          * \reentrant
- 331          *  No.
- 332          *
- 333          *******************************************************************************/
- 334          void USBFS_FindReportDescriptor(void) 
- 335          {
- 336   1          const T_USBFS_LUT CYCODE *pTmp;
- 337   1          volatile uint8 *pDescr;
- 338   1          uint8 interfaceN;
- 339   1      
- 340   1          pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
- 341   1          interfaceN = (uint8) USBFS_wIndexLoReg;
- 342   1          
- 343   1          /* Third entry in the LUT starts the Interface Table pointers */
- 344   1          /* Now use the request interface number */
- 345   1          pTmp = &pTmp[interfaceN + 2u];
- 346   1          
- 347   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
- 348   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
- 349   1          
- 350   1          /* Now use Alternate setting number */
- 351   1          pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
- 352   1          
- 353   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
- 354   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
- 355   1          
- 356   1          /* Fourth entry in the LUT starts the Hid Report Descriptor */
- 357   1          pTmp = &pTmp[3u];
- 358   1          pDescr = (volatile uint8 *)pTmp->p_list;
- 359   1          
- 360   1          /* The 1st and 2nd bytes of descriptor contain its length. LSB is 1st. */
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 7   
+ 322          *******************************************************************************/
+ 323          void USBFS_FindReportDescriptor(void) 
+ 324          {
+ 325   1          const T_USBFS_LUT CYCODE *pTmp;
+ 326   1          volatile uint8 *pDescr;
+ 327   1          uint8 interfaceN;
+ 328   1      
+ 329   1          pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
+ 330   1          interfaceN = CY_GET_REG8(USBFS_wIndexLo);
+ 331   1          /* Third entry in the LUT starts the Interface Table pointers */
+ 332   1          /* Now use the request interface number */
+ 333   1          pTmp = &pTmp[interfaceN + 2u];
+ 334   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
+ 335   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
+ 336   1          /* Now use Alternate setting number */
+ 337   1          pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
+ 338   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
+ 339   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
+ 340   1          /* Fourth entry in the LUT starts the Hid Report Descriptor */
+ 341   1          pTmp = &pTmp[3u];
+ 342   1          pDescr = (volatile uint8 *)pTmp->p_list;
+ 343   1          /* The 1st and 2nd bytes of descriptor contain its length. LSB is 1st. */
+ 344   1          USBFS_currentTD.count =  (((uint16)pDescr[1u] << 8u) | pDescr[0u]);
+ 345   1          USBFS_currentTD.pData = &pDescr[2u];
+ 346   1      }
+ 347          
+ 348          
+ 349          /*******************************************************************************
+ 350          * Function Name: USBFS_FindReport
+ 351          ********************************************************************************
+ 352          *
+ 353          * Summary:
+ 354          *  This routine sets up a transfer based on the Interface number, Report Type
+ 355          *  and Report ID, then loads the currentTD structure with the address of the
+ 356          *  buffer and the size.  The caller has to decide if it is a control read or
+ 357          *  control write.
+ 358          *
+ 359          * Parameters:
+ 360          *  None.
+ 361          *
+ 362          * Return:
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 7   
 
- 361   1          USBFS_currentTD.count =  ((uint16)((uint16) pDescr[1u] << 8u) | pDescr[0u]);
- 362   1          USBFS_currentTD.pData = &pDescr[2u];
- 363   1      }
- 364          
- 365          
- 366          /*******************************************************************************
- 367          * Function Name: USBFS_FindReport
- 368          ****************************************************************************//**
- 369          *
- 370          *  This routine sets up a transfer based on the Interface number, Report Type
- 371          *  and Report ID, then loads the currentTD structure with the address of the
- 372          *  buffer and the size.  The caller has to decide if it is a control read or
- 373          *  control write.
- 374          *
- 375          * \return
- 376          *  currentTD
- 377          *
- 378          * \reentrant
- 379          *  No.
- 380          *
- 381          *******************************************************************************/
- 382          void USBFS_FindReport(void) 
- 383          {
- 384   1          const T_USBFS_LUT CYCODE *pTmp;
- 385   1          T_USBFS_TD *pTD;
- 386   1          uint8 reportType;
- 387   1          uint8 interfaceN;
- 388   1       
- 389   1          /* `#START HID_FINDREPORT` Place custom handling here */
- 390   1      
- 391   1          /* `#END` */
- 392   1          
- 393   1      #ifdef USBFS_FIND_REPORT_CALLBACK
-                  USBFS_FindReport_Callback();
-              #endif /* (USBFS_FIND_REPORT_CALLBACK) */
- 396   1          
- 397   1          USBFS_currentTD.count = 0u;   /* Init not supported condition */
- 398   1          pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
- 399   1          reportType = (uint8) USBFS_wValueHiReg;
- 400   1          interfaceN = (uint8) USBFS_wIndexLoReg;
- 401   1          
- 402   1          /* Third entry in the LUT Configuration Table starts the Interface Table pointers */
- 403   1          /* Now use the request interface number */
- 404   1          pTmp = &pTmp[interfaceN + 2u];
- 405   1          
- 406   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
- 407   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
- 408   1          if (interfaceN < USBFS_MAX_INTERFACES_NUMBER)
- 409   1          {
- 410   2              /* Now use Alternate setting number */
- 411   2              pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
- 412   2              
- 413   2              /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
- 414   2              pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
- 415   2              
- 416   2              /* Validate reportType to comply with "7.2.1 Get_Report Request" */
- 417   2              if ((reportType >= USBFS_HID_GET_REPORT_INPUT) &&
- 418   2                  (reportType <= USBFS_HID_GET_REPORT_FEATURE))
- 419   2              {
- 420   3                  /* Get the entry proper TD (IN, OUT or Feature Report Table)*/
- 421   3                  pTmp = &pTmp[reportType - 1u];
- 422   3                  
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 8   
+ 363          *  currentTD
+ 364          *
+ 365          * Reentrant:
+ 366          *  No.
+ 367          *
+ 368          *******************************************************************************/
+ 369          void USBFS_FindReport(void) 
+ 370          {
+ 371   1          const T_USBFS_LUT CYCODE *pTmp;
+ 372   1          T_USBFS_TD *pTD;
+ 373   1          uint8 interfaceN;
+ 374   1          uint8 reportType;
+ 375   1      
+ 376   1          /* `#START HID_FINDREPORT` Place custom handling here */
+ 377   1      
+ 378   1          /* `#END` */
+ 379   1          
+ 380   1          #ifdef USBFS_FIND_REPORT_CALLBACK
+                      USBFS_FindReport_Callback();
+                  #endif /* USBFS_FIND_REPORT_CALLBACK */
+ 383   1          
+ 384   1          USBFS_currentTD.count = 0u;   /* Init not supported condition */
+ 385   1          pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
+ 386   1          reportType = CY_GET_REG8(USBFS_wValueHi);
+ 387   1          interfaceN = CY_GET_REG8(USBFS_wIndexLo);
+ 388   1          /* Third entry in the LUT COnfiguration Table starts the Interface Table pointers */
+ 389   1          /* Now use the request interface number */
+ 390   1          pTmp = &pTmp[interfaceN + 2u];
+ 391   1          /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE*/
+ 392   1          pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
+ 393   1          if(interfaceN < USBFS_MAX_INTERFACES_NUMBER)
+ 394   1          {
+ 395   2              /* Now use Alternate setting number */
+ 396   2              pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
+ 397   2              /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
+ 398   2              pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
+ 399   2              /* Validate reportType to comply with "7.2.1 Get_Report Request" */
+ 400   2              if((reportType >= USBFS_HID_GET_REPORT_INPUT) &&
+ 401   2                 (reportType <= USBFS_HID_GET_REPORT_FEATURE))
+ 402   2              {
+ 403   3                  /* Get the entry proper TD (IN, OUT or Feature Report Table)*/
+ 404   3                  pTmp = &pTmp[reportType - 1u];
+ 405   3                  reportType = CY_GET_REG8(USBFS_wValueLo);    /* Get reportID */
+ 406   3                  /* Validate table support by the HID descriptor, compare table count with reportID */
+ 407   3                  if(pTmp->c >= reportType)
+ 408   3                  {
+ 409   4                      pTD = (T_USBFS_TD *) pTmp->p_list;
+ 410   4                      pTD = &pTD[reportType];                          /* select entry depend on report ID*/
+ 411   4                      USBFS_currentTD.pData = pTD->pData;   /* Buffer pointer */
+ 412   4                      USBFS_currentTD.count = pTD->count;   /* Buffer Size */
+ 413   4                      USBFS_currentTD.pStatusBlock = pTD->pStatusBlock;
+ 414   4                  }
+ 415   3              }
+ 416   2          }
+ 417   1      }
+ 418          
+ 419          
+ 420          /*******************************************************************************
+ 421          * Additional user functions supporting HID Requests
+ 422          ********************************************************************************/
+ 423          
+ 424          /* `#START HID_FUNCTIONS` Place any additional functions here */
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 8   
 
- 423   3                  /* Get reportID */
- 424   3                  reportType = (uint8) USBFS_wValueLoReg;
- 425   3                  
- 426   3                  /* Validate table support by the HID descriptor, compare table count with reportID */
- 427   3                  if (pTmp->c >= reportType)
- 428   3                  {
- 429   4                      pTD = (T_USBFS_TD *) pTmp->p_list;
- 430   4                      pTD = &pTD[reportType];                          /* select entry depend on report ID*/
- 431   4                      USBFS_currentTD.pData = pTD->pData;   /* Buffer pointer */
- 432   4                      USBFS_currentTD.count = pTD->count;   /* Buffer Size */
- 433   4                      USBFS_currentTD.pStatusBlock = pTD->pStatusBlock;
- 434   4                  }
- 435   3              }
- 436   2          }
- 437   1      }
- 438          
- 439          
- 440          /*******************************************************************************
- 441          * Additional user functions supporting HID Requests
- 442          ********************************************************************************/
- 443          
- 444          /* `#START HID_FUNCTIONS` Place any additional functions here */
- 445          
- 446          /* `#END` */
- 447          
- 448          #endif  /*  USBFS_ENABLE_HID_CLASS */
- 449          
- 450          
- 451          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 9   
+ 425          
+ 426          /* `#END` */
+ 427          
+ 428          #endif  /*  USBFS_ENABLE_HID_CLASS */
+ 429          
+ 430          
+ 431          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 9   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
              ; FUNCTION _USBFS_UpdateHIDTimer (BEGIN)
-                                           ; SOURCE LINE # 76
-;---- Variable 'interface' assigned to Register 'R7' ----
-                                           ; SOURCE LINE # 77
-                                           ; SOURCE LINE # 78
-;---- Variable 'stat' assigned to Register 'R6' ----
-0000 E4                CLR     A
-0001 FE                MOV     R6,A
-                                           ; SOURCE LINE # 80
-0002 7400        R     MOV     A,#LOW USBFS_hidIdleRate
-0004 2F                ADD     A,R7
-0005 F582              MOV     DPL,A
-0007 E4                CLR     A
-0008 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
-000A F583              MOV     DPH,A
-000C E0                MOVX    A,@DPTR
-000D 603B              JZ      ?C0001
-                                           ; SOURCE LINE # 81
-                                           ; SOURCE LINE # 82
-000F 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+                                           ; SOURCE LINE # 64
+0000 900000      R     MOV     DPTR,#interface
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 65
+                                           ; SOURCE LINE # 66
+0005 900000      R     MOV     DPTR,#stat
+0008 E4                CLR     A
+0009 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 68
+000A 900000      R     MOV     DPTR,#interface
+000D E0                MOVX    A,@DPTR
+000E FF                MOV     R7,A
+000F 7400        R     MOV     A,#LOW USBFS_hidIdleRate
 0011 2F                ADD     A,R7
 0012 F582              MOV     DPL,A
 0014 E4                CLR     A
-0015 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+0015 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
 0017 F583              MOV     DPH,A
 0019 E0                MOVX    A,@DPTR
-001A D3                SETB    C
-001B 9400              SUBB    A,#00H
-001D 4011              JC      ?C0002
-                                           ; SOURCE LINE # 83
-                                           ; SOURCE LINE # 84
-001F 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
-0021 2F                ADD     A,R7
-0022 F582              MOV     DPL,A
-0024 E4                CLR     A
-0025 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
-0027 F583              MOV     DPH,A
-0029 E0                MOVX    A,@DPTR
-002A 14                DEC     A
-002B F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 85
-002C 7E02              MOV     R6,#02H
-                                           ; SOURCE LINE # 86
-002E 801A              SJMP    ?C0001
-0030         ?C0002:
-                                           ; SOURCE LINE # 88
-                                           ; SOURCE LINE # 89
-0030 7400        R     MOV     A,#LOW USBFS_hidIdleRate
-0032 2F                ADD     A,R7
-0033 F582              MOV     DPL,A
-0035 E4                CLR     A
-0036 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
-0038 F583              MOV     DPH,A
-003A E0                MOVX    A,@DPTR
-003B FD                MOV     R5,A
-003C 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
-003E 2F                ADD     A,R7
-003F F582              MOV     DPL,A
-0041 E4                CLR     A
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 10  
+001A FF                MOV     R7,A
+001B EF                MOV     A,R7
+001C 6059              JZ      ?C0001
+                                           ; SOURCE LINE # 69
+                                           ; SOURCE LINE # 70
+001E 900000      R     MOV     DPTR,#interface
+0021 E0                MOVX    A,@DPTR
+0022 FF                MOV     R7,A
+0023 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+0025 2F                ADD     A,R7
+0026 F582              MOV     DPL,A
+0028 E4                CLR     A
+0029 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+002B F583              MOV     DPH,A
+002D E0                MOVX    A,@DPTR
+002E FF                MOV     R7,A
+002F EF                MOV     A,R7
+0030 D3                SETB    C
+0031 9400              SUBB    A,#00H
+0033 401A              JC      ?C0002
+                                           ; SOURCE LINE # 71
+                                           ; SOURCE LINE # 72
+0035 900000      R     MOV     DPTR,#interface
+0038 E0                MOVX    A,@DPTR
+0039 FF                MOV     R7,A
+003A 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+003C 2F                ADD     A,R7
+003D F582              MOV     DPL,A
+003F E4                CLR     A
+0040 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+0042 F583              MOV     DPH,A
+0044 E0                MOVX    A,@DPTR
+0045 14                DEC     A
+0046 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 73
+0047 900000      R     MOV     DPTR,#stat
+004A 7402              MOV     A,#02H
+004C F0                MOVX    @DPTR,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 10  
 
-0042 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
-0044 F583              MOV     DPH,A
-0046 ED                MOV     A,R5
-0047 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 90
-0048 7E01              MOV     R6,#01H
-                                           ; SOURCE LINE # 91
-                                           ; SOURCE LINE # 92
-004A         ?C0001:
-                                           ; SOURCE LINE # 94
-004A AF06              MOV     R7,AR6
-                                           ; SOURCE LINE # 95
-004C         ?C0004:
-004C 22                RET     
+                                           ; SOURCE LINE # 74
+004D 8028              SJMP    ?C0001
+004F         ?C0002:
+                                           ; SOURCE LINE # 76
+                                           ; SOURCE LINE # 77
+004F 900000      R     MOV     DPTR,#interface
+0052 E0                MOVX    A,@DPTR
+0053 FF                MOV     R7,A
+0054 7400        R     MOV     A,#LOW USBFS_hidIdleRate
+0056 2F                ADD     A,R7
+0057 F582              MOV     DPL,A
+0059 E4                CLR     A
+005A 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
+005C F583              MOV     DPH,A
+005E E0                MOVX    A,@DPTR
+005F FF                MOV     R7,A
+0060 900000      R     MOV     DPTR,#interface
+0063 E0                MOVX    A,@DPTR
+0064 FE                MOV     R6,A
+0065 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+0067 2E                ADD     A,R6
+0068 F582              MOV     DPL,A
+006A E4                CLR     A
+006B 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+006D F583              MOV     DPH,A
+006F EF                MOV     A,R7
+0070 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 78
+0071 900000      R     MOV     DPTR,#stat
+0074 7401              MOV     A,#01H
+0076 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 79
+                                           ; SOURCE LINE # 80
+0077         ?C0001:
+                                           ; SOURCE LINE # 82
+0077 900000      R     MOV     DPTR,#stat
+007A E0                MOVX    A,@DPTR
+007B FF                MOV     R7,A
+                                           ; SOURCE LINE # 83
+007C         ?C0004:
+007C 22                RET     
              ; FUNCTION _USBFS_UpdateHIDTimer (END)
 
              ; FUNCTION _USBFS_GetProtocol (BEGIN)
-                                           ; SOURCE LINE # 110
-;---- Variable 'interface' assigned to Register 'R7' ----
-                                           ; SOURCE LINE # 111
-                                           ; SOURCE LINE # 112
-0000 7400        R     MOV     A,#LOW USBFS_hidProtocol
-0002 2F                ADD     A,R7
-0003 F582              MOV     DPL,A
-0005 E4                CLR     A
-0006 3400        R     ADDC    A,#HIGH USBFS_hidProtocol
-0008 F583              MOV     DPH,A
-000A E0                MOVX    A,@DPTR
-000B FF                MOV     R7,A
-                                           ; SOURCE LINE # 113
-000C         ?C0005:
-000C 22                RET     
+                                           ; SOURCE LINE # 100
+0000 900000      R     MOV     DPTR,#interface
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 101
+                                           ; SOURCE LINE # 102
+0005 900000      R     MOV     DPTR,#interface
+0008 E0                MOVX    A,@DPTR
+0009 FF                MOV     R7,A
+000A 7400        R     MOV     A,#LOW USBFS_hidProtocol
+000C 2F                ADD     A,R7
+000D F582              MOV     DPL,A
+000F E4                CLR     A
+0010 3400        R     ADDC    A,#HIGH USBFS_hidProtocol
+0012 F583              MOV     DPH,A
+0014 E0                MOVX    A,@DPTR
+0015 FF                MOV     R7,A
+                                           ; SOURCE LINE # 103
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 11  
+
+0016         ?C0005:
+0016 22                RET     
              ; FUNCTION _USBFS_GetProtocol (END)
 
              ; FUNCTION USBFS_DispatchHIDClassRqst (BEGIN)
-                                           ; SOURCE LINE # 131
-                                           ; SOURCE LINE # 132
-                                           ; SOURCE LINE # 133
-0000 E4                CLR     A
-0001 900000      R     MOV     DPTR,#requestHandled
+                                           ; SOURCE LINE # 123
+                                           ; SOURCE LINE # 124
+                                           ; SOURCE LINE # 125
+0000 900000      R     MOV     DPTR,#requestHandled
+0003 E4                CLR     A
 0004 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 135
+                                           ; SOURCE LINE # 128
 0005 906004            MOV     DPTR,#06004H
 0008 E0                MOVX    A,@DPTR
-0009 900000      R     MOV     DPTR,#interfaceNumber
-000C F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 138
-000D 906000            MOV     DPTR,#06000H
-0010 E0                MOVX    A,@DPTR
-0011 5480              ANL     A,#080H
-0013 7003              JNZ     $ + 5H
-0015 020000      R     LJMP    ?C0006
-                                           ; SOURCE LINE # 139
-                                           ; SOURCE LINE # 142
-0018 A3                INC     DPTR
-0019 E0                MOVX    A,@DPTR
-001A 14                DEC     A
-001B 6058              JZ      ?C0015
-001D 14                DEC     A
-001E 6070              JZ      ?C0017
-0020 14                DEC     A
-0021 7003              JNZ     $ + 5H
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 11  
+0009 FF                MOV     R7,A
+000A 900000      R     MOV     DPTR,#interfaceNumber
+000D EF                MOV     A,R7
+000E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 129
+000F 906000            MOV     DPTR,#06000H
+0012 E0                MOVX    A,@DPTR
+0013 FF                MOV     R7,A
+0014 EF                MOV     A,R7
+0015 5480              ANL     A,#080H
+0017 FF                MOV     R7,A
+0018 7E00              MOV     R6,#00H
+001A EF                MOV     A,R7
+001B 6480              XRL     A,#080H
+001D 4E                ORL     A,R6
+001E 6003              JZ      $ + 5H
+0020 020000      R     LJMP    ?C0006
+                                           ; SOURCE LINE # 130
+                                           ; SOURCE LINE # 131
+0023 906001            MOV     DPTR,#06001H
+0026 E0                MOVX    A,@DPTR
+0027 FF                MOV     R7,A
+0028 EF                MOV     A,R7
+0029 120000      E     LCALL   ?C?CCASE
+002C 0000        R     DW      ?C0015
+002E 01                DB      01H
+002F 0000        R     DW      ?C0017
+0031 02                DB      02H
+0032 0000        R     DW      ?C0019
+0034 03                DB      03H
+0035 0000        R     DW      ?C0008
+0037 06                DB      06H
+0038 0000              DW      00H
+003A 0000        R     DW      ?C0022
+                                           ; SOURCE LINE # 132
+                                           ; SOURCE LINE # 133
+003C         ?C0008:
+                                           ; SOURCE LINE # 134
+003C 906003            MOV     DPTR,#06003H
+003F E0                MOVX    A,@DPTR
+0040 FF                MOV     R7,A
+0041 EF                MOV     A,R7
+0042 B4211D            CJNE    A,#021H,?C0009
+                                           ; SOURCE LINE # 135
+                                           ; SOURCE LINE # 136
+0045 120000      R     LCALL   USBFS_FindHidClassDecriptor
+                                           ; SOURCE LINE # 137
+0048 900000      E     MOV     DPTR,#USBFS_currentTD
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 12  
 
-0023 020000      R     LJMP    ?C0019
-0026 24FD              ADD     A,#0FDH
-0028 6003              JZ      $ + 5H
-002A 020000      R     LJMP    ?C0022
+004B E0                MOVX    A,@DPTR
+004C FE                MOV     R6,A
+004D A3                INC     DPTR
+004E E0                MOVX    A,@DPTR
+004F FF                MOV     R7,A
+0050 EF                MOV     A,R7
+0051 4E                ORL     A,R6
+0052 7003              JNZ     $ + 5H
+0054 020000      R     LJMP    ?C0022
+                                           ; SOURCE LINE # 138
+                                           ; SOURCE LINE # 139
+0057 120000      E     LCALL   USBFS_InitControlRead
+005A 900000      R     MOV     DPTR,#requestHandled
+005D EF                MOV     A,R7
+005E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 140
+                                           ; SOURCE LINE # 141
+005F 020000      R     LJMP    ?C0022
+0062         ?C0009:
+                                           ; SOURCE LINE # 142
+0062 906003            MOV     DPTR,#06003H
+0065 E0                MOVX    A,@DPTR
+0066 FF                MOV     R7,A
+0067 EF                MOV     A,R7
+0068 6422              XRL     A,#022H
+006A 6003              JZ      $ + 5H
+006C 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 143
                                            ; SOURCE LINE # 144
-002D         ?C0008:
+006F 120000      R     LCALL   USBFS_FindReportDescriptor
                                            ; SOURCE LINE # 145
-002D 906003            MOV     DPTR,#06003H
-0030 E0                MOVX    A,@DPTR
-0031 B4211B            CJNE    A,#021H,?C0009
+0072 900000      E     MOV     DPTR,#USBFS_currentTD
+0075 E0                MOVX    A,@DPTR
+0076 FE                MOV     R6,A
+0077 A3                INC     DPTR
+0078 E0                MOVX    A,@DPTR
+0079 FF                MOV     R7,A
+007A EF                MOV     A,R7
+007B 4E                ORL     A,R6
+007C 7003              JNZ     $ + 5H
+007E 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 146
                                            ; SOURCE LINE # 147
-0034 120000      R     LCALL   USBFS_FindHidClassDecriptor
+0081 120000      E     LCALL   USBFS_InitControlRead
+0084 900000      R     MOV     DPTR,#requestHandled
+0087 EF                MOV     A,R7
+0088 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 148
-0037 900000      E     MOV     DPTR,#USBFS_currentTD
-003A E0                MOVX    A,@DPTR
-003B 7002              JNZ     ?C0042
-003D A3                INC     DPTR
-003E E0                MOVX    A,@DPTR
-003F         ?C0042:
-003F 7003              JNZ     $ + 5H
-0041 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 149
-                                           ; SOURCE LINE # 150
-0044 120000      E     LCALL   USBFS_InitControlRead
-0047 900000      R     MOV     DPTR,#requestHandled
-004A EF                MOV     A,R7
-004B F0                MOVX    @DPTR,A
+0089 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 151
                                            ; SOURCE LINE # 152
-004C 020000      R     LJMP    ?C0022
-004F         ?C0009:
                                            ; SOURCE LINE # 153
-004F 906003            MOV     DPTR,#06003H
-0052 E0                MOVX    A,@DPTR
-0053 6422              XRL     A,#022H
-0055 6003              JZ      $ + 5H
-0057 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 154
+008C         ?C0015:
                                            ; SOURCE LINE # 155
-005A 120000      R     LCALL   USBFS_FindReportDescriptor
+008C 120000      R     LCALL   USBFS_FindReport
                                            ; SOURCE LINE # 156
-005D 900000      E     MOV     DPTR,#USBFS_currentTD
-0060 E0                MOVX    A,@DPTR
-0061 7002              JNZ     ?C0043
-0063 A3                INC     DPTR
-0064 E0                MOVX    A,@DPTR
-0065         ?C0043:
-0065 7003              JNZ     $ + 5H
-0067 020000      R     LJMP    ?C0022
+008F 900000      E     MOV     DPTR,#USBFS_currentTD
+0092 E0                MOVX    A,@DPTR
+0093 FE                MOV     R6,A
+0094 A3                INC     DPTR
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 13  
+
+0095 E0                MOVX    A,@DPTR
+0096 FF                MOV     R7,A
+0097 EF                MOV     A,R7
+0098 4E                ORL     A,R6
+0099 7003              JNZ     $ + 5H
+009B 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 157
                                            ; SOURCE LINE # 158
-006A 120000      E     LCALL   USBFS_InitControlRead
-006D 900000      R     MOV     DPTR,#requestHandled
-0070 EF                MOV     A,R7
-0071 F0                MOVX    @DPTR,A
+009E 120000      E     LCALL   USBFS_InitControlRead
+00A1 900000      R     MOV     DPTR,#requestHandled
+00A4 EF                MOV     A,R7
+00A5 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 159
                                            ; SOURCE LINE # 160
-0072 020000      R     LJMP    ?C0022
+00A6 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 162
-                                           ; SOURCE LINE # 164
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 12  
-
-                                           ; SOURCE LINE # 165
+00A9         ?C0017:
+                                           ; SOURCE LINE # 166
+00A9 900000      R     MOV     DPTR,#interfaceNumber
+00AC E0                MOVX    A,@DPTR
+00AD FF                MOV     R7,A
+00AE EF                MOV     A,R7
+00AF C3                CLR     C
+00B0 9401              SUBB    A,#01H
+00B2 4003              JC      $ + 5H
+00B4 020000      R     LJMP    ?C0022
+00B7 906002            MOV     DPTR,#06002H
+00BA E0                MOVX    A,@DPTR
+00BB FF                MOV     R7,A
+00BC EF                MOV     A,R7
+00BD 6003              JZ      $ + 5H
+00BF 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 167
-0075         ?C0015:
                                            ; SOURCE LINE # 168
-0075 120000      R     LCALL   USBFS_FindReport
+00C2 900000      E     MOV     DPTR,#USBFS_currentTD
+00C5 E4                CLR     A
+00C6 F0                MOVX    @DPTR,A
+00C7 A3                INC     DPTR
+00C8 7401              MOV     A,#01H
+00CA F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 169
-0078 900000      E     MOV     DPTR,#USBFS_currentTD
-007B E0                MOVX    A,@DPTR
-007C 7002              JNZ     ?C0044
-007E A3                INC     DPTR
-007F E0                MOVX    A,@DPTR
-0080         ?C0044:
-0080 7003              JNZ     $ + 5H
-0082 020000      R     LJMP    ?C0022
+00CB 900000      R     MOV     DPTR,#interfaceNumber
+00CE E0                MOVX    A,@DPTR
+00CF FF                MOV     R7,A
+00D0 7400        R     MOV     A,#LOW USBFS_hidIdleRate
+00D2 2F                ADD     A,R7
+00D3 F9                MOV     R1,A
+00D4 E4                CLR     A
+00D5 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
+00D7 FA                MOV     R2,A
+00D8 7B01              MOV     R3,#01H
+00DA 900000      E     MOV     DPTR,#USBFS_currentTD+02H
+00DD 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 170
+00E0 120000      E     LCALL   USBFS_InitControlRead
+00E3 900000      R     MOV     DPTR,#requestHandled
+00E6 EF                MOV     A,R7
+00E7 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 171
-0085 120000      E     LCALL   USBFS_InitControlRead
-0088 900000      R     MOV     DPTR,#requestHandled
-008B EF                MOV     A,R7
-008C F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 172
+00E8 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 173
-008D 020000      R     LJMP    ?C0022
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 14  
+
+00EB         ?C0019:
                                            ; SOURCE LINE # 175
-0090         ?C0017:
+00EB 900000      R     MOV     DPTR,#interfaceNumber
+00EE E0                MOVX    A,@DPTR
+00EF FF                MOV     R7,A
+00F0 EF                MOV     A,R7
+00F1 C3                CLR     C
+00F2 9401              SUBB    A,#01H
+00F4 4003              JC      $ + 5H
+00F6 020000      R     LJMP    ?C0022
+                                           ; SOURCE LINE # 176
+                                           ; SOURCE LINE # 177
+00F9 900000      E     MOV     DPTR,#USBFS_currentTD
+00FC E4                CLR     A
+00FD F0                MOVX    @DPTR,A
+00FE A3                INC     DPTR
+00FF 7401              MOV     A,#01H
+0101 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 178
-0090 900000      R     MOV     DPTR,#interfaceNumber
-0093 E0                MOVX    A,@DPTR
-0094 FF                MOV     R7,A
-0095 C3                CLR     C
-0096 9401              SUBB    A,#01H
-0098 4003              JC      $ + 5H
-009A 020000      R     LJMP    ?C0022
-009D 906002            MOV     DPTR,#06002H
-00A0 E0                MOVX    A,@DPTR
-00A1 6003              JZ      $ + 5H
-00A3 020000      R     LJMP    ?C0022
+0102 900000      R     MOV     DPTR,#interfaceNumber
+0105 E0                MOVX    A,@DPTR
+0106 FF                MOV     R7,A
+0107 7400        R     MOV     A,#LOW USBFS_hidProtocol
+0109 2F                ADD     A,R7
+010A F9                MOV     R1,A
+010B E4                CLR     A
+010C 3400        R     ADDC    A,#HIGH USBFS_hidProtocol
+010E FA                MOV     R2,A
+010F 7B01              MOV     R3,#01H
+0111 900000      E     MOV     DPTR,#USBFS_currentTD+02H
+0114 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 179
+0117 120000      E     LCALL   USBFS_InitControlRead
+011A 900000      R     MOV     DPTR,#requestHandled
+011D EF                MOV     A,R7
+011E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 180
-00A6 900000      E     MOV     DPTR,#USBFS_currentTD
-00A9 F0                MOVX    @DPTR,A
-00AA A3                INC     DPTR
-00AB 04                INC     A
-00AC F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 181
-00AD 7400        R     MOV     A,#LOW USBFS_hidIdleRate
-00AF 2F                ADD     A,R7
-00B0 F9                MOV     R1,A
-00B1 E4                CLR     A
-00B2 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
-00B4 FA                MOV     R2,A
-00B5 7B01              MOV     R3,#01H
-00B7 900000      E     MOV     DPTR,#USBFS_currentTD+02H
-00BA 120000      E     LCALL   ?C?PSTXDATA
+011F 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 182
-00BD 120000      E     LCALL   USBFS_InitControlRead
-00C0 900000      R     MOV     DPTR,#requestHandled
-00C3 EF                MOV     A,R7
-00C4 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 183
                                            ; SOURCE LINE # 184
-00C5 020000      R     LJMP    ?C0022
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 13  
-
+                                           ; SOURCE LINE # 185
+0122 020000      R     LJMP    ?C0022
+0125         ?C0006:
                                            ; SOURCE LINE # 186
-00C8         ?C0019:
+0125 906000            MOV     DPTR,#06000H
+0128 E0                MOVX    A,@DPTR
+0129 FF                MOV     R7,A
+012A EF                MOV     A,R7
+012B 5480              ANL     A,#080H
+012D FF                MOV     R7,A
+012E 7E00              MOV     R6,#00H
+0130 EF                MOV     A,R7
+0131 4E                ORL     A,R6
+0132 6003              JZ      $ + 5H
+0134 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 188
-00C8 900000      R     MOV     DPTR,#interfaceNumber
-00CB E0                MOVX    A,@DPTR
-00CC FF                MOV     R7,A
-00CD C3                CLR     C
-00CE 9401              SUBB    A,#01H
-00D0 4003              JC      $ + 5H
-00D2 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 189
+0137 906001            MOV     DPTR,#06001H
+013A E0                MOVX    A,@DPTR
+013B FF                MOV     R7,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 15  
+
+013C EF                MOV     A,R7
+013D 120000      E     LCALL   ?C?CCASE
+0140 0000        R     DW      ?C0025
+0142 09                DB      09H
+0143 0000        R     DW      ?C0027
+0145 0A                DB      0AH
+0146 0000        R     DW      ?C0033
+0148 0B                DB      0BH
+0149 0000              DW      00H
+014B 0000        R     DW      ?C0022
                                            ; SOURCE LINE # 190
-00D5 900000      E     MOV     DPTR,#USBFS_currentTD
-00D8 E4                CLR     A
-00D9 F0                MOVX    @DPTR,A
-00DA A3                INC     DPTR
-00DB 04                INC     A
-00DC F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 191
-00DD 7400        R     MOV     A,#LOW USBFS_hidProtocol
-00DF 2F                ADD     A,R7
-00E0 F9                MOV     R1,A
-00E1 E4                CLR     A
-00E2 3400        R     ADDC    A,#HIGH USBFS_hidProtocol
-00E4 FA                MOV     R2,A
-00E5 7B01              MOV     R3,#01H
-00E7 900000      E     MOV     DPTR,#USBFS_currentTD+02H
-00EA 120000      E     LCALL   ?C?PSTXDATA
+014D         ?C0025:
                                            ; SOURCE LINE # 192
-00ED 120000      E     LCALL   USBFS_InitControlRead
-00F0 900000      R     MOV     DPTR,#requestHandled
-00F3 EF                MOV     A,R7
-00F4 F0                MOVX    @DPTR,A
+014D 120000      R     LCALL   USBFS_FindReport
                                            ; SOURCE LINE # 193
+0150 900000      E     MOV     DPTR,#USBFS_currentTD
+0153 E0                MOVX    A,@DPTR
+0154 FE                MOV     R6,A
+0155 A3                INC     DPTR
+0156 E0                MOVX    A,@DPTR
+0157 FF                MOV     R7,A
+0158 EF                MOV     A,R7
+0159 4E                ORL     A,R6
+015A 7003              JNZ     $ + 5H
+015C 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 194
-00F5 020000      R     LJMP    ?C0022
+                                           ; SOURCE LINE # 195
+015F 120000      E     LCALL   USBFS_InitControlWrite
+0162 900000      R     MOV     DPTR,#requestHandled
+0165 EF                MOV     A,R7
+0166 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 196
                                            ; SOURCE LINE # 197
+0167 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 198
-                                           ; SOURCE LINE # 199
-00F8 020000      R     LJMP    ?C0022
-00FB         ?C0006:
-                                           ; SOURCE LINE # 201
+016A         ?C0027:
+                                           ; SOURCE LINE # 202
+016A 900000      R     MOV     DPTR,#interfaceNumber
+016D E0                MOVX    A,@DPTR
+016E FF                MOV     R7,A
+016F EF                MOV     A,R7
+0170 C3                CLR     C
+0171 9401              SUBB    A,#01H
+0173 4003              JC      $ + 5H
+0175 020000      R     LJMP    ?C0022
+0178 906002            MOV     DPTR,#06002H
+017B E0                MOVX    A,@DPTR
+017C FF                MOV     R7,A
+017D EF                MOV     A,R7
+017E 6003              JZ      $ + 5H
+0180 020000      R     LJMP    ?C0022
+                                           ; SOURCE LINE # 203
                                            ; SOURCE LINE # 204
-00FB 906001            MOV     DPTR,#06001H
-00FE E0                MOVX    A,@DPTR
-00FF 24F6              ADD     A,#0F6H
-0101 6028              JZ      ?C0026
-0103 14                DEC     A
-0104 7003              JNZ     $ + 5H
-0106 020000      R     LJMP    ?C0032
-0109 2402              ADD     A,#02H
-010B 6003              JZ      $ + 5H
-010D 020000      R     LJMP    ?C0022
-                                           ; SOURCE LINE # 205
-                                           ; SOURCE LINE # 206
-0110         ?C0024:
-                                           ; SOURCE LINE # 207
-0110 120000      R     LCALL   USBFS_FindReport
-                                           ; SOURCE LINE # 208
-0113 900000      E     MOV     DPTR,#USBFS_currentTD
-0116 E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 14  
+0183 906003            MOV     DPTR,#06003H
+0186 E0                MOVX    A,@DPTR
+0187 FF                MOV     R7,A
+0188 900000      R     MOV     DPTR,#interfaceNumber
+018B E0                MOVX    A,@DPTR
+018C FE                MOV     R6,A
+018D 7400        R     MOV     A,#LOW USBFS_hidIdleRate
+018F 2E                ADD     A,R6
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 16  
 
-0117 7002              JNZ     ?C0045
-0119 A3                INC     DPTR
-011A E0                MOVX    A,@DPTR
-011B         ?C0045:
-011B 7003              JNZ     $ + 5H
-011D 020000      R     LJMP    ?C0022
-                                           ; SOURCE LINE # 209
+0190 F582              MOV     DPL,A
+0192 E4                CLR     A
+0193 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
+0195 F583              MOV     DPH,A
+0197 EF                MOV     A,R7
+0198 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 210
-0120 120000      E     LCALL   USBFS_InitControlWrite
-0123 900000      R     MOV     DPTR,#requestHandled
-0126 EF                MOV     A,R7
-0127 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 211
+0199 900000      R     MOV     DPTR,#interfaceNumber
+019C E0                MOVX    A,@DPTR
+019D FF                MOV     R7,A
+019E 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+01A0 2F                ADD     A,R7
+01A1 F582              MOV     DPL,A
+01A3 E4                CLR     A
+01A4 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+01A6 F583              MOV     DPH,A
+01A8 E0                MOVX    A,@DPTR
+01A9 FF                MOV     R7,A
+01AA 900000      R     MOV     DPTR,#interfaceNumber
+01AD E0                MOVX    A,@DPTR
+01AE FE                MOV     R6,A
+01AF 7400        R     MOV     A,#LOW USBFS_hidIdleRate
+01B1 2E                ADD     A,R6
+01B2 F582              MOV     DPL,A
+01B4 E4                CLR     A
+01B5 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
+01B7 F583              MOV     DPH,A
+01B9 E0                MOVX    A,@DPTR
+01BA FE                MOV     R6,A
+01BB EE                MOV     A,R6
+01BC C3                CLR     C
+01BD 9F                SUBB    A,R7
+01BE 5013              JNC     ?C0029
                                            ; SOURCE LINE # 212
-0128 020000      R     LJMP    ?C0022
                                            ; SOURCE LINE # 214
-012B         ?C0026:
-                                           ; SOURCE LINE # 217
-012B 900000      R     MOV     DPTR,#interfaceNumber
-012E E0                MOVX    A,@DPTR
-012F FF                MOV     R7,A
-0130 C3                CLR     C
-0131 9401              SUBB    A,#01H
-0133 4003              JC      $ + 5H
-0135 020000      R     LJMP    ?C0022
-0138 906002            MOV     DPTR,#06002H
-013B E0                MOVX    A,@DPTR
-013C 6003              JZ      $ + 5H
-013E 020000      R     LJMP    ?C0022
-                                           ; SOURCE LINE # 218
-                                           ; SOURCE LINE # 219
-0141 A3                INC     DPTR
-0142 E0                MOVX    A,@DPTR
-0143 FE                MOV     R6,A
-0144 7400        R     MOV     A,#LOW USBFS_hidIdleRate
-0146 2F                ADD     A,R7
-0147 F582              MOV     DPL,A
-0149 E4                CLR     A
-014A 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
-014C F583              MOV     DPH,A
-014E EE                MOV     A,R6
-014F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 225
-0150 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
-0152 2F                ADD     A,R7
-0153 F582              MOV     DPL,A
-0155 E4                CLR     A
-0156 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
-0158 F583              MOV     DPH,A
-015A E0                MOVX    A,@DPTR
-015B FE                MOV     R6,A
-015C 7400        R     MOV     A,#LOW USBFS_hidIdleRate
-015E 2F                ADD     A,R7
-015F F582              MOV     DPL,A
-0161 E4                CLR     A
-0162 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
-0164 F583              MOV     DPH,A
-0166 E0                MOVX    A,@DPTR
-0167 C3                CLR     C
-0168 9E                SUBB    A,R6
-0169 5011              JNC     ?C0028
-                                           ; SOURCE LINE # 227
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 15  
-
-                                           ; SOURCE LINE # 229
-016B 900000      R     MOV     DPTR,#interfaceNumber
-016E E0                MOVX    A,@DPTR
-016F 2400        R     ADD     A,#LOW USBFS_hidIdleTimer
-0171 F582              MOV     DPL,A
-0173 E4                CLR     A
-0174 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
-0176 F583              MOV     DPH,A
-0178 E4                CLR     A
-0179 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 230
-017A 802C              SJMP    ?C0029
-017C         ?C0028:
-                                           ; SOURCE LINE # 235
-017C 900000      R     MOV     DPTR,#interfaceNumber
-017F E0                MOVX    A,@DPTR
-0180 FF                MOV     R7,A
-0181 2400        R     ADD     A,#LOW USBFS_hidIdleTimer
-0183 F582              MOV     DPL,A
-0185 E4                CLR     A
-0186 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
-0188 F583              MOV     DPH,A
-018A E0                MOVX    A,@DPTR
-018B D3                SETB    C
-018C 9401              SUBB    A,#01H
-018E 4018              JC      ?C0029
-                                           ; SOURCE LINE # 236
-                                           ; SOURCE LINE # 241
-0190         ?C0030:
-                                           ; SOURCE LINE # 243
-                                           ; SOURCE LINE # 244
-0190 7400        R     MOV     A,#LOW USBFS_hidIdleRate
-0192 2F                ADD     A,R7
-0193 F582              MOV     DPL,A
-0195 E4                CLR     A
-0196 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
-0198 F583              MOV     DPH,A
-019A E0                MOVX    A,@DPTR
-019B FE                MOV     R6,A
-019C 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
-019E 2F                ADD     A,R7
-019F F582              MOV     DPL,A
-01A1 E4                CLR     A
-01A2 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
-01A4 F583              MOV     DPH,A
-01A6 EE                MOV     A,R6
-01A7 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 246
-01A8         ?C0029:
-                                           ; SOURCE LINE # 247
-01A8 120000      E     LCALL   USBFS_InitNoDataControlTransfer
-01AB 900000      R     MOV     DPTR,#requestHandled
-01AE EF                MOV     A,R7
-01AF F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 248
-                                           ; SOURCE LINE # 249
-01B0 8027              SJMP    ?C0022
-                                           ; SOURCE LINE # 251
-01B2         ?C0032:
-                                           ; SOURCE LINE # 253
-01B2 900000      R     MOV     DPTR,#interfaceNumber
-01B5 E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 16  
-
-01B6 FF                MOV     R7,A
-01B7 C3                CLR     C
-01B8 9401              SUBB    A,#01H
-01BA 501D              JNC     ?C0022
-01BC 906002            MOV     DPTR,#06002H
-01BF E0                MOVX    A,@DPTR
-01C0 FE                MOV     R6,A
-01C1 9401              SUBB    A,#01H
-01C3 5014              JNC     ?C0022
-                                           ; SOURCE LINE # 254
-                                           ; SOURCE LINE # 255
-01C5 7400        R     MOV     A,#LOW USBFS_hidProtocol
+01C0 900000      R     MOV     DPTR,#interfaceNumber
+01C3 E0                MOVX    A,@DPTR
+01C4 FF                MOV     R7,A
+01C5 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
 01C7 2F                ADD     A,R7
 01C8 F582              MOV     DPL,A
 01CA E4                CLR     A
-01CB 3400        R     ADDC    A,#HIGH USBFS_hidProtocol
+01CB 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
 01CD F583              MOV     DPH,A
-01CF EE                MOV     A,R6
+01CF E4                CLR     A
 01D0 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 256
-01D1 120000      E     LCALL   USBFS_InitNoDataControlTransfer
-01D4 900000      R     MOV     DPTR,#requestHandled
-01D7 EF                MOV     A,R7
-01D8 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 257
-                                           ; SOURCE LINE # 258
-                                           ; SOURCE LINE # 260
-                                           ; SOURCE LINE # 262
-                                           ; SOURCE LINE # 263
-                                           ; SOURCE LINE # 264
-01D9         ?C0022:
-                                           ; SOURCE LINE # 266
-01D9 900000      R     MOV     DPTR,#requestHandled
-01DC E0                MOVX    A,@DPTR
-01DD FF                MOV     R7,A
-                                           ; SOURCE LINE # 267
-01DE         ?C0035:
-01DE 22                RET     
+                                           ; SOURCE LINE # 215
+01D1 8039              SJMP    ?C0030
+01D3         ?C0029:
+                                           ; SOURCE LINE # 220
+01D3 900000      R     MOV     DPTR,#interfaceNumber
+01D6 E0                MOVX    A,@DPTR
+01D7 FF                MOV     R7,A
+01D8 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+01DA 2F                ADD     A,R7
+01DB F582              MOV     DPL,A
+01DD E4                CLR     A
+01DE 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+01E0 F583              MOV     DPH,A
+01E2 E0                MOVX    A,@DPTR
+01E3 FF                MOV     R7,A
+01E4 EF                MOV     A,R7
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 17  
+
+01E5 D3                SETB    C
+01E6 9401              SUBB    A,#01H
+01E8 4022              JC      ?C0030
+                                           ; SOURCE LINE # 221
+                                           ; SOURCE LINE # 226
+01EA         ?C0031:
+                                           ; SOURCE LINE # 228
+                                           ; SOURCE LINE # 229
+01EA 900000      R     MOV     DPTR,#interfaceNumber
+01ED E0                MOVX    A,@DPTR
+01EE FF                MOV     R7,A
+01EF 7400        R     MOV     A,#LOW USBFS_hidIdleRate
+01F1 2F                ADD     A,R7
+01F2 F582              MOV     DPL,A
+01F4 E4                CLR     A
+01F5 3400        R     ADDC    A,#HIGH USBFS_hidIdleRate
+01F7 F583              MOV     DPH,A
+01F9 E0                MOVX    A,@DPTR
+01FA FF                MOV     R7,A
+01FB 900000      R     MOV     DPTR,#interfaceNumber
+01FE E0                MOVX    A,@DPTR
+01FF FE                MOV     R6,A
+0200 7400        R     MOV     A,#LOW USBFS_hidIdleTimer
+0202 2E                ADD     A,R6
+0203 F582              MOV     DPL,A
+0205 E4                CLR     A
+0206 3400        R     ADDC    A,#HIGH USBFS_hidIdleTimer
+0208 F583              MOV     DPH,A
+020A EF                MOV     A,R7
+020B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 231
+020C         ?C0030:
+                                           ; SOURCE LINE # 232
+020C 120000      E     LCALL   USBFS_InitNoDataControlTransfer
+020F 900000      R     MOV     DPTR,#requestHandled
+0212 EF                MOV     A,R7
+0213 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 233
+                                           ; SOURCE LINE # 234
+0214 8034              SJMP    ?C0022
+                                           ; SOURCE LINE # 236
+0216         ?C0033:
+                                           ; SOURCE LINE # 239
+0216 900000      R     MOV     DPTR,#interfaceNumber
+0219 E0                MOVX    A,@DPTR
+021A FF                MOV     R7,A
+021B EF                MOV     A,R7
+021C C3                CLR     C
+021D 9401              SUBB    A,#01H
+021F 5029              JNC     ?C0022
+0221 906002            MOV     DPTR,#06002H
+0224 E0                MOVX    A,@DPTR
+0225 FF                MOV     R7,A
+0226 EF                MOV     A,R7
+0227 D3                SETB    C
+0228 9401              SUBB    A,#01H
+022A 501E              JNC     ?C0022
+                                           ; SOURCE LINE # 240
+                                           ; SOURCE LINE # 241
+022C 906002            MOV     DPTR,#06002H
+022F E0                MOVX    A,@DPTR
+0230 FF                MOV     R7,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 18  
+
+0231 900000      R     MOV     DPTR,#interfaceNumber
+0234 E0                MOVX    A,@DPTR
+0235 FE                MOV     R6,A
+0236 7400        R     MOV     A,#LOW USBFS_hidProtocol
+0238 2E                ADD     A,R6
+0239 F582              MOV     DPL,A
+023B E4                CLR     A
+023C 3400        R     ADDC    A,#HIGH USBFS_hidProtocol
+023E F583              MOV     DPH,A
+0240 EF                MOV     A,R7
+0241 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 242
+0242 120000      E     LCALL   USBFS_InitNoDataControlTransfer
+0245 900000      R     MOV     DPTR,#requestHandled
+0248 EF                MOV     A,R7
+0249 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 243
+                                           ; SOURCE LINE # 244
+                                           ; SOURCE LINE # 245
+                                           ; SOURCE LINE # 246
+                                           ; SOURCE LINE # 247
+                                           ; SOURCE LINE # 248
+                                           ; SOURCE LINE # 250
+                                           ; SOURCE LINE # 251
+024A         ?C0022:
+                                           ; SOURCE LINE # 253
+024A 900000      R     MOV     DPTR,#requestHandled
+024D E0                MOVX    A,@DPTR
+024E FF                MOV     R7,A
+                                           ; SOURCE LINE # 254
+024F         ?C0037:
+024F 22                RET     
              ; FUNCTION USBFS_DispatchHIDClassRqst (END)
 
              ; FUNCTION USBFS_FindHidClassDecriptor (BEGIN)
-                                           ; SOURCE LINE # 286
-                                           ; SOURCE LINE # 287
-                                           ; SOURCE LINE # 292
+                                           ; SOURCE LINE # 277
+                                           ; SOURCE LINE # 278
+                                           ; SOURCE LINE # 283
 0000 900000      E     MOV     DPTR,#USBFS_configuration
 0003 E0                MOVX    A,@DPTR
-0004 14                DEC     A
-0005 FF                MOV     R7,A
-0006 120000      E     LCALL   _USBFS_GetConfigTablePtr
-0009 900000      R     MOV     DPTR,#pTmp
-000C EE                MOV     A,R6
-000D F0                MOVX    @DPTR,A
-000E A3                INC     DPTR
-000F EF                MOV     A,R7
-0010 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 294
-0011 906004            MOV     DPTR,#06004H
-0014 E0                MOVX    A,@DPTR
-0015 900000      R     MOV     DPTR,#interfaceN
-0018 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 297
-0019 2402              ADD     A,#02H
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 17  
+0004 FF                MOV     R7,A
+0005 EF                MOV     A,R7
+0006 14                DEC     A
+0007 FF                MOV     R7,A
+0008 120000      E     LCALL   _USBFS_GetConfigTablePtr
+000B 900000      R     MOV     DPTR,#pTmp
+000E EE                MOV     A,R6
+000F F0                MOVX    @DPTR,A
+0010 A3                INC     DPTR
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 284
+0013 906004            MOV     DPTR,#06004H
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 900000      R     MOV     DPTR,#interfaceN
+001B EF                MOV     A,R7
+001C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 287
+001D 900000      R     MOV     DPTR,#interfaceN
+0020 E0                MOVX    A,@DPTR
+0021 FF                MOV     R7,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 19  
 
-001B FF                MOV     R7,A
-001C E4                CLR     A
-001D 33                RLC     A
-001E FE                MOV     R6,A
-001F EF                MOV     A,R7
-0020 7802              MOV     R0,#02H
-0022         ?C0046:
-0022 C3                CLR     C
-0023 33                RLC     A
-0024 CE                XCH     A,R6
-0025 33                RLC     A
-0026 CE                XCH     A,R6
-0027 D8F9              DJNZ    R0,?C0046
-0029 FF                MOV     R7,A
-002A 900000      R     MOV     DPTR,#pTmp+01H
-002D E0                MOVX    A,@DPTR
-002E 2F                ADD     A,R7
-002F FF                MOV     R7,A
-0030 900000      R     MOV     DPTR,#pTmp
-0033 E0                MOVX    A,@DPTR
-0034 3E                ADDC    A,R6
-0035 FE                MOV     R6,A
-0036 F0                MOVX    @DPTR,A
-0037 A3                INC     DPTR
-0038 EF                MOV     A,R7
-0039 F0                MOVX    @DPTR,A
+0022 7E00              MOV     R6,#00H
+0024 EF                MOV     A,R7
+0025 2402              ADD     A,#02H
+0027 FF                MOV     R7,A
+0028 EE                MOV     A,R6
+0029 3400              ADDC    A,#00H
+002B FE                MOV     R6,A
+002C EF                MOV     A,R7
+002D 7802              MOV     R0,#02H
+002F         ?C0044:
+002F C3                CLR     C
+0030 33                RLC     A
+0031 CE                XCH     A,R6
+0032 33                RLC     A
+0033 CE                XCH     A,R6
+0034 D8F9              DJNZ    R0,?C0044
+0036 FF                MOV     R7,A
+0037 900000      R     MOV     DPTR,#pTmp
+003A E0                MOVX    A,@DPTR
+003B FC                MOV     R4,A
+003C A3                INC     DPTR
+003D E0                MOVX    A,@DPTR
+003E FD                MOV     R5,A
+003F EF                MOV     A,R7
+0040 2D                ADD     A,R5
+0041 FF                MOV     R7,A
+0042 EE                MOV     A,R6
+0043 3C                ADDC    A,R4
+0044 FE                MOV     R6,A
+0045 900000      R     MOV     DPTR,#pTmp
+0048 EE                MOV     A,R6
+0049 F0                MOVX    @DPTR,A
+004A A3                INC     DPTR
+004B EF                MOV     A,R7
+004C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 289
+004D 900000      R     MOV     DPTR,#pTmp
+0050 E0                MOVX    A,@DPTR
+0051 FE                MOV     R6,A
+0052 A3                INC     DPTR
+0053 E0                MOVX    A,@DPTR
+0054 FF                MOV     R7,A
+0055 8F82              MOV     DPL,R7
+0057 8E83              MOV     DPH,R6
+0059 A3                INC     DPTR
+005A 120000      E     LCALL   ?C?PLDCODE
+005D AE02              MOV     R6,AR2
+005F AF01              MOV     R7,AR1
+0061 900000      R     MOV     DPTR,#pTmp
+0064 EE                MOV     A,R6
+0065 F0                MOVX    @DPTR,A
+0066 A3                INC     DPTR
+0067 EF                MOV     A,R7
+0068 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 291
+0069 900000      R     MOV     DPTR,#interfaceN
+006C E0                MOVX    A,@DPTR
+006D FF                MOV     R7,A
+006E 7400        E     MOV     A,#LOW USBFS_interfaceSetting
+0070 2F                ADD     A,R7
+0071 F582              MOV     DPL,A
+0073 E4                CLR     A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 20  
+
+0074 3400        E     ADDC    A,#HIGH USBFS_interfaceSetting
+0076 F583              MOV     DPH,A
+0078 E0                MOVX    A,@DPTR
+0079 FF                MOV     R7,A
+007A 7E04              MOV     R6,#04H
+007C EF                MOV     A,R7
+007D 8EF0              MOV     B,R6
+007F A4                MUL     AB
+0080 FF                MOV     R7,A
+0081 AEF0              MOV     R6,B
+0083 900000      R     MOV     DPTR,#pTmp
+0086 E0                MOVX    A,@DPTR
+0087 FC                MOV     R4,A
+0088 A3                INC     DPTR
+0089 E0                MOVX    A,@DPTR
+008A FD                MOV     R5,A
+008B EF                MOV     A,R7
+008C 2D                ADD     A,R5
+008D FF                MOV     R7,A
+008E EE                MOV     A,R6
+008F 3C                ADDC    A,R4
+0090 FE                MOV     R6,A
+0091 900000      R     MOV     DPTR,#pTmp
+0094 EE                MOV     A,R6
+0095 F0                MOVX    @DPTR,A
+0096 A3                INC     DPTR
+0097 EF                MOV     A,R7
+0098 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 293
+0099 900000      R     MOV     DPTR,#pTmp
+009C E0                MOVX    A,@DPTR
+009D FE                MOV     R6,A
+009E A3                INC     DPTR
+009F E0                MOVX    A,@DPTR
+00A0 FF                MOV     R7,A
+00A1 8F82              MOV     DPL,R7
+00A3 8E83              MOV     DPH,R6
+00A5 A3                INC     DPTR
+00A6 120000      E     LCALL   ?C?PLDCODE
+00A9 AE02              MOV     R6,AR2
+00AB AF01              MOV     R7,AR1
+00AD 900000      R     MOV     DPTR,#pTmp
+00B0 EE                MOV     A,R6
+00B1 F0                MOVX    @DPTR,A
+00B2 A3                INC     DPTR
+00B3 EF                MOV     A,R7
+00B4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 295
+00B5 900000      R     MOV     DPTR,#pTmp
+00B8 E0                MOVX    A,@DPTR
+00B9 FE                MOV     R6,A
+00BA A3                INC     DPTR
+00BB E0                MOVX    A,@DPTR
+00BC FF                MOV     R7,A
+00BD EF                MOV     A,R7
+00BE 2410              ADD     A,#010H
+00C0 FF                MOV     R7,A
+00C1 EE                MOV     A,R6
+00C2 3400              ADDC    A,#00H
+00C4 FE                MOV     R6,A
+00C5 900000      R     MOV     DPTR,#pTmp
+00C8 EE                MOV     A,R6
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 21  
+
+00C9 F0                MOVX    @DPTR,A
+00CA A3                INC     DPTR
+00CB EF                MOV     A,R7
+00CC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 296
+00CD 900000      R     MOV     DPTR,#pTmp
+00D0 E0                MOVX    A,@DPTR
+00D1 FE                MOV     R6,A
+00D2 A3                INC     DPTR
+00D3 E0                MOVX    A,@DPTR
+00D4 FF                MOV     R7,A
+00D5 8F82              MOV     DPL,R7
+00D7 8E83              MOV     DPH,R6
+00D9 A3                INC     DPTR
+00DA 120000      E     LCALL   ?C?PLDCODE
+00DD 900000      R     MOV     DPTR,#pDescr
+00E0 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 298
+00E3 900000      R     MOV     DPTR,#pDescr
+00E6 120000      E     LCALL   ?C?PLDXDATA
+00E9 120000      E     LCALL   ?C?CLDPTR
+00EC FF                MOV     R7,A
+00ED 7E00              MOV     R6,#00H
+00EF 900000      E     MOV     DPTR,#USBFS_currentTD
+00F2 EE                MOV     A,R6
+00F3 F0                MOVX    @DPTR,A
+00F4 A3                INC     DPTR
+00F5 EF                MOV     A,R7
+00F6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 299
+00F7 900000      R     MOV     DPTR,#pDescr
+00FA 120000      E     LCALL   ?C?PLDXDATA
+00FD 900000      E     MOV     DPTR,#USBFS_currentTD+02H
+0100 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 300
-003A F582              MOV     DPL,A
-003C 8E83              MOV     DPH,R6
-003E A3                INC     DPTR
-003F 120000      E     LCALL   ?C?PLDCODE
-0042 AF01              MOV     R7,AR1
-0044 900000      R     MOV     DPTR,#pTmp
-0047 EA                MOV     A,R2
-0048 F0                MOVX    @DPTR,A
-0049 A3                INC     DPTR
-004A EF                MOV     A,R7
-004B F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 303
-004C A3                INC     DPTR
-004D E0                MOVX    A,@DPTR
-004E 2400        E     ADD     A,#LOW USBFS_interfaceSetting
-0050 F582              MOV     DPL,A
-0052 E4                CLR     A
-0053 3400        E     ADDC    A,#HIGH USBFS_interfaceSetting
-0055 F583              MOV     DPH,A
-0057 E0                MOVX    A,@DPTR
-0058 75F004            MOV     B,#04H
-005B A4                MUL     AB
-005C FF                MOV     R7,A
-005D AEF0              MOV     R6,B
-005F 900000      R     MOV     DPTR,#pTmp+01H
-0062 E0                MOVX    A,@DPTR
-0063 2F                ADD     A,R7
-0064 F0                MOVX    @DPTR,A
-0065 900000      R     MOV     DPTR,#pTmp
-0068 E0                MOVX    A,@DPTR
-0069 3E                ADDC    A,R6
-006A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 306
-006B E0                MOVX    A,@DPTR
-006C FE                MOV     R6,A
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 18  
-
-006D A3                INC     DPTR
-006E E0                MOVX    A,@DPTR
-006F F582              MOV     DPL,A
-0071 8E83              MOV     DPH,R6
-0073 A3                INC     DPTR
-0074 120000      E     LCALL   ?C?PLDCODE
-0077 AE02              MOV     R6,AR2
-0079 AF01              MOV     R7,AR1
-007B 900000      R     MOV     DPTR,#pTmp
-007E EE                MOV     A,R6
-007F F0                MOVX    @DPTR,A
-0080 A3                INC     DPTR
-0081 EF                MOV     A,R7
-0082 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 309
-0083 2410              ADD     A,#010H
-0085 FF                MOV     R7,A
-0086 E4                CLR     A
-0087 3E                ADDC    A,R6
-0088 FE                MOV     R6,A
-0089 900000      R     MOV     DPTR,#pTmp
-008C F0                MOVX    @DPTR,A
-008D A3                INC     DPTR
-008E EF                MOV     A,R7
-008F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 310
-0090 F582              MOV     DPL,A
-0092 8E83              MOV     DPH,R6
-0094 A3                INC     DPTR
-0095 120000      E     LCALL   ?C?PLDCODE
-;---- Variable 'pDescr' assigned to Register 'R1/R2/R3' ----
-                                           ; SOURCE LINE # 313
-0098 120000      E     LCALL   ?C?CLDPTR
-009B FF                MOV     R7,A
-009C 900000      E     MOV     DPTR,#USBFS_currentTD
-009F E4                CLR     A
-00A0 F0                MOVX    @DPTR,A
-00A1 A3                INC     DPTR
-00A2 EF                MOV     A,R7
-00A3 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 314
-00A4 900000      E     MOV     DPTR,#USBFS_currentTD+02H
-00A7 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 315
-00AA 22                RET     
+0103 22                RET     
              ; FUNCTION USBFS_FindHidClassDecriptor (END)
 
              ; FUNCTION USBFS_FindReportDescriptor (BEGIN)
-                                           ; SOURCE LINE # 334
-                                           ; SOURCE LINE # 335
-                                           ; SOURCE LINE # 340
+                                           ; SOURCE LINE # 323
+                                           ; SOURCE LINE # 324
+                                           ; SOURCE LINE # 329
 0000 900000      E     MOV     DPTR,#USBFS_configuration
 0003 E0                MOVX    A,@DPTR
-0004 14                DEC     A
-0005 FF                MOV     R7,A
-0006 120000      E     LCALL   _USBFS_GetConfigTablePtr
-0009 900000      R     MOV     DPTR,#pTmp
-000C EE                MOV     A,R6
-000D F0                MOVX    @DPTR,A
-000E A3                INC     DPTR
-000F EF                MOV     A,R7
-0010 F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 19  
+0004 FF                MOV     R7,A
+0005 EF                MOV     A,R7
+0006 14                DEC     A
+0007 FF                MOV     R7,A
+0008 120000      E     LCALL   _USBFS_GetConfigTablePtr
+000B 900000      R     MOV     DPTR,#pTmp
+000E EE                MOV     A,R6
+000F F0                MOVX    @DPTR,A
+0010 A3                INC     DPTR
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 330
+0013 906004            MOV     DPTR,#06004H
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 900000      R     MOV     DPTR,#interfaceN
+001B EF                MOV     A,R7
+001C F0                MOVX    @DPTR,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 22  
 
-                                           ; SOURCE LINE # 341
-0011 906004            MOV     DPTR,#06004H
-0014 E0                MOVX    A,@DPTR
-0015 900000      R     MOV     DPTR,#interfaceN
-0018 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 345
-0019 2402              ADD     A,#02H
-001B FF                MOV     R7,A
-001C E4                CLR     A
-001D 33                RLC     A
-001E FE                MOV     R6,A
-001F EF                MOV     A,R7
-0020 7802              MOV     R0,#02H
-0022         ?C0047:
-0022 C3                CLR     C
-0023 33                RLC     A
-0024 CE                XCH     A,R6
-0025 33                RLC     A
-0026 CE                XCH     A,R6
-0027 D8F9              DJNZ    R0,?C0047
-0029 FF                MOV     R7,A
-002A 900000      R     MOV     DPTR,#pTmp+01H
-002D E0                MOVX    A,@DPTR
-002E 2F                ADD     A,R7
-002F FF                MOV     R7,A
-0030 900000      R     MOV     DPTR,#pTmp
-0033 E0                MOVX    A,@DPTR
-0034 3E                ADDC    A,R6
-0035 FE                MOV     R6,A
-0036 F0                MOVX    @DPTR,A
-0037 A3                INC     DPTR
-0038 EF                MOV     A,R7
-0039 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 348
-003A F582              MOV     DPL,A
-003C 8E83              MOV     DPH,R6
-003E A3                INC     DPTR
-003F 120000      E     LCALL   ?C?PLDCODE
-0042 AF01              MOV     R7,AR1
-0044 900000      R     MOV     DPTR,#pTmp
-0047 EA                MOV     A,R2
-0048 F0                MOVX    @DPTR,A
-0049 A3                INC     DPTR
-004A EF                MOV     A,R7
-004B F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 351
-004C 900000      R     MOV     DPTR,#interfaceN
-004F E0                MOVX    A,@DPTR
-0050 2400        E     ADD     A,#LOW USBFS_interfaceSetting
-0052 F582              MOV     DPL,A
-0054 E4                CLR     A
-0055 3400        E     ADDC    A,#HIGH USBFS_interfaceSetting
-0057 F583              MOV     DPH,A
-0059 E0                MOVX    A,@DPTR
-005A 75F004            MOV     B,#04H
-005D A4                MUL     AB
-005E FF                MOV     R7,A
-005F AEF0              MOV     R6,B
-0061 900000      R     MOV     DPTR,#pTmp+01H
-0064 E0                MOVX    A,@DPTR
-0065 2F                ADD     A,R7
-0066 F0                MOVX    @DPTR,A
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 20  
+                                           ; SOURCE LINE # 333
+001D 900000      R     MOV     DPTR,#interfaceN
+0020 E0                MOVX    A,@DPTR
+0021 FF                MOV     R7,A
+0022 7E00              MOV     R6,#00H
+0024 EF                MOV     A,R7
+0025 2402              ADD     A,#02H
+0027 FF                MOV     R7,A
+0028 EE                MOV     A,R6
+0029 3400              ADDC    A,#00H
+002B FE                MOV     R6,A
+002C EF                MOV     A,R7
+002D 7802              MOV     R0,#02H
+002F         ?C0045:
+002F C3                CLR     C
+0030 33                RLC     A
+0031 CE                XCH     A,R6
+0032 33                RLC     A
+0033 CE                XCH     A,R6
+0034 D8F9              DJNZ    R0,?C0045
+0036 FF                MOV     R7,A
+0037 900000      R     MOV     DPTR,#pTmp
+003A E0                MOVX    A,@DPTR
+003B FC                MOV     R4,A
+003C A3                INC     DPTR
+003D E0                MOVX    A,@DPTR
+003E FD                MOV     R5,A
+003F EF                MOV     A,R7
+0040 2D                ADD     A,R5
+0041 FF                MOV     R7,A
+0042 EE                MOV     A,R6
+0043 3C                ADDC    A,R4
+0044 FE                MOV     R6,A
+0045 900000      R     MOV     DPTR,#pTmp
+0048 EE                MOV     A,R6
+0049 F0                MOVX    @DPTR,A
+004A A3                INC     DPTR
+004B EF                MOV     A,R7
+004C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 335
+004D 900000      R     MOV     DPTR,#pTmp
+0050 E0                MOVX    A,@DPTR
+0051 FE                MOV     R6,A
+0052 A3                INC     DPTR
+0053 E0                MOVX    A,@DPTR
+0054 FF                MOV     R7,A
+0055 8F82              MOV     DPL,R7
+0057 8E83              MOV     DPH,R6
+0059 A3                INC     DPTR
+005A 120000      E     LCALL   ?C?PLDCODE
+005D AE02              MOV     R6,AR2
+005F AF01              MOV     R7,AR1
+0061 900000      R     MOV     DPTR,#pTmp
+0064 EE                MOV     A,R6
+0065 F0                MOVX    @DPTR,A
+0066 A3                INC     DPTR
+0067 EF                MOV     A,R7
+0068 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 337
+0069 900000      R     MOV     DPTR,#interfaceN
+006C E0                MOVX    A,@DPTR
+006D FF                MOV     R7,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 23  
 
-0067 900000      R     MOV     DPTR,#pTmp
-006A E0                MOVX    A,@DPTR
-006B 3E                ADDC    A,R6
-006C F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 354
-006D E0                MOVX    A,@DPTR
-006E FE                MOV     R6,A
-006F A3                INC     DPTR
-0070 E0                MOVX    A,@DPTR
+006E 7400        E     MOV     A,#LOW USBFS_interfaceSetting
+0070 2F                ADD     A,R7
 0071 F582              MOV     DPL,A
-0073 8E83              MOV     DPH,R6
-0075 A3                INC     DPTR
-0076 120000      E     LCALL   ?C?PLDCODE
-0079 AE02              MOV     R6,AR2
-007B AF01              MOV     R7,AR1
-007D 900000      R     MOV     DPTR,#pTmp
-0080 EE                MOV     A,R6
-0081 F0                MOVX    @DPTR,A
-0082 A3                INC     DPTR
-0083 EF                MOV     A,R7
-0084 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 357
-0085 240C              ADD     A,#0CH
-0087 FF                MOV     R7,A
-0088 E4                CLR     A
-0089 3E                ADDC    A,R6
-008A FE                MOV     R6,A
-008B 900000      R     MOV     DPTR,#pTmp
-008E F0                MOVX    @DPTR,A
-008F A3                INC     DPTR
-0090 EF                MOV     A,R7
-0091 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 358
-0092 F582              MOV     DPL,A
-0094 8E83              MOV     DPH,R6
+0073 E4                CLR     A
+0074 3400        E     ADDC    A,#HIGH USBFS_interfaceSetting
+0076 F583              MOV     DPH,A
+0078 E0                MOVX    A,@DPTR
+0079 FF                MOV     R7,A
+007A 7E04              MOV     R6,#04H
+007C EF                MOV     A,R7
+007D 8EF0              MOV     B,R6
+007F A4                MUL     AB
+0080 FF                MOV     R7,A
+0081 AEF0              MOV     R6,B
+0083 900000      R     MOV     DPTR,#pTmp
+0086 E0                MOVX    A,@DPTR
+0087 FC                MOV     R4,A
+0088 A3                INC     DPTR
+0089 E0                MOVX    A,@DPTR
+008A FD                MOV     R5,A
+008B EF                MOV     A,R7
+008C 2D                ADD     A,R5
+008D FF                MOV     R7,A
+008E EE                MOV     A,R6
+008F 3C                ADDC    A,R4
+0090 FE                MOV     R6,A
+0091 900000      R     MOV     DPTR,#pTmp
+0094 EE                MOV     A,R6
+0095 F0                MOVX    @DPTR,A
 0096 A3                INC     DPTR
-0097 120000      E     LCALL   ?C?PLDCODE
-009A 900000      R     MOV     DPTR,#pDescr
-009D 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 361
-00A0 900000      R     MOV     DPTR,#pDescr
-00A3 120000      E     LCALL   ?C?PLDXDATA
-00A6 E9                MOV     A,R1
-00A7 2401              ADD     A,#01H
-00A9 F9                MOV     R1,A
-00AA E4                CLR     A
-00AB 3A                ADDC    A,R2
-00AC FA                MOV     R2,A
-00AD 120000      E     LCALL   ?C?CLDPTR
-00B0 FE                MOV     R6,A
-00B1 900000      R     MOV     DPTR,#pDescr
-00B4 120000      E     LCALL   ?C?PLDXDATA
-00B7 120000      E     LCALL   ?C?CLDPTR
-00BA FD                MOV     R5,A
-00BB EE                MOV     A,R6
-00BC ED                MOV     A,R5
-00BD FF                MOV     R7,A
-00BE 900000      E     MOV     DPTR,#USBFS_currentTD
+0097 EF                MOV     A,R7
+0098 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 339
+0099 900000      R     MOV     DPTR,#pTmp
+009C E0                MOVX    A,@DPTR
+009D FE                MOV     R6,A
+009E A3                INC     DPTR
+009F E0                MOVX    A,@DPTR
+00A0 FF                MOV     R7,A
+00A1 8F82              MOV     DPL,R7
+00A3 8E83              MOV     DPH,R6
+00A5 A3                INC     DPTR
+00A6 120000      E     LCALL   ?C?PLDCODE
+00A9 AE02              MOV     R6,AR2
+00AB AF01              MOV     R7,AR1
+00AD 900000      R     MOV     DPTR,#pTmp
+00B0 EE                MOV     A,R6
+00B1 F0                MOVX    @DPTR,A
+00B2 A3                INC     DPTR
+00B3 EF                MOV     A,R7
+00B4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 341
+00B5 900000      R     MOV     DPTR,#pTmp
+00B8 E0                MOVX    A,@DPTR
+00B9 FE                MOV     R6,A
+00BA A3                INC     DPTR
+00BB E0                MOVX    A,@DPTR
+00BC FF                MOV     R7,A
+00BD EF                MOV     A,R7
+00BE 240C              ADD     A,#0CH
+00C0 FF                MOV     R7,A
 00C1 EE                MOV     A,R6
-00C2 F0                MOVX    @DPTR,A
-00C3 A3                INC     DPTR
-00C4 EF                MOV     A,R7
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 21  
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 24  
 
-00C5 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 362
-00C6 E9                MOV     A,R1
-00C7 2402              ADD     A,#02H
-00C9 F9                MOV     R1,A
-00CA E4                CLR     A
-00CB 3A                ADDC    A,R2
-00CC FA                MOV     R2,A
-00CD 900000      E     MOV     DPTR,#USBFS_currentTD+02H
-00D0 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 363
-00D3 22                RET     
+00C2 3400              ADDC    A,#00H
+00C4 FE                MOV     R6,A
+00C5 900000      R     MOV     DPTR,#pTmp
+00C8 EE                MOV     A,R6
+00C9 F0                MOVX    @DPTR,A
+00CA A3                INC     DPTR
+00CB EF                MOV     A,R7
+00CC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 342
+00CD 900000      R     MOV     DPTR,#pTmp
+00D0 E0                MOVX    A,@DPTR
+00D1 FE                MOV     R6,A
+00D2 A3                INC     DPTR
+00D3 E0                MOVX    A,@DPTR
+00D4 FF                MOV     R7,A
+00D5 8F82              MOV     DPL,R7
+00D7 8E83              MOV     DPH,R6
+00D9 A3                INC     DPTR
+00DA 120000      E     LCALL   ?C?PLDCODE
+00DD 900000      R     MOV     DPTR,#pDescr
+00E0 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 344
+00E3 900000      R     MOV     DPTR,#pDescr
+00E6 120000      E     LCALL   ?C?PLDXDATA
+00E9 E9                MOV     A,R1
+00EA 2401              ADD     A,#01H
+00EC F9                MOV     R1,A
+00ED EA                MOV     A,R2
+00EE 3400              ADDC    A,#00H
+00F0 FA                MOV     R2,A
+00F1 120000      E     LCALL   ?C?CLDPTR
+00F4 FF                MOV     R7,A
+00F5 7E00              MOV     R6,#00H
+00F7 EF                MOV     A,R7
+00F8 7F00              MOV     R7,#00H
+00FA FE                MOV     R6,A
+00FB 900000      R     MOV     DPTR,#pDescr
+00FE 120000      E     LCALL   ?C?PLDXDATA
+0101 120000      E     LCALL   ?C?CLDPTR
+0104 FD                MOV     R5,A
+0105 7C00              MOV     R4,#00H
+0107 EE                MOV     A,R6
+0108 4C                ORL     A,R4
+0109 FE                MOV     R6,A
+010A EF                MOV     A,R7
+010B 4D                ORL     A,R5
+010C FF                MOV     R7,A
+010D 900000      E     MOV     DPTR,#USBFS_currentTD
+0110 EE                MOV     A,R6
+0111 F0                MOVX    @DPTR,A
+0112 A3                INC     DPTR
+0113 EF                MOV     A,R7
+0114 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 345
+0115 900000      R     MOV     DPTR,#pDescr
+0118 120000      E     LCALL   ?C?PLDXDATA
+011B E9                MOV     A,R1
+011C 2402              ADD     A,#02H
+011E F9                MOV     R1,A
+011F EA                MOV     A,R2
+0120 3400              ADDC    A,#00H
+0122 FA                MOV     R2,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 25  
+
+0123 900000      E     MOV     DPTR,#USBFS_currentTD+02H
+0126 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 346
+0129 22                RET     
              ; FUNCTION USBFS_FindReportDescriptor (END)
 
              ; FUNCTION USBFS_FindReport (BEGIN)
-                                           ; SOURCE LINE # 382
-                                           ; SOURCE LINE # 383
-                                           ; SOURCE LINE # 397
-0000 E4                CLR     A
-0001 900000      E     MOV     DPTR,#USBFS_currentTD
+                                           ; SOURCE LINE # 369
+                                           ; SOURCE LINE # 370
+                                           ; SOURCE LINE # 384
+0000 900000      E     MOV     DPTR,#USBFS_currentTD
+0003 E4                CLR     A
 0004 F0                MOVX    @DPTR,A
 0005 A3                INC     DPTR
-0006 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 398
-0007 900000      E     MOV     DPTR,#USBFS_configuration
-000A E0                MOVX    A,@DPTR
-000B 14                DEC     A
+0006 E4                CLR     A
+0007 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 385
+0008 900000      E     MOV     DPTR,#USBFS_configuration
+000B E0                MOVX    A,@DPTR
 000C FF                MOV     R7,A
-000D 120000      E     LCALL   _USBFS_GetConfigTablePtr
-0010 900000      R     MOV     DPTR,#pTmp
-0013 EE                MOV     A,R6
-0014 F0                MOVX    @DPTR,A
-0015 A3                INC     DPTR
-0016 EF                MOV     A,R7
+000D EF                MOV     A,R7
+000E 14                DEC     A
+000F FF                MOV     R7,A
+0010 120000      E     LCALL   _USBFS_GetConfigTablePtr
+0013 900000      R     MOV     DPTR,#pTmp
+0016 EE                MOV     A,R6
 0017 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 399
-0018 906003            MOV     DPTR,#06003H
-001B E0                MOVX    A,@DPTR
-001C 900000      R     MOV     DPTR,#reportType
-001F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 400
-0020 906004            MOV     DPTR,#06004H
-0023 E0                MOVX    A,@DPTR
-0024 900000      R     MOV     DPTR,#interfaceN
-0027 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 404
-0028 2402              ADD     A,#02H
-002A FF                MOV     R7,A
-002B E4                CLR     A
-002C 33                RLC     A
-002D FE                MOV     R6,A
-002E EF                MOV     A,R7
-002F 7802              MOV     R0,#02H
-0031         ?C0048:
-0031 C3                CLR     C
-0032 33                RLC     A
-0033 CE                XCH     A,R6
-0034 33                RLC     A
-0035 CE                XCH     A,R6
-0036 D8F9              DJNZ    R0,?C0048
-0038 FF                MOV     R7,A
-0039 900000      R     MOV     DPTR,#pTmp+01H
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 22  
+0018 A3                INC     DPTR
+0019 EF                MOV     A,R7
+001A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 386
+001B 906003            MOV     DPTR,#06003H
+001E E0                MOVX    A,@DPTR
+001F FF                MOV     R7,A
+0020 900000      R     MOV     DPTR,#reportType
+0023 EF                MOV     A,R7
+0024 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 387
+0025 906004            MOV     DPTR,#06004H
+0028 E0                MOVX    A,@DPTR
+0029 FF                MOV     R7,A
+002A 900000      R     MOV     DPTR,#interfaceN
+002D EF                MOV     A,R7
+002E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 390
+002F 900000      R     MOV     DPTR,#interfaceN
+0032 E0                MOVX    A,@DPTR
+0033 FF                MOV     R7,A
+0034 7E00              MOV     R6,#00H
+0036 EF                MOV     A,R7
+0037 2402              ADD     A,#02H
+0039 FF                MOV     R7,A
+003A EE                MOV     A,R6
+003B 3400              ADDC    A,#00H
+003D FE                MOV     R6,A
+003E EF                MOV     A,R7
+003F 7802              MOV     R0,#02H
+0041         ?C0046:
+0041 C3                CLR     C
+0042 33                RLC     A
+0043 CE                XCH     A,R6
+0044 33                RLC     A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 26  
 
-003C E0                MOVX    A,@DPTR
-003D 2F                ADD     A,R7
-003E FF                MOV     R7,A
-003F 900000      R     MOV     DPTR,#pTmp
-0042 E0                MOVX    A,@DPTR
-0043 3E                ADDC    A,R6
-0044 FE                MOV     R6,A
-0045 F0                MOVX    @DPTR,A
-0046 A3                INC     DPTR
-0047 EF                MOV     A,R7
-0048 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 407
-0049 F582              MOV     DPL,A
-004B 8E83              MOV     DPH,R6
-004D A3                INC     DPTR
-004E 120000      E     LCALL   ?C?PLDCODE
-0051 AF01              MOV     R7,AR1
-0053 900000      R     MOV     DPTR,#pTmp
-0056 EA                MOV     A,R2
-0057 F0                MOVX    @DPTR,A
-0058 A3                INC     DPTR
-0059 EF                MOV     A,R7
-005A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 408
-005B 900000      R     MOV     DPTR,#interfaceN
-005E E0                MOVX    A,@DPTR
-005F FF                MOV     R7,A
-0060 C3                CLR     C
-0061 9401              SUBB    A,#01H
-0063 4003              JC      $ + 5H
-0065 020000      R     LJMP    ?C0041
-                                           ; SOURCE LINE # 409
-                                           ; SOURCE LINE # 411
-0068 7400        E     MOV     A,#LOW USBFS_interfaceSetting
-006A 2F                ADD     A,R7
-006B F582              MOV     DPL,A
-006D E4                CLR     A
-006E 3400        E     ADDC    A,#HIGH USBFS_interfaceSetting
-0070 F583              MOV     DPH,A
-0072 E0                MOVX    A,@DPTR
-0073 75F004            MOV     B,#04H
-0076 A4                MUL     AB
-0077 FF                MOV     R7,A
-0078 AEF0              MOV     R6,B
-007A 900000      R     MOV     DPTR,#pTmp+01H
-007D E0                MOVX    A,@DPTR
-007E 2F                ADD     A,R7
-007F F0                MOVX    @DPTR,A
-0080 900000      R     MOV     DPTR,#pTmp
-0083 E0                MOVX    A,@DPTR
-0084 3E                ADDC    A,R6
-0085 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 414
-0086 E0                MOVX    A,@DPTR
-0087 FE                MOV     R6,A
-0088 A3                INC     DPTR
-0089 E0                MOVX    A,@DPTR
-008A F582              MOV     DPL,A
-008C 8E83              MOV     DPH,R6
-008E A3                INC     DPTR
-008F 120000      E     LCALL   ?C?PLDCODE
-0092 AF01              MOV     R7,AR1
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 23  
+0045 CE                XCH     A,R6
+0046 D8F9              DJNZ    R0,?C0046
+0048 FF                MOV     R7,A
+0049 900000      R     MOV     DPTR,#pTmp
+004C E0                MOVX    A,@DPTR
+004D FC                MOV     R4,A
+004E A3                INC     DPTR
+004F E0                MOVX    A,@DPTR
+0050 FD                MOV     R5,A
+0051 EF                MOV     A,R7
+0052 2D                ADD     A,R5
+0053 FF                MOV     R7,A
+0054 EE                MOV     A,R6
+0055 3C                ADDC    A,R4
+0056 FE                MOV     R6,A
+0057 900000      R     MOV     DPTR,#pTmp
+005A EE                MOV     A,R6
+005B F0                MOVX    @DPTR,A
+005C A3                INC     DPTR
+005D EF                MOV     A,R7
+005E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 392
+005F 900000      R     MOV     DPTR,#pTmp
+0062 E0                MOVX    A,@DPTR
+0063 FE                MOV     R6,A
+0064 A3                INC     DPTR
+0065 E0                MOVX    A,@DPTR
+0066 FF                MOV     R7,A
+0067 8F82              MOV     DPL,R7
+0069 8E83              MOV     DPH,R6
+006B A3                INC     DPTR
+006C 120000      E     LCALL   ?C?PLDCODE
+006F AE02              MOV     R6,AR2
+0071 AF01              MOV     R7,AR1
+0073 900000      R     MOV     DPTR,#pTmp
+0076 EE                MOV     A,R6
+0077 F0                MOVX    @DPTR,A
+0078 A3                INC     DPTR
+0079 EF                MOV     A,R7
+007A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 393
+007B 900000      R     MOV     DPTR,#interfaceN
+007E E0                MOVX    A,@DPTR
+007F FF                MOV     R7,A
+0080 EF                MOV     A,R7
+0081 C3                CLR     C
+0082 9401              SUBB    A,#01H
+0084 4003              JC      $ + 5H
+0086 020000      R     LJMP    ?C0043
+                                           ; SOURCE LINE # 394
+                                           ; SOURCE LINE # 396
+0089 900000      R     MOV     DPTR,#interfaceN
+008C E0                MOVX    A,@DPTR
+008D FF                MOV     R7,A
+008E 7400        E     MOV     A,#LOW USBFS_interfaceSetting
+0090 2F                ADD     A,R7
+0091 F582              MOV     DPL,A
+0093 E4                CLR     A
+0094 3400        E     ADDC    A,#HIGH USBFS_interfaceSetting
+0096 F583              MOV     DPH,A
+0098 E0                MOVX    A,@DPTR
+0099 FF                MOV     R7,A
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 27  
 
-0094 900000      R     MOV     DPTR,#pTmp
-0097 EA                MOV     A,R2
-0098 F0                MOVX    @DPTR,A
-0099 A3                INC     DPTR
-009A EF                MOV     A,R7
-009B F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 417
-009C 900000      R     MOV     DPTR,#reportType
-009F E0                MOVX    A,@DPTR
+009A 7E04              MOV     R6,#04H
+009C EF                MOV     A,R7
+009D 8EF0              MOV     B,R6
+009F A4                MUL     AB
 00A0 FF                MOV     R7,A
-00A1 C3                CLR     C
-00A2 9401              SUBB    A,#01H
-00A4 5003              JNC     $ + 5H
-00A6 020000      R     LJMP    ?C0041
-00A9 EF                MOV     A,R7
-00AA D3                SETB    C
-00AB 9403              SUBB    A,#03H
-00AD 4003              JC      $ + 5H
-00AF 020000      R     LJMP    ?C0041
-                                           ; SOURCE LINE # 419
-                                           ; SOURCE LINE # 421
-00B2 EF                MOV     A,R7
-00B3 24FF              ADD     A,#0FFH
-00B5 FF                MOV     R7,A
-00B6 E4                CLR     A
-00B7 34FF              ADDC    A,#0FFH
-00B9 FE                MOV     R6,A
-00BA EF                MOV     A,R7
-00BB 7802              MOV     R0,#02H
-00BD         ?C0049:
-00BD C3                CLR     C
-00BE 33                RLC     A
-00BF CE                XCH     A,R6
-00C0 33                RLC     A
-00C1 CE                XCH     A,R6
-00C2 D8F9              DJNZ    R0,?C0049
-00C4 FF                MOV     R7,A
-00C5 900000      R     MOV     DPTR,#pTmp+01H
-00C8 E0                MOVX    A,@DPTR
-00C9 2F                ADD     A,R7
-00CA FF                MOV     R7,A
-00CB 900000      R     MOV     DPTR,#pTmp
-00CE E0                MOVX    A,@DPTR
-00CF 3E                ADDC    A,R6
-00D0 FE                MOV     R6,A
+00A1 AEF0              MOV     R6,B
+00A3 900000      R     MOV     DPTR,#pTmp
+00A6 E0                MOVX    A,@DPTR
+00A7 FC                MOV     R4,A
+00A8 A3                INC     DPTR
+00A9 E0                MOVX    A,@DPTR
+00AA FD                MOV     R5,A
+00AB EF                MOV     A,R7
+00AC 2D                ADD     A,R5
+00AD FF                MOV     R7,A
+00AE EE                MOV     A,R6
+00AF 3C                ADDC    A,R4
+00B0 FE                MOV     R6,A
+00B1 900000      R     MOV     DPTR,#pTmp
+00B4 EE                MOV     A,R6
+00B5 F0                MOVX    @DPTR,A
+00B6 A3                INC     DPTR
+00B7 EF                MOV     A,R7
+00B8 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 398
+00B9 900000      R     MOV     DPTR,#pTmp
+00BC E0                MOVX    A,@DPTR
+00BD FE                MOV     R6,A
+00BE A3                INC     DPTR
+00BF E0                MOVX    A,@DPTR
+00C0 FF                MOV     R7,A
+00C1 8F82              MOV     DPL,R7
+00C3 8E83              MOV     DPH,R6
+00C5 A3                INC     DPTR
+00C6 120000      E     LCALL   ?C?PLDCODE
+00C9 AE02              MOV     R6,AR2
+00CB AF01              MOV     R7,AR1
+00CD 900000      R     MOV     DPTR,#pTmp
+00D0 EE                MOV     A,R6
 00D1 F0                MOVX    @DPTR,A
 00D2 A3                INC     DPTR
 00D3 EF                MOV     A,R7
 00D4 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 424
-00D5 906002            MOV     DPTR,#06002H
+                                           ; SOURCE LINE # 400
+00D5 900000      R     MOV     DPTR,#reportType
 00D8 E0                MOVX    A,@DPTR
-00D9 FD                MOV     R5,A
-00DA 900000      R     MOV     DPTR,#reportType
-00DD F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 427
-00DE 8F82              MOV     DPL,R7
-00E0 8E83              MOV     DPH,R6
-00E2 E4                CLR     A
-00E3 93                MOVC    A,@A+DPTR
-00E4 C3                CLR     C
-00E5 9D                SUBB    A,R5
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 24  
+00D9 FF                MOV     R7,A
+00DA EF                MOV     A,R7
+00DB C3                CLR     C
+00DC 9401              SUBB    A,#01H
+00DE 5003              JNC     $ + 5H
+00E0 020000      R     LJMP    ?C0043
+00E3 900000      R     MOV     DPTR,#reportType
+00E6 E0                MOVX    A,@DPTR
+00E7 FF                MOV     R7,A
+00E8 EF                MOV     A,R7
+00E9 D3                SETB    C
+00EA 9403              SUBB    A,#03H
+00EC 4003              JC      $ + 5H
+00EE 020000      R     LJMP    ?C0043
+                                           ; SOURCE LINE # 402
+                                           ; SOURCE LINE # 404
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 28  
 
-00E6 406A              JC      ?C0041
-                                           ; SOURCE LINE # 428
-                                           ; SOURCE LINE # 429
-00E8 900000      R     MOV     DPTR,#pTmp
-00EB E0                MOVX    A,@DPTR
-00EC FE                MOV     R6,A
-00ED A3                INC     DPTR
-00EE E0                MOVX    A,@DPTR
-00EF F582              MOV     DPL,A
-00F1 8E83              MOV     DPH,R6
-00F3 A3                INC     DPTR
-00F4 120000      E     LCALL   ?C?PLDCODE
-00F7 900000      R     MOV     DPTR,#pTD
-00FA 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 430
-00FD 900000      R     MOV     DPTR,#reportType
-0100 E0                MOVX    A,@DPTR
-0101 75F008            MOV     B,#08H
-0104 A4                MUL     AB
-0105 FF                MOV     R7,A
-0106 900000      R     MOV     DPTR,#pTD
-0109 120000      E     LCALL   ?C?PLDXDATA
-010C E9                MOV     A,R1
-010D 2F                ADD     A,R7
-010E F9                MOV     R1,A
-010F EA                MOV     A,R2
-0110 35F0              ADDC    A,B
-0112 FA                MOV     R2,A
-0113 900000      R     MOV     DPTR,#pTD
-0116 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 431
-0119 900000      R     MOV     DPTR,#pTD
-011C 120000      E     LCALL   ?C?PLDXDATA
-011F E9                MOV     A,R1
-0120 2402              ADD     A,#02H
-0122 F9                MOV     R1,A
-0123 E4                CLR     A
-0124 3A                ADDC    A,R2
-0125 FA                MOV     R2,A
-0126 120000      E     LCALL   ?C?PLDPTR
-0129 900000      E     MOV     DPTR,#USBFS_currentTD+02H
-012C 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 432
-012F 900000      R     MOV     DPTR,#pTD
-0132 120000      E     LCALL   ?C?PLDXDATA
-0135 120000      E     LCALL   ?C?ILDPTR
-0138 FF                MOV     R7,A
-0139 900000      E     MOV     DPTR,#USBFS_currentTD
-013C E5F0              MOV     A,B
-013E F0                MOVX    @DPTR,A
-013F A3                INC     DPTR
-0140 EF                MOV     A,R7
-0141 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 433
-0142 E9                MOV     A,R1
-0143 2405              ADD     A,#05H
-0145 F9                MOV     R1,A
-0146 E4                CLR     A
-0147 3A                ADDC    A,R2
-0148 FA                MOV     R2,A
-0149 120000      E     LCALL   ?C?PLDPTR
-014C 900000      E     MOV     DPTR,#USBFS_currentTD+05H
-C51 COMPILER V9.51   USBFS_HID                                                             07/29/2016 09:50:44 PAGE 25  
+00F1 900000      R     MOV     DPTR,#reportType
+00F4 E0                MOVX    A,@DPTR
+00F5 FF                MOV     R7,A
+00F6 7E00              MOV     R6,#00H
+00F8 EF                MOV     A,R7
+00F9 24FF              ADD     A,#0FFH
+00FB FF                MOV     R7,A
+00FC EE                MOV     A,R6
+00FD 34FF              ADDC    A,#0FFH
+00FF FE                MOV     R6,A
+0100 EF                MOV     A,R7
+0101 7802              MOV     R0,#02H
+0103         ?C0047:
+0103 C3                CLR     C
+0104 33                RLC     A
+0105 CE                XCH     A,R6
+0106 33                RLC     A
+0107 CE                XCH     A,R6
+0108 D8F9              DJNZ    R0,?C0047
+010A FF                MOV     R7,A
+010B 900000      R     MOV     DPTR,#pTmp
+010E E0                MOVX    A,@DPTR
+010F FC                MOV     R4,A
+0110 A3                INC     DPTR
+0111 E0                MOVX    A,@DPTR
+0112 FD                MOV     R5,A
+0113 EF                MOV     A,R7
+0114 2D                ADD     A,R5
+0115 FF                MOV     R7,A
+0116 EE                MOV     A,R6
+0117 3C                ADDC    A,R4
+0118 FE                MOV     R6,A
+0119 900000      R     MOV     DPTR,#pTmp
+011C EE                MOV     A,R6
+011D F0                MOVX    @DPTR,A
+011E A3                INC     DPTR
+011F EF                MOV     A,R7
+0120 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 405
+0121 906002            MOV     DPTR,#06002H
+0124 E0                MOVX    A,@DPTR
+0125 FF                MOV     R7,A
+0126 900000      R     MOV     DPTR,#reportType
+0129 EF                MOV     A,R7
+012A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 407
+012B 900000      R     MOV     DPTR,#pTmp
+012E E0                MOVX    A,@DPTR
+012F FE                MOV     R6,A
+0130 A3                INC     DPTR
+0131 E0                MOVX    A,@DPTR
+0132 FF                MOV     R7,A
+0133 8F82              MOV     DPL,R7
+0135 8E83              MOV     DPH,R6
+0137 E4                CLR     A
+0138 93                MOVC    A,@A+DPTR
+0139 FF                MOV     R7,A
+013A 900000      R     MOV     DPTR,#reportType
+013D E0                MOVX    A,@DPTR
+013E FE                MOV     R6,A
+013F EF                MOV     A,R7
+0140 C3                CLR     C
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 29  
 
-014F 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 434
-                                           ; SOURCE LINE # 435
-                                           ; SOURCE LINE # 436
-                                           ; SOURCE LINE # 437
-0152         ?C0041:
-0152 22                RET     
+0141 9E                SUBB    A,R6
+0142 4078              JC      ?C0043
+                                           ; SOURCE LINE # 408
+                                           ; SOURCE LINE # 409
+0144 900000      R     MOV     DPTR,#pTmp
+0147 E0                MOVX    A,@DPTR
+0148 FE                MOV     R6,A
+0149 A3                INC     DPTR
+014A E0                MOVX    A,@DPTR
+014B FF                MOV     R7,A
+014C 8F82              MOV     DPL,R7
+014E 8E83              MOV     DPH,R6
+0150 A3                INC     DPTR
+0151 120000      E     LCALL   ?C?PLDCODE
+0154 900000      R     MOV     DPTR,#pTD
+0157 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 410
+015A 900000      R     MOV     DPTR,#reportType
+015D E0                MOVX    A,@DPTR
+015E FF                MOV     R7,A
+015F 7E08              MOV     R6,#08H
+0161 EF                MOV     A,R7
+0162 8EF0              MOV     B,R6
+0164 A4                MUL     AB
+0165 FF                MOV     R7,A
+0166 AEF0              MOV     R6,B
+0168 900000      R     MOV     DPTR,#pTD
+016B 120000      E     LCALL   ?C?PLDXDATA
+016E E9                MOV     A,R1
+016F 2F                ADD     A,R7
+0170 F9                MOV     R1,A
+0171 EA                MOV     A,R2
+0172 3E                ADDC    A,R6
+0173 FA                MOV     R2,A
+0174 900000      R     MOV     DPTR,#pTD
+0177 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 411
+017A 900000      R     MOV     DPTR,#pTD
+017D 120000      E     LCALL   ?C?PLDXDATA
+0180 E9                MOV     A,R1
+0181 2402              ADD     A,#02H
+0183 F9                MOV     R1,A
+0184 EA                MOV     A,R2
+0185 3400              ADDC    A,#00H
+0187 FA                MOV     R2,A
+0188 120000      E     LCALL   ?C?PLDPTR
+018B 900000      E     MOV     DPTR,#USBFS_currentTD+02H
+018E 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 412
+0191 900000      R     MOV     DPTR,#pTD
+0194 120000      E     LCALL   ?C?PLDXDATA
+0197 120000      E     LCALL   ?C?ILDPTR
+019A FF                MOV     R7,A
+019B AEF0              MOV     R6,B
+019D 900000      E     MOV     DPTR,#USBFS_currentTD
+01A0 EE                MOV     A,R6
+01A1 F0                MOVX    @DPTR,A
+01A2 A3                INC     DPTR
+01A3 EF                MOV     A,R7
+01A4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 413
+01A5 900000      R     MOV     DPTR,#pTD
+C51 COMPILER V9.51   USBFS_HID                                                             10/03/2016 19:53:27 PAGE 30  
+
+01A8 120000      E     LCALL   ?C?PLDXDATA
+01AB E9                MOV     A,R1
+01AC 2405              ADD     A,#05H
+01AE F9                MOV     R1,A
+01AF EA                MOV     A,R2
+01B0 3400              ADDC    A,#00H
+01B2 FA                MOV     R2,A
+01B3 120000      E     LCALL   ?C?PLDPTR
+01B6 900000      E     MOV     DPTR,#USBFS_currentTD+05H
+01B9 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 414
+                                           ; SOURCE LINE # 415
+                                           ; SOURCE LINE # 416
+                                           ; SOURCE LINE # 417
+01BC         ?C0043:
+01BC 22                RET     
              ; FUNCTION USBFS_FindReport (END)
 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1291    ----
+   CODE SIZE        =   1743    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =      3      18
+   XDATA SIZE       =      3      24
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

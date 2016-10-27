@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: Control.h  
-* Version 1.80
+* Version 1.70
 *
 * Description:
 *  This file containts Control Register function prototypes and register defines
@@ -8,7 +8,7 @@
 * Note:
 *
 ********************************************************************************
-* Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+* Copyright 2008-2012, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions, 
 * disclaimers, and limitations in the end user license agreement accompanying 
 * the software package with which this file was provided.
@@ -19,18 +19,6 @@
 
 #include "cytypes.h"
 
-    
-/***************************************
-*     Data Struct Definitions
-***************************************/
-
-/* Sleep Mode API Support */
-typedef struct
-{
-    uint8 controlState;
-
-} Control_BACKUP_STRUCT;
-
 
 /***************************************
 *         Function Prototypes 
@@ -38,11 +26,6 @@ typedef struct
 
 void    Control_Write(uint8 control) ;
 uint8   Control_Read(void) ;
-
-void Control_SaveConfig(void) ;
-void Control_RestoreConfig(void) ;
-void Control_Sleep(void) ; 
-void Control_Wakeup(void) ;
 
 
 /***************************************

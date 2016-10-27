@@ -8,6 +8,5 @@
 *.cydsn/codegentemp
 *.cydsn/DP8051
 *.cydsn/Generated_Source
-*.Archive.*
-*PSoC Programmer 3.21.0*
-*peaberry-iambic.cywrk.Ron*
+!bootloader.cydsn/DP8051/DP8051_Keil_903/Release/bootloader.hex
+!bootloader.cydsn/DP8051/DP8051_Keil_903/Release/bootloader.elf

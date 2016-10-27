@@ -1,17 +1,17 @@
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 1   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE CYFLASH
 OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\CyFlash.obj
 COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
                     -.\Generated_Source\PSoC3\CyFlash.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DEBUG)
-                    - WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CyFlash.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\CyFlash.obj)
+                    - WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/CyFlash.lst) CD OT(2,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\CyFlash.obj)
 
 line level    source
 
    1          /*******************************************************************************
    2          * File Name: CyFlash.c
-   3          * Version 5.30
+   3          * Version 4.20
    4          *
    5          *  Description:
    6          *   Provides an API for the FLASH/EEPROM.
@@ -24,7 +24,7 @@ line level    source
   13          *   System Reference Guide provided with PSoC Creator.
   14          *
   15          ********************************************************************************
-  16          * Copyright 2008-2015, Cypress Semiconductor Corporation. All rights reserved.
+  16          * Copyright 2008-2014, Cypress Semiconductor Corporation. All rights reserved.
   17          * You may use this file only in accordance with the license, terms, conditions,
   18          * disclaimers, and limitations in the end user license agreement accompanying
   19          * the software package with which this file was provided.
@@ -62,7 +62,7 @@ line level    source
   51          * Parameters:
   52          *  None
   53          *
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 2   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 2   
 
   54          * Return:
   55          *  None
@@ -126,7 +126,7 @@ line level    source
  113          *  None
  114          *
  115          * Return:
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 3   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 3   
 
  116          *  None
  117          *
@@ -190,7 +190,7 @@ line level    source
  174   5                          status = CYRET_SUCCESS;
  175   5      
  176   5                          while(CY_SPC_BUSY)
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 4   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 4   
 
  177   5                          {
  178   6                              /* Spin until idle. */
@@ -254,7 +254,7 @@ line level    source
  236   4                      status = CYRET_SUCCESS;
  237   4                  }
  238   3              }
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 5   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 5   
 
  239   2              CySpcUnlock();
  240   2          }
@@ -309,16 +309,16 @@ line level    source
  289          *
  290          * Summary:
  291          *  Sets the user supplied temporary buffer to store SPC data while performing
- 292          *  Flash and EEPROM commands. This buffer is only necessary when the Flash ECC
- 293          *  is disabled.
+ 292          *  Flash and EEPROM commands. This buffer is only necessary when the Flash ECC is
+ 293          *  disabled.
  294          *
  295          * Parameters:
  296          *  buffer:
- 297          *   The address of a block of memory to store temporary memory. The size of the
- 298          *   block of memory is CYDEV_FLS_ROW_SIZE + CYDEV_ECC_ROW_SIZE.
+ 297          *   The address of a block of memory to store temporary memory. The size of the block
+ 298          *   of memory is CYDEV_FLS_ROW_SIZE + CYDEV_ECC_ROW_SIZE.
  299          *
  300          * Return:
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 6   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 6   
 
  301          *  status:
  302          *   CYRET_SUCCESS if successful.
@@ -382,7 +382,7 @@ line level    source
  360          *   CYRET_SUCCESS if successful.
  361          *   CYRET_LOCKED if the SPC is already in use.
  362          *   CYRET_CANCELED if command not accepted
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 7   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 7   
 
  363          *   CYRET_UNKNOWN if there was an SPC error.
  364          *
@@ -411,8 +411,8 @@ line level    source
                   ********************************************************************************
                   *
                   * Summary:
-                  *  Sends a command to the SPC to load and program a row of config data in the
-                  *  Flash. This function is only valid for Flash array IDs (not for EEPROM).
+                  *  Sends a command to the SPC to load and program a row of config data in the Flash.
+                  *  This function is only valid for Flash array IDs (not for EEPROM).
                   *
                   * Parameters:
                   *  arrayId:      ID of the array to write
@@ -446,7 +446,7 @@ line level    source
  422          
  423          /*******************************************************************************
  424          * Function Name: CyWriteRowFull
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 8   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 8   
 
  425          ********************************************************************************
  426          * Summary:
@@ -510,7 +510,7 @@ line level    source
  482   3              }
  483   2          }
  484   1      
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 9   
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 9   
 
  485   1          if(rowData == NULL)
  486   1          {
@@ -574,7 +574,7 @@ line level    source
  544   2              {
  545   3                  status = CYRET_LOCKED;
  546   3              }
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 10  
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 10  
 
  547   2          }
  548   1      
@@ -588,9 +588,9 @@ line level    source
  556          *
  557          * Summary:
  558          *  Sets the number of clock cycles the cache will wait before it samples data
- 559          *  coming back from the Flash. This function must be called before increasing
- 560          *  the CPU clock frequency. It can optionally be called after lowering the CPU
- 561          *  clock frequency in order to improve the CPU performance.
+ 559          *  coming back from the Flash. This function must be called before increasing the CPU
+ 560          *  clock frequency. It can optionally be called after lowering the CPU clock
+ 561          *  frequency in order to improve the CPU performance.
  562          *
  563          * Parameters:
  564          *  uint8 freq:
@@ -638,7 +638,7 @@ line level    source
                   {
                       CY_FLASH_CONTROL_REG = (CY_FLASH_CONTROL_REG & (uint8)(~CY_FLASH_CACHE_WS_VALUE_MASK)) |
                                                   CY_FLASH_CACHE_WS_5_VALUE_MASK;
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 11  
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 11  
 
                   }
               #endif  /* (CY_PSOC5) */
@@ -702,7 +702,7 @@ line level    source
  668   1          CY_FLASH_PM_ACT_CFG12_REG    |= CY_FLASH_PM_ACT_CFG12_EN_EE;
  669   1          CY_FLASH_PM_ALTACT_CFG12_REG |= CY_FLASH_PM_ALTACT_CFG12_EN_EE;
  670   1      
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 12  
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 12  
 
  671   1          while(0u == (CY_FLASH_SPC_FM_EE_CR_REG & CY_FLASH_EE_EE_AWAKE))
  672   1          {
@@ -766,7 +766,7 @@ line level    source
  730   1      }
  731          
  732          
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 13  
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 13  
 
  733          /*******************************************************************************
  734          * Function Name: CyEEPROM_ReadRelease
@@ -789,7 +789,7 @@ line level    source
  751          
  752          
  753          /* [] END OF FILE */
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 14  
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 14  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -799,44 +799,73 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 59
                                            ; SOURCE LINE # 62
 0000 120000      E     LCALL   CyEnterCriticalSection
-;---- Variable 'interruptState' assigned to Register 'R7' ----
+0003 900000      R     MOV     DPTR,#interruptState
+0006 EF                MOV     A,R7
+0007 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 69
-0003 9043A0            MOV     DPTR,#043A0H
-0006 E0                MOVX    A,@DPTR
-0007 4408              ORL     A,#08H
-0009 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 70
-000A 9043B0            MOV     DPTR,#043B0H
-000D E0                MOVX    A,@DPTR
+0008 9043A0            MOV     DPTR,#043A0H
+000B E0                MOVX    A,@DPTR
+000C FF                MOV     R7,A
+000D EF                MOV     A,R7
 000E 4408              ORL     A,#08H
-0010 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 83
-0011 904701            MOV     DPTR,#04701H
-0014 74C8              MOV     A,#0C8H
-0016 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 93
-0017 9043AC            MOV     DPTR,#043ACH
-001A E0                MOVX    A,@DPTR
-001B 4401              ORL     A,#01H
+0010 FF                MOV     R7,A
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 70
+0013 9043B0            MOV     DPTR,#043B0H
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 EF                MOV     A,R7
+0019 4408              ORL     A,#08H
+001B FF                MOV     R7,A
+001C EF                MOV     A,R7
 001D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 83
+001E 904701            MOV     DPTR,#04701H
+0021 74C8              MOV     A,#0C8H
+0023 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 93
+0024 9043AC            MOV     DPTR,#043ACH
+0027 E0                MOVX    A,@DPTR
+0028 FF                MOV     R7,A
+0029 EF                MOV     A,R7
+002A 4401              ORL     A,#01H
+002C FF                MOV     R7,A
+002D EF                MOV     A,R7
+002E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 94
-001E 9043BC            MOV     DPTR,#043BCH
-0021 E0                MOVX    A,@DPTR
-0022 4401              ORL     A,#01H
-0024 F0                MOVX    @DPTR,A
-0025         ?C0001:
+002F 9043BC            MOV     DPTR,#043BCH
+0032 E0                MOVX    A,@DPTR
+0033 FF                MOV     R7,A
+0034 EF                MOV     A,R7
+0035 4401              ORL     A,#01H
+0037 FF                MOV     R7,A
+0038 EF                MOV     A,R7
+0039 F0                MOVX    @DPTR,A
+003A         ?C0001:
                                            ; SOURCE LINE # 96
-0025 904700            MOV     DPTR,#04700H
-0028 E0                MOVX    A,@DPTR
-0029 5420              ANL     A,#020H
-002B 60F8              JZ      ?C0001
+003A 904700            MOV     DPTR,#04700H
+003D E0                MOVX    A,@DPTR
+003E FF                MOV     R7,A
+003F EF                MOV     A,R7
+0040 5420              ANL     A,#020H
+0042 FF                MOV     R7,A
+0043 7E00              MOV     R6,#00H
+0045 EF                MOV     A,R7
+0046 4E                ORL     A,R6
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 15  
+
+0047 60F1              JZ      ?C0001
                                            ; SOURCE LINE # 97
                                            ; SOURCE LINE # 99
-002D         ?C0002:
+0049         ?C0002:
                                            ; SOURCE LINE # 101
-002D 120000      E     LCALL   _CyExitCriticalSection
+0049 900000      R     MOV     DPTR,#interruptState
+004C E0                MOVX    A,@DPTR
+004D FF                MOV     R7,A
+004E 120000      E     LCALL   _CyExitCriticalSection
                                            ; SOURCE LINE # 102
-0030 22                RET     
+0051 22                RET     
              ; FUNCTION CyFlash_Start (END)
 
              ; FUNCTION CyFlash_Stop (BEGIN)
@@ -844,23 +873,34 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 124
                                            ; SOURCE LINE # 127
 0000 120000      E     LCALL   CyEnterCriticalSection
-;---- Variable 'interruptState' assigned to Register 'R7' ----
+0003 900000      R     MOV     DPTR,#interruptState
+0006 EF                MOV     A,R7
+0007 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 129
-0003 9043AC            MOV     DPTR,#043ACH
-0006 E0                MOVX    A,@DPTR
-0007 54FE              ANL     A,#0FEH
-0009 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 130
-000A 9043BC            MOV     DPTR,#043BCH
-000D E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 15  
-
+0008 9043AC            MOV     DPTR,#043ACH
+000B E0                MOVX    A,@DPTR
+000C FF                MOV     R7,A
+000D EF                MOV     A,R7
 000E 54FE              ANL     A,#0FEH
-0010 F0                MOVX    @DPTR,A
+0010 FF                MOV     R7,A
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 130
+0013 9043BC            MOV     DPTR,#043BCH
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 EF                MOV     A,R7
+0019 54FE              ANL     A,#0FEH
+001B FF                MOV     R7,A
+001C EF                MOV     A,R7
+001D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 132
-0011 120000      E     LCALL   _CyExitCriticalSection
+001E 900000      R     MOV     DPTR,#interruptState
+0021 E0                MOVX    A,@DPTR
+0022 FF                MOV     R7,A
+0023 120000      E     LCALL   _CyExitCriticalSection
                                            ; SOURCE LINE # 133
-0014 22                RET     
+0026 22                RET     
              ; FUNCTION CyFlash_Stop (END)
 
              ; FUNCTION CySetTempInt (BEGIN)
@@ -875,14 +915,16 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 165
 0009 120000      E     LCALL   CySpcLock
 000C EF                MOV     A,R7
-000D 703B              JNZ     ?C0005
+000D 704A              JNZ     ?C0005
                                            ; SOURCE LINE # 166
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 16  
+
                                            ; SOURCE LINE # 168
 000F 7F01              MOV     R7,#01H
 0011 120000      E     LCALL   _CySpcGetTemp
 0014 EF                MOV     A,R7
 0015 6407              XRL     A,#07H
-0017 702C              JNZ     ?C0006
+0017 703B              JNZ     ?C0006
                                            ; SOURCE LINE # 169
 0019         ?C0009:
                                            ; SOURCE LINE # 171
@@ -893,56 +935,68 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001F 7D02              MOV     R5,#02H
 0021 120000      E     LCALL   _CySpcReadData
 0024 EF                MOV     A,R7
-0025 B40215            CJNE    A,#02H,?C0007
+0025 B4021D            CJNE    A,#02H,?C0007
                                            ; SOURCE LINE # 173
                                            ; SOURCE LINE # 174
-0028 E4                CLR     A
-0029 900000      R     MOV     DPTR,#status
+0028 900000      R     MOV     DPTR,#status
+002B E4                CLR     A
 002C F0                MOVX    @DPTR,A
 002D         ?C0011:
                                            ; SOURCE LINE # 176
 002D 904722            MOV     DPTR,#04722H
 0030 E0                MOVX    A,@DPTR
-0031 5402              ANL     A,#02H
-0033 7010              JNZ     ?C0006
+0031 FF                MOV     R7,A
+0032 EF                MOV     A,R7
+0033 5402              ANL     A,#02H
+0035 FF                MOV     R7,A
+0036 7E00              MOV     R6,#00H
+0038 EF                MOV     A,R7
+0039 4E                ORL     A,R6
+003A 7018              JNZ     ?C0006
                                            ; SOURCE LINE # 177
                                            ; SOURCE LINE # 179
-0035 7F01              MOV     R7,#01H
-0037 FE                MOV     R6,A
-0038 120000      E     LCALL   _CyDelayUs
+003C 7F01              MOV     R7,#01H
+003E 7E00              MOV     R6,#00H
+0040 120000      E     LCALL   _CyDelayUs
                                            ; SOURCE LINE # 180
-003B 80F0              SJMP    ?C0011
+0043 80E8              SJMP    ?C0011
                                            ; SOURCE LINE # 181
                                            ; SOURCE LINE # 182
                                            ; SOURCE LINE # 184
-003D         ?C0007:
-003D 904722            MOV     DPTR,#04722H
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 16  
-
-0040 E0                MOVX    A,@DPTR
-0041 5402              ANL     A,#02H
-0043 60D4              JZ      ?C0009
+0045         ?C0007:
+0045 904722            MOV     DPTR,#04722H
+0048 E0                MOVX    A,@DPTR
+0049 FF                MOV     R7,A
+004A EF                MOV     A,R7
+004B 5402              ANL     A,#02H
+004D FF                MOV     R7,A
+004E 7E00              MOV     R6,#00H
+0050 EF                MOV     A,R7
+0051 4E                ORL     A,R6
+0052 60C5              JZ      ?C0009
                                            ; SOURCE LINE # 185
-0045         ?C0006:
+0054         ?C0006:
                                            ; SOURCE LINE # 187
-0045 120000      E     LCALL   CySpcUnlock
+0054 120000      E     LCALL   CySpcUnlock
                                            ; SOURCE LINE # 188
-0048 8006              SJMP    ?C0013
-004A         ?C0005:
+0057 8006              SJMP    ?C0013
+0059         ?C0005:
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 17  
+
                                            ; SOURCE LINE # 190
                                            ; SOURCE LINE # 191
-004A 900000      R     MOV     DPTR,#status
-004D 7404              MOV     A,#04H
-004F F0                MOVX    @DPTR,A
+0059 900000      R     MOV     DPTR,#status
+005C 7404              MOV     A,#04H
+005E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 192
-0050         ?C0013:
+005F         ?C0013:
                                            ; SOURCE LINE # 194
-0050 900000      R     MOV     DPTR,#status
-0053 E0                MOVX    A,@DPTR
-0054 FF                MOV     R7,A
+005F 900000      R     MOV     DPTR,#status
+0062 E0                MOVX    A,@DPTR
+0063 FF                MOV     R7,A
                                            ; SOURCE LINE # 195
-0055         ?C0014:
-0055 22                RET     
+0064         ?C0014:
+0064 22                RET     
              ; FUNCTION CySetTempInt (END)
 
              ; FUNCTION CyFlashGetSpcAlgorithm (BEGIN)
@@ -953,7 +1007,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 222
 0003 120000      E     LCALL   CySpcLock
 0006 EF                MOV     A,R7
-0007 703B              JNZ     ?C0015
+0007 7055              JNZ     ?C0015
                                            ; SOURCE LINE # 223
                                            ; SOURCE LINE # 224
 0009 120000      E     LCALL   CySpcGetAlgorithm
@@ -961,68 +1015,87 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F EF                MOV     A,R7
 0010 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 226
-0011 6407              XRL     A,#07H
-0013 702A              JNZ     ?C0016
+0011 900000      R     MOV     DPTR,#status
+0014 E0                MOVX    A,@DPTR
+0015 FF                MOV     R7,A
+0016 EF                MOV     A,R7
+0017 6407              XRL     A,#07H
+0019 703E              JNZ     ?C0016
                                            ; SOURCE LINE # 227
-0015         ?C0017:
+001B         ?C0017:
                                            ; SOURCE LINE # 228
-0015 904722            MOV     DPTR,#04722H
-0018 E0                MOVX    A,@DPTR
-0019 5402              ANL     A,#02H
-001B 7008              JNZ     ?C0018
+001B 904722            MOV     DPTR,#04722H
+001E E0                MOVX    A,@DPTR
+001F FF                MOV     R7,A
+0020 EF                MOV     A,R7
+0021 5402              ANL     A,#02H
+0023 FF                MOV     R7,A
+0024 7E00              MOV     R6,#00H
+0026 EF                MOV     A,R7
+0027 4E                ORL     A,R6
+0028 7009              JNZ     ?C0018
                                            ; SOURCE LINE # 229
                                            ; SOURCE LINE # 231
-001D 7F01              MOV     R7,#01H
-001F FE                MOV     R6,A
-0020 120000      E     LCALL   _CyDelayUs
+002A 7F01              MOV     R7,#01H
+002C 7E00              MOV     R6,#00H
+002E 120000      E     LCALL   _CyDelayUs
                                            ; SOURCE LINE # 232
-0023 80F0              SJMP    ?C0017
-0025         ?C0018:
+0031 80E8              SJMP    ?C0017
+0033         ?C0018:
                                            ; SOURCE LINE # 234
-0025 904722            MOV     DPTR,#04722H
-0028 E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 17  
+0033 904722            MOV     DPTR,#04722H
+0036 E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 18  
 
-0029 5402              ANL     A,#02H
-002B 6009              JZ      ?C0020
-002D E0                MOVX    A,@DPTR
-002E FF                MOV     R7,A
-002F 13                RRC     A
-0030 13                RRC     A
-0031 543F              ANL     A,#03FH
-0033 FF                MOV     R7,A
-0034 8002              SJMP    ?C0021
-0036         ?C0020:
-0036 7FFF              MOV     R7,#0FFH
-0038         ?C0021:
+0037 FF                MOV     R7,A
 0038 EF                MOV     A,R7
-0039 7004              JNZ     ?C0016
+0039 5402              ANL     A,#02H
+003B FF                MOV     R7,A
+003C 7E00              MOV     R6,#00H
+003E EF                MOV     A,R7
+003F 4E                ORL     A,R6
+0040 600D              JZ      ?C0020
+0042 904722            MOV     DPTR,#04722H
+0045 E0                MOVX    A,@DPTR
+0046 FF                MOV     R7,A
+0047 EF                MOV     A,R7
+0048 13                RRC     A
+0049 13                RRC     A
+004A 543F              ANL     A,#03FH
+004C FF                MOV     R7,A
+004D 8002              SJMP    ?C0021
+004F         ?C0020:
+004F 7FFF              MOV     R7,#0FFH
+0051         ?C0021:
+0051 EF                MOV     A,R7
+0052 7005              JNZ     ?C0016
                                            ; SOURCE LINE # 235
                                            ; SOURCE LINE # 236
-003B 900000      R     MOV     DPTR,#status
-003E F0                MOVX    @DPTR,A
+0054 900000      R     MOV     DPTR,#status
+0057 E4                CLR     A
+0058 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 237
                                            ; SOURCE LINE # 238
-003F         ?C0016:
+0059         ?C0016:
                                            ; SOURCE LINE # 239
-003F 120000      E     LCALL   CySpcUnlock
+0059 120000      E     LCALL   CySpcUnlock
                                            ; SOURCE LINE # 240
-0042 8006              SJMP    ?C0022
-0044         ?C0015:
+005C 8006              SJMP    ?C0022
+005E         ?C0015:
                                            ; SOURCE LINE # 242
                                            ; SOURCE LINE # 243
-0044 900000      R     MOV     DPTR,#status
-0047 7404              MOV     A,#04H
-0049 F0                MOVX    @DPTR,A
+005E 900000      R     MOV     DPTR,#status
+0061 7404              MOV     A,#04H
+0063 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 244
-004A         ?C0022:
+0064         ?C0022:
                                            ; SOURCE LINE # 246
-004A 900000      R     MOV     DPTR,#status
-004D E0                MOVX    A,@DPTR
-004E FF                MOV     R7,A
+0064 900000      R     MOV     DPTR,#status
+0067 E0                MOVX    A,@DPTR
+0068 FF                MOV     R7,A
                                            ; SOURCE LINE # 247
-004F         ?C0023:
-004F 22                RET     
+0069         ?C0023:
+0069 22                RET     
              ; FUNCTION CyFlashGetSpcAlgorithm (END)
 
              ; FUNCTION CySetTemp (BEGIN)
@@ -1034,24 +1107,28 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0006 EF                MOV     A,R7
 0007 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 277
-0008 7008              JNZ     ?C0024
+0008 900000      R     MOV     DPTR,#status
+000B E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 19  
+
+000C FF                MOV     R7,A
+000D EF                MOV     A,R7
+000E 7008              JNZ     ?C0024
                                            ; SOURCE LINE # 278
                                            ; SOURCE LINE # 279
-000A 120000      R     LCALL   CySetTempInt
-000D 900000      R     MOV     DPTR,#status
-0010 EF                MOV     A,R7
-0011 F0                MOVX    @DPTR,A
+0010 120000      R     LCALL   CySetTempInt
+0013 900000      R     MOV     DPTR,#status
+0016 EF                MOV     A,R7
+0017 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 280
-0012         ?C0024:
+0018         ?C0024:
                                            ; SOURCE LINE # 282
-0012 900000      R     MOV     DPTR,#status
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 18  
-
-0015 E0                MOVX    A,@DPTR
-0016 FF                MOV     R7,A
+0018 900000      R     MOV     DPTR,#status
+001B E0                MOVX    A,@DPTR
+001C FF                MOV     R7,A
                                            ; SOURCE LINE # 283
-0017         ?C0025:
-0017 22                RET     
+001D         ?C0025:
+001D 22                RET     
              ; FUNCTION CySetTemp (END)
 
              ; FUNCTION _CySetFlashEEBuffer (BEGIN)
@@ -1060,67 +1137,81 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0003 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 307
                                            ; SOURCE LINE # 308
-0006 E4                CLR     A
-0007 900000      R     MOV     DPTR,#status
+0006 900000      R     MOV     DPTR,#status
+0009 E4                CLR     A
 000A F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 310
 000B 120000      E     LCALL   CySpcStart
                                            ; SOURCE LINE # 314
-000E 900000      R     MOV     DPTR,#buffer
-0011 120000      E     LCALL   ?C?PLDXDATA
-0014 E9                MOV     A,R1
-0015 4A                ORL     A,R2
-0016 4B                ORL     A,R3
-0017 7014              JNZ     ?C0026
+000E 7B00              MOV     R3,#00H
+0010 7A00              MOV     R2,#00H
+0012 7900              MOV     R1,#00H
+0014 C003              PUSH    AR3
+0016 C002              PUSH    AR2
+0018 C001              PUSH    AR1
+001A 900000      R     MOV     DPTR,#buffer
+001D 120000      E     LCALL   ?C?PLDXDATA
+0020 D082              POP     DPL
+0022 D083              POP     DPH
+0024 D0E0              POP     ACC
+0026 6B                XRL     A,R3
+0027 7008              JNZ     ?C0078
+0029 E9                MOV     A,R1
+002A 6582              XRL     A,DPL
+002C 7003              JNZ     ?C0078
+002E EA                MOV     A,R2
+002F 6583              XRL     A,DPH
+0031         ?C0078:
+0031 7014              JNZ     ?C0026
                                            ; SOURCE LINE # 315
                                            ; SOURCE LINE # 316
-0019 900000      R     MOV     DPTR,#rowBuffer
-001C 120000      E     LCALL   ?C?PLDXDATA
-001F 900000      R     MOV     DPTR,#rowBuffer
-0022 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 317
-0025 900000      R     MOV     DPTR,#status
-0028 7401              MOV     A,#01H
-002A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 318
-002B 8029              SJMP    ?C0027
-002D         ?C0026:
-                                           ; SOURCE LINE # 319
-002D 120000      E     LCALL   CySpcLock
-0030 EF                MOV     A,R7
-0031 6014              JZ      ?C0028
-                                           ; SOURCE LINE # 320
-                                           ; SOURCE LINE # 321
 0033 900000      R     MOV     DPTR,#rowBuffer
 0036 120000      E     LCALL   ?C?PLDXDATA
 0039 900000      R     MOV     DPTR,#rowBuffer
 003C 120000      E     LCALL   ?C?PSTXDATA
-                                           ; SOURCE LINE # 322
+                                           ; SOURCE LINE # 317
 003F 900000      R     MOV     DPTR,#status
-0042 7404              MOV     A,#04H
+0042 7401              MOV     A,#01H
 0044 F0                MOVX    @DPTR,A
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 20  
+
+                                           ; SOURCE LINE # 318
+0045 8029              SJMP    ?C0027
+0047         ?C0026:
+                                           ; SOURCE LINE # 319
+0047 120000      E     LCALL   CySpcLock
+004A EF                MOV     A,R7
+004B 6014              JZ      ?C0028
+                                           ; SOURCE LINE # 320
+                                           ; SOURCE LINE # 321
+004D 900000      R     MOV     DPTR,#rowBuffer
+0050 120000      E     LCALL   ?C?PLDXDATA
+0053 900000      R     MOV     DPTR,#rowBuffer
+0056 120000      E     LCALL   ?C?PSTXDATA
+                                           ; SOURCE LINE # 322
+0059 900000      R     MOV     DPTR,#status
+005C 7404              MOV     A,#04H
+005E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 323
-0045 800F              SJMP    ?C0027
-0047         ?C0028:
+005F 800F              SJMP    ?C0027
+0061         ?C0028:
                                            ; SOURCE LINE # 325
                                            ; SOURCE LINE # 326
-0047 900000      R     MOV     DPTR,#buffer
-004A 120000      E     LCALL   ?C?PLDXDATA
-004D 900000      R     MOV     DPTR,#rowBuffer
-0050 120000      E     LCALL   ?C?PSTXDATA
+0061 900000      R     MOV     DPTR,#buffer
+0064 120000      E     LCALL   ?C?PLDXDATA
+0067 900000      R     MOV     DPTR,#rowBuffer
+006A 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 327
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 19  
-
-0053 120000      E     LCALL   CySpcUnlock
+006D 120000      E     LCALL   CySpcUnlock
                                            ; SOURCE LINE # 328
-0056         ?C0027:
+0070         ?C0027:
                                            ; SOURCE LINE # 337
-0056 900000      R     MOV     DPTR,#status
-0059 E0                MOVX    A,@DPTR
-005A FF                MOV     R7,A
+0070 900000      R     MOV     DPTR,#status
+0073 E0                MOVX    A,@DPTR
+0074 FF                MOV     R7,A
                                            ; SOURCE LINE # 338
-005B         ?C0030:
-005B 22                RET     
+0075         ?C0030:
+0075 22                RET     
              ; FUNCTION _CySetFlashEEBuffer (END)
 
              ; FUNCTION _CyWriteRowData (BEGIN)
@@ -1128,392 +1219,505 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 900000      R     MOV     DPTR,#arrayId
 0003 EF                MOV     A,R7
 0004 F0                MOVX    @DPTR,A
-;---- Variable 'rowData' assigned to Register 'R1/R2/R3' ----
-;---- Variable 'rowAddress' assigned to Register 'R4/R5' ----
+0005 900000      R     MOV     DPTR,#rowAddress
+0008 EC                MOV     A,R4
+0009 F0                MOVX    @DPTR,A
+000A A3                INC     DPTR
+000B ED                MOV     A,R5
+000C F0                MOVX    @DPTR,A
+000D 900000      R     MOV     DPTR,#rowData
+0010 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 367
                                            ; SOURCE LINE # 371
-0005 D3                SETB    C
-0006 943F              SUBB    A,#03FH
-0008 4006              JC      ?C0031
-000A 7E00              MOV     R6,#00H
-000C 7F10              MOV     R7,#010H
-000E 8004              SJMP    ?C0032
-0010         ?C0031:
-0010 7E01              MOV     R6,#01H
-0012 7F00              MOV     R7,#00H
-0014         ?C0032:
-0014 900000      R     MOV     DPTR,#rowSize
-0017 EE                MOV     A,R6
-0018 F0                MOVX    @DPTR,A
-0019 A3                INC     DPTR
-001A EF                MOV     A,R7
-001B F0                MOVX    @DPTR,A
+0013 900000      R     MOV     DPTR,#arrayId
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 EF                MOV     A,R7
+0019 D3                SETB    C
+001A 943F              SUBB    A,#03FH
+001C 4006              JC      ?C0031
+001E 7E00              MOV     R6,#00H
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 21  
+
+0020 7F10              MOV     R7,#010H
+0022 8004              SJMP    ?C0032
+0024         ?C0031:
+0024 7E01              MOV     R6,#01H
+0026 7F00              MOV     R7,#00H
+0028         ?C0032:
+0028 900000      R     MOV     DPTR,#rowSize
+002B EE                MOV     A,R6
+002C F0                MOVX    @DPTR,A
+002D A3                INC     DPTR
+002E EF                MOV     A,R7
+002F F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 372
-001C 900000      R     MOV     DPTR,#rowSize
-001F E0                MOVX    A,@DPTR
-0020 FF                MOV     R7,A
-0021 A3                INC     DPTR
-0022 E0                MOVX    A,@DPTR
-0023 900000      R     MOV     DPTR,#?_CyWriteRowFull?BYTE+06H
-0026 CF                XCH     A,R7
-0027 F0                MOVX    @DPTR,A
-0028 A3                INC     DPTR
-0029 EF                MOV     A,R7
-002A F0                MOVX    @DPTR,A
-002B 900000      R     MOV     DPTR,#arrayId
-002E E0                MOVX    A,@DPTR
-002F FF                MOV     R7,A
-0030 120000      R     LCALL   _CyWriteRowFull
-;---- Variable 'status' assigned to Register 'R7' ----
+0030 900000      R     MOV     DPTR,#arrayId
+0033 E0                MOVX    A,@DPTR
+0034 FF                MOV     R7,A
+0035 C007              PUSH    AR7
+0037 900000      R     MOV     DPTR,#rowAddress
+003A E0                MOVX    A,@DPTR
+003B FC                MOV     R4,A
+003C A3                INC     DPTR
+003D E0                MOVX    A,@DPTR
+003E FD                MOV     R5,A
+003F 900000      R     MOV     DPTR,#rowData
+0042 120000      E     LCALL   ?C?PLDXDATA
+0045 900000      R     MOV     DPTR,#rowSize
+0048 E0                MOVX    A,@DPTR
+0049 FE                MOV     R6,A
+004A A3                INC     DPTR
+004B E0                MOVX    A,@DPTR
+004C FF                MOV     R7,A
+004D 900000      R     MOV     DPTR,#?_CyWriteRowFull?BYTE+06H
+0050 EE                MOV     A,R6
+0051 F0                MOVX    @DPTR,A
+0052 A3                INC     DPTR
+0053 EF                MOV     A,R7
+0054 F0                MOVX    @DPTR,A
+0055 D007              POP     AR7
+0057 120000      R     LCALL   _CyWriteRowFull
+005A 900000      R     MOV     DPTR,#status
+005D EF                MOV     A,R7
+005E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 374
+005F 900000      R     MOV     DPTR,#status
+0062 E0                MOVX    A,@DPTR
+0063 FF                MOV     R7,A
                                            ; SOURCE LINE # 375
-0033         ?C0033:
-0033 22                RET     
+0064         ?C0033:
+0064 22                RET     
              ; FUNCTION _CyWriteRowData (END)
 
              ; FUNCTION _CyWriteRowFull (BEGIN)
                                            ; SOURCE LINE # 443
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 20  
-
-0000 900000      R     MOV     DPTR,#rowNumber
-0003 EC                MOV     A,R4
+0000 900000      R     MOV     DPTR,#arrayId
+0003 EF                MOV     A,R7
 0004 F0                MOVX    @DPTR,A
-0005 A3                INC     DPTR
-0006 ED                MOV     A,R5
-0007 F0                MOVX    @DPTR,A
-0008 A3                INC     DPTR
-0009 120000      E     LCALL   ?C?PSTXDATA
-000C 900000      R     MOV     DPTR,#arrayId
-000F EF                MOV     A,R7
-0010 F0                MOVX    @DPTR,A
+0005 900000      R     MOV     DPTR,#rowNumber
+0008 EC                MOV     A,R4
+0009 F0                MOVX    @DPTR,A
+000A A3                INC     DPTR
+000B ED                MOV     A,R5
+000C F0                MOVX    @DPTR,A
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 22  
+
+000D 900000      R     MOV     DPTR,#rowData
+0010 120000      E     LCALL   ?C?PSTXDATA
                                            ; SOURCE LINE # 445
                                            ; SOURCE LINE # 446
-0011 E4                CLR     A
-0012 900000      R     MOV     DPTR,#status
-0015 F0                MOVX    @DPTR,A
+0013 900000      R     MOV     DPTR,#status
+0016 E4                CLR     A
+0017 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 448
-0016 EF                MOV     A,R7
-0017 D3                SETB    C
-0018 943F              SUBB    A,#03FH
-001A 500E              JNC     ?C0034
-001C 900000      R     MOV     DPTR,#arrayId
-001F E0                MOVX    A,@DPTR
-0020 9401              SUBB    A,#01H
-0022 4006              JC      ?C0034
+0018 900000      R     MOV     DPTR,#arrayId
+001B E0                MOVX    A,@DPTR
+001C FF                MOV     R7,A
+001D EF                MOV     A,R7
+001E D3                SETB    C
+001F 943F              SUBB    A,#03FH
+0021 5011              JNC     ?C0034
+0023 900000      R     MOV     DPTR,#arrayId
+0026 E0                MOVX    A,@DPTR
+0027 FF                MOV     R7,A
+0028 EF                MOV     A,R7
+0029 D3                SETB    C
+002A 9401              SUBB    A,#01H
+002C 4006              JC      ?C0034
                                            ; SOURCE LINE # 449
                                            ; SOURCE LINE # 450
-0024 900000      R     MOV     DPTR,#status
-0027 7401              MOV     A,#01H
-0029 F0                MOVX    @DPTR,A
+002E 900000      R     MOV     DPTR,#status
+0031 7401              MOV     A,#01H
+0033 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 451
-002A         ?C0034:
+0034         ?C0034:
                                            ; SOURCE LINE # 453
-002A 900000      R     MOV     DPTR,#arrayId
-002D E0                MOVX    A,@DPTR
-002E FF                MOV     R7,A
-002F D3                SETB    C
-0030 947F              SUBB    A,#07FH
-0032 4006              JC      ?C0035
+0034 900000      R     MOV     DPTR,#arrayId
+0037 E0                MOVX    A,@DPTR
+0038 FF                MOV     R7,A
+0039 EF                MOV     A,R7
+003A D3                SETB    C
+003B 947F              SUBB    A,#07FH
+003D 4006              JC      ?C0035
                                            ; SOURCE LINE # 454
                                            ; SOURCE LINE # 455
-0034 900000      R     MOV     DPTR,#status
-0037 7401              MOV     A,#01H
-0039 F0                MOVX    @DPTR,A
+003F 900000      R     MOV     DPTR,#status
+0042 7401              MOV     A,#01H
+0044 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 456
-003A         ?C0035:
+0045         ?C0035:
                                            ; SOURCE LINE # 458
-003A EF                MOV     A,R7
-003B C3                CLR     C
-003C 9440              SUBB    A,#040H
-003E 400C              JC      ?C0036
-0040 EF                MOV     A,R7
-0041 D3                SETB    C
-0042 9441              SUBB    A,#041H
-0044 4006              JC      ?C0036
+0045 900000      R     MOV     DPTR,#arrayId
+0048 E0                MOVX    A,@DPTR
+0049 FF                MOV     R7,A
+004A EF                MOV     A,R7
+004B C3                CLR     C
+004C 9440              SUBB    A,#040H
+004E 4011              JC      ?C0036
+0050 900000      R     MOV     DPTR,#arrayId
+0053 E0                MOVX    A,@DPTR
+0054 FF                MOV     R7,A
+0055 EF                MOV     A,R7
+0056 D3                SETB    C
+0057 9441              SUBB    A,#041H
+0059 4006              JC      ?C0036
                                            ; SOURCE LINE # 459
                                            ; SOURCE LINE # 460
-0046 900000      R     MOV     DPTR,#status
-0049 7401              MOV     A,#01H
-004B F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 461
-004C         ?C0036:
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 21  
+005B 900000      R     MOV     DPTR,#status
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 23  
 
+005E 7401              MOV     A,#01H
+0060 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 461
+0061         ?C0036:
                                            ; SOURCE LINE # 463
-004C EF                MOV     A,R7
-004D D3                SETB    C
-004E 943F              SUBB    A,#03FH
-0050 501E              JNC     ?C0037
+0061 900000      R     MOV     DPTR,#arrayId
+0064 E0                MOVX    A,@DPTR
+0065 FF                MOV     R7,A
+0066 EF                MOV     A,R7
+0067 D3                SETB    C
+0068 943F              SUBB    A,#03FH
+006A 5021              JNC     ?C0037
                                            ; SOURCE LINE # 464
                                            ; SOURCE LINE # 466
-0052 900000      R     MOV     DPTR,#rowNumber
-0055 E0                MOVX    A,@DPTR
-0056 FE                MOV     R6,A
-0057 A3                INC     DPTR
-0058 E0                MOVX    A,@DPTR
-0059 FF                MOV     R7,A
-005A E4                CLR     A
-005B FC                MOV     R4,A
-005C FD                MOV     R5,A
-005D FB                MOV     R3,A
-005E 7A01              MOV     R2,#01H
-0060 F9                MOV     R1,A
-0061 F8                MOV     R0,A
-0062 C3                CLR     C
-0063 120000      E     LCALL   ?C?ULCMP
-0066 502F              JNC     ?C0039
+006C 900000      R     MOV     DPTR,#rowNumber
+006F E0                MOVX    A,@DPTR
+0070 FE                MOV     R6,A
+0071 A3                INC     DPTR
+0072 E0                MOVX    A,@DPTR
+0073 FF                MOV     R7,A
+0074 E4                CLR     A
+0075 FC                MOV     R4,A
+0076 FD                MOV     R5,A
+0077 7B00              MOV     R3,#00H
+0079 7A01              MOV     R2,#01H
+007B 7900              MOV     R1,#00H
+007D 7800              MOV     R0,#00H
+007F C3                CLR     C
+0080 120000      E     LCALL   ?C?ULCMP
+0083 5033              JNC     ?C0039
                                            ; SOURCE LINE # 467
                                            ; SOURCE LINE # 468
-0068 900000      R     MOV     DPTR,#status
-006B 7401              MOV     A,#01H
-006D F0                MOVX    @DPTR,A
+0085 900000      R     MOV     DPTR,#status
+0088 7401              MOV     A,#01H
+008A F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 469
                                            ; SOURCE LINE # 470
-006E 8027              SJMP    ?C0039
-0070         ?C0037:
+008B 802B              SJMP    ?C0039
+008D         ?C0037:
                                            ; SOURCE LINE # 472
                                            ; SOURCE LINE # 474
-0070 D3                SETB    C
-0071 900000      R     MOV     DPTR,#rowNumber+01H
-0074 E0                MOVX    A,@DPTR
-0075 9480              SUBB    A,#080H
-0077 900000      R     MOV     DPTR,#rowNumber
-007A E0                MOVX    A,@DPTR
-007B 9400              SUBB    A,#00H
-007D 4006              JC      ?C0040
+008D 900000      R     MOV     DPTR,#rowNumber
+0090 E0                MOVX    A,@DPTR
+0091 FE                MOV     R6,A
+0092 A3                INC     DPTR
+0093 E0                MOVX    A,@DPTR
+0094 FF                MOV     R7,A
+0095 D3                SETB    C
+0096 EF                MOV     A,R7
+0097 9480              SUBB    A,#080H
+0099 EE                MOV     A,R6
+009A 9400              SUBB    A,#00H
+009C 4006              JC      ?C0040
                                            ; SOURCE LINE # 475
                                            ; SOURCE LINE # 476
-007F 900000      R     MOV     DPTR,#status
-0082 7401              MOV     A,#01H
-0084 F0                MOVX    @DPTR,A
+009E 900000      R     MOV     DPTR,#status
+00A1 7401              MOV     A,#01H
+00A3 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 477
-0085         ?C0040:
+00A4         ?C0040:
                                            ; SOURCE LINE # 479
-0085 900000      R     MOV     DPTR,#rowSize
-0088 E0                MOVX    A,@DPTR
-0089 7004              JNZ     ?C0079
-008B A3                INC     DPTR
-008C E0                MOVX    A,@DPTR
-008D 6410              XRL     A,#010H
-008F         ?C0079:
-008F 6006              JZ      ?C0039
+00A4 900000      R     MOV     DPTR,#rowSize
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 24  
+
+00A7 E0                MOVX    A,@DPTR
+00A8 FE                MOV     R6,A
+00A9 A3                INC     DPTR
+00AA E0                MOVX    A,@DPTR
+00AB FF                MOV     R7,A
+00AC EF                MOV     A,R7
+00AD 6410              XRL     A,#010H
+00AF 4E                ORL     A,R6
+00B0 6006              JZ      ?C0039
                                            ; SOURCE LINE # 480
                                            ; SOURCE LINE # 481
-0091 900000      R     MOV     DPTR,#status
-0094 7401              MOV     A,#01H
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 22  
-
-0096 F0                MOVX    @DPTR,A
+00B2 900000      R     MOV     DPTR,#status
+00B5 7401              MOV     A,#01H
+00B7 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 482
                                            ; SOURCE LINE # 483
-0097         ?C0039:
+00B8         ?C0039:
                                            ; SOURCE LINE # 485
-0097 900000      R     MOV     DPTR,#rowData
-009A 120000      E     LCALL   ?C?PLDXDATA
-009D E9                MOV     A,R1
-009E 4A                ORL     A,R2
-009F 4B                ORL     A,R3
-00A0 7005              JNZ     ?C0042
+00B8 7B00              MOV     R3,#00H
+00BA 7A00              MOV     R2,#00H
+00BC 7900              MOV     R1,#00H
+00BE C003              PUSH    AR3
+00C0 C002              PUSH    AR2
+00C2 C001              PUSH    AR1
+00C4 900000      R     MOV     DPTR,#rowData
+00C7 120000      E     LCALL   ?C?PLDXDATA
+00CA D082              POP     DPL
+00CC D083              POP     DPH
+00CE D0E0              POP     ACC
+00D0 6B                XRL     A,R3
+00D1 7008              JNZ     ?C0079
+00D3 E9                MOV     A,R1
+00D4 6582              XRL     A,DPL
+00D6 7003              JNZ     ?C0079
+00D8 EA                MOV     A,R2
+00D9 6583              XRL     A,DPH
+00DB         ?C0079:
+00DB 7006              JNZ     ?C0042
                                            ; SOURCE LINE # 486
                                            ; SOURCE LINE # 487
-00A2 900000      R     MOV     DPTR,#status
-00A5 04                INC     A
-00A6 F0                MOVX    @DPTR,A
+00DD 900000      R     MOV     DPTR,#status
+00E0 7401              MOV     A,#01H
+00E2 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 488
-00A7         ?C0042:
+00E3         ?C0042:
                                            ; SOURCE LINE # 491
-00A7 900000      R     MOV     DPTR,#status
-00AA E0                MOVX    A,@DPTR
-00AB 6003              JZ      $ + 5H
-00AD 020000      R     LJMP    ?C0043
+00E3 900000      R     MOV     DPTR,#status
+00E6 E0                MOVX    A,@DPTR
+00E7 FF                MOV     R7,A
+00E8 EF                MOV     A,R7
+00E9 6003              JZ      $ + 5H
+00EB 020000      R     LJMP    ?C0043
                                            ; SOURCE LINE # 492
                                            ; SOURCE LINE # 493
-00B0 120000      E     LCALL   CySpcLock
-00B3 EF                MOV     A,R7
-00B4 6003              JZ      $ + 5H
-00B6 020000      R     LJMP    ?C0044
+00EE 120000      E     LCALL   CySpcLock
+00F1 EF                MOV     A,R7
+00F2 6003              JZ      $ + 5H
+00F4 020000      R     LJMP    ?C0044
                                            ; SOURCE LINE # 494
                                            ; SOURCE LINE # 496
-00B9 900000      R     MOV     DPTR,#rowNumber
-00BC E0                MOVX    A,@DPTR
-00BD FC                MOV     R4,A
-00BE A3                INC     DPTR
-00BF E0                MOVX    A,@DPTR
-00C0 FD                MOV     R5,A
-00C1 A3                INC     DPTR
-00C2 120000      E     LCALL   ?C?PLDXDATA
-00C5 900000      R     MOV     DPTR,#rowSize
-00C8 E0                MOVX    A,@DPTR
-00C9 FF                MOV     R7,A
-00CA A3                INC     DPTR
-00CB E0                MOVX    A,@DPTR
-00CC 900000      E     MOV     DPTR,#?_CySpcLoadRowFull?BYTE+06H
-00CF CF                XCH     A,R7
-00D0 F0                MOVX    @DPTR,A
-00D1 A3                INC     DPTR
-00D2 EF                MOV     A,R7
-00D3 F0                MOVX    @DPTR,A
-00D4 900000      R     MOV     DPTR,#arrayId
-00D7 E0                MOVX    A,@DPTR
-00D8 FF                MOV     R7,A
-00D9 120000      E     LCALL   _CySpcLoadRowFull
-00DC 900000      R     MOV     DPTR,#status
-00DF EF                MOV     A,R7
-00E0 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 498
-00E1 6407              XRL     A,#07H
-00E3 6003              JZ      $ + 5H
-00E5 020000      R     LJMP    ?C0045
-                                           ; SOURCE LINE # 499
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 23  
+00F7 900000      R     MOV     DPTR,#arrayId
+00FA E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 25  
 
-00E8         ?C0046:
+00FB FF                MOV     R7,A
+00FC C007              PUSH    AR7
+00FE 900000      R     MOV     DPTR,#rowNumber
+0101 E0                MOVX    A,@DPTR
+0102 FC                MOV     R4,A
+0103 A3                INC     DPTR
+0104 E0                MOVX    A,@DPTR
+0105 FD                MOV     R5,A
+0106 900000      R     MOV     DPTR,#rowData
+0109 120000      E     LCALL   ?C?PLDXDATA
+010C 900000      R     MOV     DPTR,#rowSize
+010F E0                MOVX    A,@DPTR
+0110 FE                MOV     R6,A
+0111 A3                INC     DPTR
+0112 E0                MOVX    A,@DPTR
+0113 FF                MOV     R7,A
+0114 900000      E     MOV     DPTR,#?_CySpcLoadRowFull?BYTE+06H
+0117 EE                MOV     A,R6
+0118 F0                MOVX    @DPTR,A
+0119 A3                INC     DPTR
+011A EF                MOV     A,R7
+011B F0                MOVX    @DPTR,A
+011C D007              POP     AR7
+011E 120000      E     LCALL   _CySpcLoadRowFull
+0121 900000      R     MOV     DPTR,#status
+0124 EF                MOV     A,R7
+0125 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 498
+0126 900000      R     MOV     DPTR,#status
+0129 E0                MOVX    A,@DPTR
+012A FF                MOV     R7,A
+012B EF                MOV     A,R7
+012C 6407              XRL     A,#07H
+012E 6003              JZ      $ + 5H
+0130 020000      R     LJMP    ?C0045
+                                           ; SOURCE LINE # 499
+0133         ?C0046:
                                            ; SOURCE LINE # 500
-00E8 904722            MOV     DPTR,#04722H
-00EB E0                MOVX    A,@DPTR
-00EC 5402              ANL     A,#02H
-00EE 7008              JNZ     ?C0047
+0133 904722            MOV     DPTR,#04722H
+0136 E0                MOVX    A,@DPTR
+0137 FF                MOV     R7,A
+0138 EF                MOV     A,R7
+0139 5402              ANL     A,#02H
+013B FF                MOV     R7,A
+013C 7E00              MOV     R6,#00H
+013E EF                MOV     A,R7
+013F 4E                ORL     A,R6
+0140 7009              JNZ     ?C0047
                                            ; SOURCE LINE # 501
                                            ; SOURCE LINE # 503
-00F0 7F01              MOV     R7,#01H
-00F2 FE                MOV     R6,A
-00F3 120000      E     LCALL   _CyDelayUs
+0142 7F01              MOV     R7,#01H
+0144 7E00              MOV     R6,#00H
+0146 120000      E     LCALL   _CyDelayUs
                                            ; SOURCE LINE # 504
-00F6 80F0              SJMP    ?C0046
-00F8         ?C0047:
+0149 80E8              SJMP    ?C0046
+014B         ?C0047:
                                            ; SOURCE LINE # 507
-00F8 904722            MOV     DPTR,#04722H
-00FB E0                MOVX    A,@DPTR
-00FC 5402              ANL     A,#02H
-00FE 6009              JZ      ?C0049
-0100 E0                MOVX    A,@DPTR
-0101 FF                MOV     R7,A
-0102 13                RRC     A
-0103 13                RRC     A
-0104 543F              ANL     A,#03FH
-0106 FF                MOV     R7,A
-0107 8002              SJMP    ?C0050
-0109         ?C0049:
-0109 7FFF              MOV     R7,#0FFH
-010B         ?C0050:
-010B EF                MOV     A,R7
-010C 7006              JNZ     ?C0048
+014B 904722            MOV     DPTR,#04722H
+014E E0                MOVX    A,@DPTR
+014F FF                MOV     R7,A
+0150 EF                MOV     A,R7
+0151 5402              ANL     A,#02H
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 26  
+
+0153 FF                MOV     R7,A
+0154 7E00              MOV     R6,#00H
+0156 EF                MOV     A,R7
+0157 4E                ORL     A,R6
+0158 600D              JZ      ?C0049
+015A 904722            MOV     DPTR,#04722H
+015D E0                MOVX    A,@DPTR
+015E FF                MOV     R7,A
+015F EF                MOV     A,R7
+0160 13                RRC     A
+0161 13                RRC     A
+0162 543F              ANL     A,#03FH
+0164 FF                MOV     R7,A
+0165 8002              SJMP    ?C0050
+0167         ?C0049:
+0167 7FFF              MOV     R7,#0FFH
+0169         ?C0050:
+0169 EF                MOV     A,R7
+016A 7007              JNZ     ?C0048
                                            ; SOURCE LINE # 508
                                            ; SOURCE LINE # 509
-010E 900000      R     MOV     DPTR,#status
-0111 F0                MOVX    @DPTR,A
+016C 900000      R     MOV     DPTR,#status
+016F E4                CLR     A
+0170 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 510
-0112 8006              SJMP    ?C0051
-0114         ?C0048:
+0171 8006              SJMP    ?C0051
+0173         ?C0048:
                                            ; SOURCE LINE # 512
                                            ; SOURCE LINE # 513
-0114 900000      R     MOV     DPTR,#status
-0117 74FF              MOV     A,#0FFH
-0119 F0                MOVX    @DPTR,A
+0173 900000      R     MOV     DPTR,#status
+0176 74FF              MOV     A,#0FFH
+0178 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 514
-011A         ?C0051:
+0179         ?C0051:
                                            ; SOURCE LINE # 516
-011A 900000      R     MOV     DPTR,#status
-011D E0                MOVX    A,@DPTR
-011E 7054              JNZ     ?C0045
+0179 900000      R     MOV     DPTR,#status
+017C E0                MOVX    A,@DPTR
+017D FF                MOV     R7,A
+017E EF                MOV     A,R7
+017F 7074              JNZ     ?C0045
                                            ; SOURCE LINE # 517
                                            ; SOURCE LINE # 519
-0120 900000      R     MOV     DPTR,#arrayId
-0123 E0                MOVX    A,@DPTR
-0124 FF                MOV     R7,A
-0125 A3                INC     DPTR
-0126 E0                MOVX    A,@DPTR
-0127 FC                MOV     R4,A
-0128 A3                INC     DPTR
-0129 E0                MOVX    A,@DPTR
-012A FD                MOV     R5,A
-012B 900000      R     MOV     DPTR,#dieTemperature
-012E E0                MOVX    A,@DPTR
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 24  
+0181 900000      R     MOV     DPTR,#arrayId
+0184 E0                MOVX    A,@DPTR
+0185 FF                MOV     R7,A
+0186 900000      R     MOV     DPTR,#rowNumber
+0189 E0                MOVX    A,@DPTR
+018A FC                MOV     R4,A
+018B A3                INC     DPTR
+018C E0                MOVX    A,@DPTR
+018D FD                MOV     R5,A
+018E 900000      R     MOV     DPTR,#dieTemperature
+0191 E0                MOVX    A,@DPTR
+0192 FB                MOV     R3,A
+0193 900000      R     MOV     DPTR,#dieTemperature+01H
+0196 E0                MOVX    A,@DPTR
+0197 FE                MOV     R6,A
+0198 900000      E     MOV     DPTR,#?_CySpcWriteRow?BYTE+04H
+019B EE                MOV     A,R6
+019C F0                MOVX    @DPTR,A
+019D 120000      E     LCALL   _CySpcWriteRow
+01A0 900000      R     MOV     DPTR,#status
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 27  
 
-012F FB                MOV     R3,A
-0130 A3                INC     DPTR
-0131 E0                MOVX    A,@DPTR
-0132 900000      E     MOV     DPTR,#?_CySpcWriteRow?BYTE+04H
-0135 F0                MOVX    @DPTR,A
-0136 120000      E     LCALL   _CySpcWriteRow
-0139 900000      R     MOV     DPTR,#status
-013C EF                MOV     A,R7
-013D F0                MOVX    @DPTR,A
+01A3 EF                MOV     A,R7
+01A4 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 521
-013E 6407              XRL     A,#07H
-0140 7032              JNZ     ?C0045
+01A5 900000      R     MOV     DPTR,#status
+01A8 E0                MOVX    A,@DPTR
+01A9 FF                MOV     R7,A
+01AA EF                MOV     A,R7
+01AB 6407              XRL     A,#07H
+01AD 7046              JNZ     ?C0045
                                            ; SOURCE LINE # 522
-0142         ?C0054:
+01AF         ?C0054:
                                            ; SOURCE LINE # 523
-0142 904722            MOV     DPTR,#04722H
-0145 E0                MOVX    A,@DPTR
-0146 5402              ANL     A,#02H
-0148 7008              JNZ     ?C0055
+01AF 904722            MOV     DPTR,#04722H
+01B2 E0                MOVX    A,@DPTR
+01B3 FF                MOV     R7,A
+01B4 EF                MOV     A,R7
+01B5 5402              ANL     A,#02H
+01B7 FF                MOV     R7,A
+01B8 7E00              MOV     R6,#00H
+01BA EF                MOV     A,R7
+01BB 4E                ORL     A,R6
+01BC 7009              JNZ     ?C0055
                                            ; SOURCE LINE # 524
                                            ; SOURCE LINE # 526
-014A 7F01              MOV     R7,#01H
-014C FE                MOV     R6,A
-014D 120000      E     LCALL   _CyDelayUs
+01BE 7F01              MOV     R7,#01H
+01C0 7E00              MOV     R6,#00H
+01C2 120000      E     LCALL   _CyDelayUs
                                            ; SOURCE LINE # 527
-0150 80F0              SJMP    ?C0054
-0152         ?C0055:
+01C5 80E8              SJMP    ?C0054
+01C7         ?C0055:
                                            ; SOURCE LINE # 530
-0152 904722            MOV     DPTR,#04722H
-0155 E0                MOVX    A,@DPTR
-0156 5402              ANL     A,#02H
-0158 6009              JZ      ?C0057
-015A E0                MOVX    A,@DPTR
-015B FF                MOV     R7,A
-015C 13                RRC     A
-015D 13                RRC     A
-015E 543F              ANL     A,#03FH
-0160 FF                MOV     R7,A
-0161 8002              SJMP    ?C0058
-0163         ?C0057:
-0163 7FFF              MOV     R7,#0FFH
-0165         ?C0058:
-0165 EF                MOV     A,R7
-0166 7006              JNZ     ?C0056
+01C7 904722            MOV     DPTR,#04722H
+01CA E0                MOVX    A,@DPTR
+01CB FF                MOV     R7,A
+01CC EF                MOV     A,R7
+01CD 5402              ANL     A,#02H
+01CF FF                MOV     R7,A
+01D0 7E00              MOV     R6,#00H
+01D2 EF                MOV     A,R7
+01D3 4E                ORL     A,R6
+01D4 600D              JZ      ?C0057
+01D6 904722            MOV     DPTR,#04722H
+01D9 E0                MOVX    A,@DPTR
+01DA FF                MOV     R7,A
+01DB EF                MOV     A,R7
+01DC 13                RRC     A
+01DD 13                RRC     A
+01DE 543F              ANL     A,#03FH
+01E0 FF                MOV     R7,A
+01E1 8002              SJMP    ?C0058
+01E3         ?C0057:
+01E3 7FFF              MOV     R7,#0FFH
+01E5         ?C0058:
+01E5 EF                MOV     A,R7
+01E6 7007              JNZ     ?C0056
                                            ; SOURCE LINE # 531
                                            ; SOURCE LINE # 532
-0168 900000      R     MOV     DPTR,#status
-016B F0                MOVX    @DPTR,A
+01E8 900000      R     MOV     DPTR,#status
+01EB E4                CLR     A
+01EC F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 533
-016C 8006              SJMP    ?C0045
-016E         ?C0056:
+01ED 8006              SJMP    ?C0045
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 28  
+
+01EF         ?C0056:
                                            ; SOURCE LINE # 535
                                            ; SOURCE LINE # 536
-016E 900000      R     MOV     DPTR,#status
-0171 74FF              MOV     A,#0FFH
-0173 F0                MOVX    @DPTR,A
+01EF 900000      R     MOV     DPTR,#status
+01F2 74FF              MOV     A,#0FFH
+01F4 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 537
                                            ; SOURCE LINE # 538
                                            ; SOURCE LINE # 539
                                            ; SOURCE LINE # 540
-0174         ?C0045:
+01F5         ?C0045:
                                            ; SOURCE LINE # 541
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 25  
-
-0174 120000      E     LCALL   CySpcUnlock
+01F5 120000      E     LCALL   CySpcUnlock
                                            ; SOURCE LINE # 542
-0177 8006              SJMP    ?C0043
-0179         ?C0044:
+01F8 8006              SJMP    ?C0043
+01FA         ?C0044:
                                            ; SOURCE LINE # 544
                                            ; SOURCE LINE # 545
-0179 900000      R     MOV     DPTR,#status
-017C 7404              MOV     A,#04H
-017E F0                MOVX    @DPTR,A
+01FA 900000      R     MOV     DPTR,#status
+01FD 7404              MOV     A,#04H
+01FF F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 546
                                            ; SOURCE LINE # 547
-017F         ?C0043:
+0200         ?C0043:
                                            ; SOURCE LINE # 549
-017F 900000      R     MOV     DPTR,#status
-0182 E0                MOVX    A,@DPTR
-0183 FF                MOV     R7,A
+0200 900000      R     MOV     DPTR,#status
+0203 E0                MOVX    A,@DPTR
+0204 FF                MOV     R7,A
                                            ; SOURCE LINE # 550
-0184         ?C0061:
-0184 22                RET     
+0205         ?C0061:
+0205 22                RET     
              ; FUNCTION _CyWriteRowFull (END)
 
              ; FUNCTION _CyFlash_SetWaitCycles (BEGIN)
@@ -1531,65 +1735,94 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000D 900000      R     MOV     DPTR,#freq
 0010 E0                MOVX    A,@DPTR
 0011 FF                MOV     R7,A
-0012 C3                CLR     C
-0013 9416              SUBB    A,#016H
-0015 500B              JNC     ?C0062
+0012 EF                MOV     A,R7
+0013 C3                CLR     C
+0014 9416              SUBB    A,#016H
+0016 5014              JNC     ?C0062
                                            ; SOURCE LINE # 585
                                            ; SOURCE LINE # 586
-0017 904800            MOV     DPTR,#04800H
-001A E0                MOVX    A,@DPTR
-001B 543F              ANL     A,#03FH
-001D 4440              ORL     A,#040H
-001F F0                MOVX    @DPTR,A
+0018 904800            MOV     DPTR,#04800H
+001B E0                MOVX    A,@DPTR
+001C FF                MOV     R7,A
+001D EF                MOV     A,R7
+001E 543F              ANL     A,#03FH
+0020 FF                MOV     R7,A
+0021 EF                MOV     A,R7
+0022 4440              ORL     A,#040H
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 29  
+
+0024 FF                MOV     R7,A
+0025 904800            MOV     DPTR,#04800H
+0028 EF                MOV     A,R7
+0029 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 588
-0020 802A              SJMP    ?C0063
-0022         ?C0062:
+002A 8043              SJMP    ?C0063
+002C         ?C0062:
                                            ; SOURCE LINE # 589
-0022 EF                MOV     A,R7
-0023 C3                CLR     C
-0024 942C              SUBB    A,#02CH
-0026 500B              JNC     ?C0064
+002C 900000      R     MOV     DPTR,#freq
+002F E0                MOVX    A,@DPTR
+0030 FF                MOV     R7,A
+0031 EF                MOV     A,R7
+0032 C3                CLR     C
+0033 942C              SUBB    A,#02CH
+0035 5014              JNC     ?C0064
                                            ; SOURCE LINE # 590
                                            ; SOURCE LINE # 591
-0028 904800            MOV     DPTR,#04800H
-002B E0                MOVX    A,@DPTR
-002C 543F              ANL     A,#03FH
-002E 4480              ORL     A,#080H
-0030 F0                MOVX    @DPTR,A
+0037 904800            MOV     DPTR,#04800H
+003A E0                MOVX    A,@DPTR
+003B FF                MOV     R7,A
+003C EF                MOV     A,R7
+003D 543F              ANL     A,#03FH
+003F FF                MOV     R7,A
+0040 EF                MOV     A,R7
+0041 4480              ORL     A,#080H
+0043 FF                MOV     R7,A
+0044 904800            MOV     DPTR,#04800H
+0047 EF                MOV     A,R7
+0048 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 593
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 26  
-
-0031 8019              SJMP    ?C0063
-0033         ?C0064:
+0049 8024              SJMP    ?C0063
+004B         ?C0064:
                                            ; SOURCE LINE # 594
-0033 900000      R     MOV     DPTR,#freq
-0036 E0                MOVX    A,@DPTR
-0037 C3                CLR     C
-0038 9443              SUBB    A,#043H
-003A 500B              JNC     ?C0066
+004B 900000      R     MOV     DPTR,#freq
+004E E0                MOVX    A,@DPTR
+004F FF                MOV     R7,A
+0050 EF                MOV     A,R7
+0051 C3                CLR     C
+0052 9443              SUBB    A,#043H
+0054 5014              JNC     ?C0066
                                            ; SOURCE LINE # 595
                                            ; SOURCE LINE # 596
-003C 904800            MOV     DPTR,#04800H
-003F E0                MOVX    A,@DPTR
-0040 543F              ANL     A,#03FH
-0042 44C0              ORL     A,#0C0H
-0044 F0                MOVX    @DPTR,A
+0056 904800            MOV     DPTR,#04800H
+0059 E0                MOVX    A,@DPTR
+005A FF                MOV     R7,A
+005B EF                MOV     A,R7
+005C 543F              ANL     A,#03FH
+005E FF                MOV     R7,A
+005F EF                MOV     A,R7
+0060 44C0              ORL     A,#0C0H
+0062 FF                MOV     R7,A
+0063 904800            MOV     DPTR,#04800H
+0066 EF                MOV     A,R7
+0067 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 598
-0045 8005              SJMP    ?C0063
-0047         ?C0066:
+0068 8005              SJMP    ?C0063
+006A         ?C0066:
                                            ; SOURCE LINE # 612
                                            ; SOURCE LINE # 614
-0047 7F00              MOV     R7,#00H
-0049 120000      E     LCALL   _?CyHalt
+006A 7F00              MOV     R7,#00H
+006C 120000      E     LCALL   _?CyHalt
                                            ; SOURCE LINE # 615
-004C         ?C0063:
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 30  
+
+006F         ?C0063:
                                            ; SOURCE LINE # 618
-004C 900000      R     MOV     DPTR,#interruptState
-004F E0                MOVX    A,@DPTR
-0050 FF                MOV     R7,A
-0051 120000      E     LCALL   _CyExitCriticalSection
+006F 900000      R     MOV     DPTR,#interruptState
+0072 E0                MOVX    A,@DPTR
+0073 FF                MOV     R7,A
+0074 120000      E     LCALL   _CyExitCriticalSection
                                            ; SOURCE LINE # 619
-0054 22                RET     
+0077 22                RET     
              ; FUNCTION _CyFlash_SetWaitCycles (END)
 
              ; FUNCTION CyEEPROM_Start (BEGIN)
@@ -1597,46 +1830,73 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 637
                                            ; SOURCE LINE # 640
 0000 120000      E     LCALL   CyEnterCriticalSection
-;---- Variable 'interruptState' assigned to Register 'R7' ----
+0003 900000      R     MOV     DPTR,#interruptState
+0006 EF                MOV     A,R7
+0007 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 647
-0003 9043A0            MOV     DPTR,#043A0H
-0006 E0                MOVX    A,@DPTR
-0007 4408              ORL     A,#08H
-0009 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 648
-000A 9043B0            MOV     DPTR,#043B0H
-000D E0                MOVX    A,@DPTR
+0008 9043A0            MOV     DPTR,#043A0H
+000B E0                MOVX    A,@DPTR
+000C FF                MOV     R7,A
+000D EF                MOV     A,R7
 000E 4408              ORL     A,#08H
-0010 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 661
-0011 904701            MOV     DPTR,#04701H
-0014 74C8              MOV     A,#0C8H
-0016 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 668
-0017 9043AC            MOV     DPTR,#043ACH
-001A E0                MOVX    A,@DPTR
-001B 4410              ORL     A,#010H
+0010 FF                MOV     R7,A
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 648
+0013 9043B0            MOV     DPTR,#043B0H
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 EF                MOV     A,R7
+0019 4408              ORL     A,#08H
+001B FF                MOV     R7,A
+001C EF                MOV     A,R7
 001D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 661
+001E 904701            MOV     DPTR,#04701H
+0021 74C8              MOV     A,#0C8H
+0023 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 668
+0024 9043AC            MOV     DPTR,#043ACH
+0027 E0                MOVX    A,@DPTR
+0028 FF                MOV     R7,A
+0029 EF                MOV     A,R7
+002A 4410              ORL     A,#010H
+002C FF                MOV     R7,A
+002D EF                MOV     A,R7
+002E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 669
-001E 9043BC            MOV     DPTR,#043BCH
-0021 E0                MOVX    A,@DPTR
-0022 4410              ORL     A,#010H
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 27  
-
-0024 F0                MOVX    @DPTR,A
-0025         ?C0070:
+002F 9043BC            MOV     DPTR,#043BCH
+0032 E0                MOVX    A,@DPTR
+0033 FF                MOV     R7,A
+0034 EF                MOV     A,R7
+0035 4410              ORL     A,#010H
+0037 FF                MOV     R7,A
+0038 EF                MOV     A,R7
+0039 F0                MOVX    @DPTR,A
+003A         ?C0070:
                                            ; SOURCE LINE # 671
-0025 904700            MOV     DPTR,#04700H
-0028 E0                MOVX    A,@DPTR
-0029 5420              ANL     A,#020H
-002B 60F8              JZ      ?C0070
+003A 904700            MOV     DPTR,#04700H
+003D E0                MOVX    A,@DPTR
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 31  
+
+003E FF                MOV     R7,A
+003F EF                MOV     A,R7
+0040 5420              ANL     A,#020H
+0042 FF                MOV     R7,A
+0043 7E00              MOV     R6,#00H
+0045 EF                MOV     A,R7
+0046 4E                ORL     A,R6
+0047 60F1              JZ      ?C0070
                                            ; SOURCE LINE # 672
                                            ; SOURCE LINE # 674
-002D         ?C0071:
+0049         ?C0071:
                                            ; SOURCE LINE # 676
-002D 120000      E     LCALL   _CyExitCriticalSection
+0049 900000      R     MOV     DPTR,#interruptState
+004C E0                MOVX    A,@DPTR
+004D FF                MOV     R7,A
+004E 120000      E     LCALL   _CyExitCriticalSection
                                            ; SOURCE LINE # 677
-0030 22                RET     
+0051 22                RET     
              ; FUNCTION CyEEPROM_Start (END)
 
              ; FUNCTION CyEEPROM_Stop (BEGIN)
@@ -1644,21 +1904,34 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 695
                                            ; SOURCE LINE # 698
 0000 120000      E     LCALL   CyEnterCriticalSection
-;---- Variable 'interruptState' assigned to Register 'R7' ----
+0003 900000      R     MOV     DPTR,#interruptState
+0006 EF                MOV     A,R7
+0007 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 700
-0003 9043AC            MOV     DPTR,#043ACH
-0006 E0                MOVX    A,@DPTR
-0007 54EF              ANL     A,#0EFH
-0009 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 701
-000A 9043BC            MOV     DPTR,#043BCH
-000D E0                MOVX    A,@DPTR
+0008 9043AC            MOV     DPTR,#043ACH
+000B E0                MOVX    A,@DPTR
+000C FF                MOV     R7,A
+000D EF                MOV     A,R7
 000E 54EF              ANL     A,#0EFH
-0010 F0                MOVX    @DPTR,A
+0010 FF                MOV     R7,A
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 701
+0013 9043BC            MOV     DPTR,#043BCH
+0016 E0                MOVX    A,@DPTR
+0017 FF                MOV     R7,A
+0018 EF                MOV     A,R7
+0019 54EF              ANL     A,#0EFH
+001B FF                MOV     R7,A
+001C EF                MOV     A,R7
+001D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 703
-0011 120000      E     LCALL   _CyExitCriticalSection
+001E 900000      R     MOV     DPTR,#interruptState
+0021 E0                MOVX    A,@DPTR
+0022 FF                MOV     R7,A
+0023 120000      E     LCALL   _CyExitCriticalSection
                                            ; SOURCE LINE # 704
-0014 22                RET     
+0026 22                RET     
              ; FUNCTION CyEEPROM_Stop (END)
 
              ; FUNCTION CyEEPROM_ReadReserve (BEGIN)
@@ -1667,42 +1940,56 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 724
 0000 904702            MOV     DPTR,#04702H
 0003 E0                MOVX    A,@DPTR
-0004 4401              ORL     A,#01H
-0006 F0                MOVX    @DPTR,A
-0007         ?C0074:
+0004 FF                MOV     R7,A
+C51 COMPILER V9.51   CYFLASH                                                               10/03/2016 19:53:30 PAGE 32  
+
+0005 EF                MOV     A,R7
+0006 4401              ORL     A,#01H
+0008 FF                MOV     R7,A
+0009 EF                MOV     A,R7
+000A F0                MOVX    @DPTR,A
+000B         ?C0074:
                                            ; SOURCE LINE # 726
-0007 904702            MOV     DPTR,#04702H
-000A E0                MOVX    A,@DPTR
-000B 5402              ANL     A,#02H
-000D 60F8              JZ      ?C0074
+000B 904702            MOV     DPTR,#04702H
+000E E0                MOVX    A,@DPTR
+000F FF                MOV     R7,A
+0010 EF                MOV     A,R7
+0011 5402              ANL     A,#02H
+0013 FF                MOV     R7,A
+0014 7E00              MOV     R6,#00H
+0016 EF                MOV     A,R7
+0017 4E                ORL     A,R6
+0018 60F1              JZ      ?C0074
                                            ; SOURCE LINE # 727
                                            ; SOURCE LINE # 729
-000F         ?C0075:
+001A         ?C0075:
                                            ; SOURCE LINE # 730
-000F         ?C0076:
-000F 22                RET     
+001A         ?C0076:
+001A 22                RET     
              ; FUNCTION CyEEPROM_ReadReserve (END)
 
              ; FUNCTION CyEEPROM_ReadRelease (BEGIN)
                                            ; SOURCE LINE # 747
-C51 COMPILER V9.51   CYFLASH                                                               07/29/2016 09:50:47 PAGE 28  
-
                                            ; SOURCE LINE # 748
                                            ; SOURCE LINE # 749
 0000 904702            MOV     DPTR,#04702H
 0003 E0                MOVX    A,@DPTR
-0004 54FE              ANL     A,#0FEH
-0006 F0                MOVX    @DPTR,A
+0004 FF                MOV     R7,A
+0005 EF                MOV     A,R7
+0006 54FE              ANL     A,#0FEH
+0008 FF                MOV     R7,A
+0009 EF                MOV     A,R7
+000A F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 750
-0007 22                RET     
+000B 22                RET     
              ; FUNCTION CyEEPROM_ReadRelease (END)
 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    972    ----
+   CODE SIZE        =   1375    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =      5      21
+   XDATA SIZE       =      5      31
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

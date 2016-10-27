@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: Morse_Counter_PM.c  
-* Version 3.0
+* Version 2.40
 *
 *  Description:
 *    This file provides the power management source code to API for the
@@ -9,12 +9,12 @@
 *   Note:
 *     None
 *
-********************************************************************************
+*******************************************************************************
 * Copyright 2008-2012, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions, 
 * disclaimers, and limitations in the end user license agreement accompanying 
 * the software package with which this file was provided.
-*******************************************************************************/
+********************************************************************************/
 
 #include "Morse_Counter.h"
 
@@ -44,6 +44,12 @@ void Morse_Counter_SaveConfig(void)
     #if (!Morse_Counter_UsingFixedFunction)
 
         Morse_Counter_backup.CounterUdb = Morse_Counter_ReadCounter();
+
+        #if (CY_UDB_V0)
+            Morse_Counter_backup.CounterPeriod = Morse_Counter_ReadPeriod();
+            Morse_Counter_backup.CompareValue = Morse_Counter_ReadCompare();
+            Morse_Counter_backup.InterruptMaskValue = Morse_Counter_STATUS_MASK;
+        #endif /* CY_UDB_V0 */
 
         #if(!Morse_Counter_ControlRegRemoved)
             Morse_Counter_backup.CounterControlRegister = Morse_Counter_ReadControlRegister();
@@ -75,7 +81,22 @@ void Morse_Counter_RestoreConfig(void)
 {      
     #if (!Morse_Counter_UsingFixedFunction)
 
+        #if (CY_UDB_V0)
+            uint8 Morse_Counter_interruptState;
+        #endif  /* (CY_UDB_V0) */
+
        Morse_Counter_WriteCounter(Morse_Counter_backup.CounterUdb);
+
+        #if (CY_UDB_V0)
+            Morse_Counter_WritePeriod(Morse_Counter_backup.CounterPeriod);
+            Morse_Counter_WriteCompare(Morse_Counter_backup.CompareValue);
+
+            Morse_Counter_interruptState = CyEnterCriticalSection();
+            Morse_Counter_STATUS_AUX_CTRL |= Morse_Counter_STATUS_ACTL_INT_EN_MASK;
+            CyExitCriticalSection(Morse_Counter_interruptState);
+
+            Morse_Counter_STATUS_MASK = Morse_Counter_backup.InterruptMaskValue;
+        #endif  /* (CY_UDB_V0) */
 
         #if(!Morse_Counter_ControlRegRemoved)
             Morse_Counter_WriteControlRegister(Morse_Counter_backup.CounterControlRegister);

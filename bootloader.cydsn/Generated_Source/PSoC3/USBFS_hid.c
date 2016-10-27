@@ -1,44 +1,37 @@
-/***************************************************************************//**
-* \file USBFS_hid.c
-* \version 3.0
+/*******************************************************************************
+* File Name: USBFS_hid.c
+* Version 2.80
 *
-* \brief
-*  This file contains the USB HID Class request handler. 
+* Description:
+*  USB HID Class request handler.
 *
 * Related Document:
 *  Device Class Definition for Human Interface Devices (HID) Version 1.11
 *
+* Note:
+*
 ********************************************************************************
-* \copyright
-* Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+* Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions,
 * disclaimers, and limitations in the end user license agreement accompanying
 * the software package with which this file was provided.
 *******************************************************************************/
 
-#include "USBFS_hid.h"
-#include "USBFS_pvt.h"
-
-
+#include "USBFS.h"
 
 #if defined(USBFS_ENABLE_HID_CLASS)
+
+#include "USBFS_pvt.h"
+#include "USBFS_hid.h"
+
+
 
 /***************************************
 *    HID Variables
 ***************************************/
-/** This variable is initialized in the USBFS_InitComponent() API to the 
- * PROTOCOL_REPORT value. It is controlled by the host using the 
- * HID_SET_PROTOCOL request. The value is returned to the user code by the 
- * USBFS_GetProtocol() API.*/
-volatile uint8 USBFS_hidProtocol[USBFS_MAX_INTERFACES_NUMBER];
 
-/** This variable controls the HID report rate. It is controlled by the host 
- * using the HID_SET_IDLE request and used by the USBFS_UpdateHIDTimer() API to 
- * reload timer.*/
-volatile uint8 USBFS_hidIdleRate[USBFS_MAX_INTERFACES_NUMBER];
-
-/** This variable contains the timer counter, which is decremented and reloaded 
- * by the USBFS_UpdateHIDTimer() API.*/
+volatile uint8 USBFS_hidProtocol[USBFS_MAX_INTERFACES_NUMBER];  /* HID device protocol status */
+volatile uint8 USBFS_hidIdleRate[USBFS_MAX_INTERFACES_NUMBER];  /* HID device idle reload value */
 volatile uint8 USBFS_hidIdleTimer[USBFS_MAX_INTERFACES_NUMBER]; /* HID device idle rate value */
 
 
@@ -53,23 +46,18 @@ volatile uint8 USBFS_hidIdleTimer[USBFS_MAX_INTERFACES_NUMBER]; /* HID device id
 
 /*******************************************************************************
 * Function Name: USBFS_UpdateHIDTimer
-****************************************************************************//**
+********************************************************************************
 *
-*  This function updates the HID Report idle timer and returns the status and 
-*  reloads the timer if it expires.
+* Summary:
+*  Updates the HID report timer and reloads it if expired
 *
-*  \param interface Contains the interface number.
+* Parameters:
+*  interface:  Interface Number.
 *
-* \return
-*  Returns the state of the HID timer. Symbolic names and their associated values are given here:
-*  Return Value               |Notes
-*  ---------------------------|------------------------------------------------
-*  USBFS_IDLE_TIMER_EXPIRED   | The timer expired.
-*  USBFS_IDLE_TIMER_RUNNING   | The timer is running.
-*  USBFS_IDLE_TIMER_IDEFINITE | The report is sent when data or state changes.
+* Return:
+*  status.
 *
-*
-* \reentrant
+* Reentrant:
 *  No.
 *
 *******************************************************************************/
@@ -91,20 +79,22 @@ uint8 USBFS_UpdateHIDTimer(uint8 interface)
         }
     }
 
-    return((uint8)stat);
+    return(stat);
 }
 
 
 /*******************************************************************************
 * Function Name: USBFS_GetProtocol
-****************************************************************************//**
+********************************************************************************
 *
-*  This function returns the HID protocol value for the selected interface.
+* Summary:
+*  Returns the selected protocol value to the application
 *
-*  \param interface:  Contains the interface number.
+* Parameters:
+*  interface:  Interface Number.
 *
-*  \return
-*  Returns the protocol value. 
+* Return:
+*  Interface protocol.
 *
 *******************************************************************************/
 uint8 USBFS_GetProtocol(uint8 interface) 
@@ -115,34 +105,33 @@ uint8 USBFS_GetProtocol(uint8 interface)
 
 /*******************************************************************************
 * Function Name: USBFS_DispatchHIDClassRqst
-****************************************************************************//**
+********************************************************************************
 *
+* Summary:
 *  This routine dispatches class requests
 *
-* \return
-*  Results of HID Class request handling: 
-*  - USBFS_TRUE  - request was handled without errors
-*  - USBFS_FALSE - error occurs during handling of request  
+* Parameters:
+*  None.
 *
-* \reentrant
+* Return:
+*  requestHandled
+*
+* Reentrant:
 *  No.
 *
 *******************************************************************************/
 uint8 USBFS_DispatchHIDClassRqst(void) 
 {
     uint8 requestHandled = USBFS_FALSE;
+    uint8 interfaceNumber;
 
-    uint8 interfaceNumber = (uint8) USBFS_wIndexLoReg;
-    
-    /* Check request direction: D2H or H2D. */
-    if (0u != (USBFS_bmRequestTypeReg & USBFS_RQST_DIR_D2H))
-    {
-        /* Handle direction from device to host. */
-        
-        switch (USBFS_bRequestReg)
+    interfaceNumber = CY_GET_REG8(USBFS_wIndexLo);
+    if ((CY_GET_REG8(USBFS_bmRequestType) & USBFS_RQST_DIR_MASK) == USBFS_RQST_DIR_D2H)
+    {   /* Control Read */
+        switch (CY_GET_REG8(USBFS_bRequest))
         {
             case USBFS_GET_DESCRIPTOR:
-                if (USBFS_wValueHiReg == USBFS_DESCR_HID_CLASS)
+                if (CY_GET_REG8(USBFS_wValueHi) == USBFS_DESCR_HID_CLASS)
                 {
                     USBFS_FindHidClassDecriptor();
                     if (USBFS_currentTD.count != 0u)
@@ -150,7 +139,7 @@ uint8 USBFS_DispatchHIDClassRqst(void)
                         requestHandled = USBFS_InitControlRead();
                     }
                 }
-                else if (USBFS_wValueHiReg == USBFS_DESCR_HID_REPORT)
+                else if (CY_GET_REG8(USBFS_wValueHi) == USBFS_DESCR_HID_REPORT)
                 {
                     USBFS_FindReportDescriptor();
                     if (USBFS_currentTD.count != 0u)
@@ -159,11 +148,9 @@ uint8 USBFS_DispatchHIDClassRqst(void)
                     }
                 }
                 else
-                {   
-                    /* Do not handle this request. */
+                {   /* requestHandled is initialezed as FALSE by default */
                 }
                 break;
-                
             case USBFS_HID_GET_REPORT:
                 USBFS_FindReport();
                 if (USBFS_currentTD.count != 0u)
@@ -174,15 +161,15 @@ uint8 USBFS_DispatchHIDClassRqst(void)
 
             case USBFS_HID_GET_IDLE:
                 /* This function does not support multiple reports per interface*/
-                /* Validate interfaceNumber and Report ID (should be 0): Do not support Idle per Report ID */
-                if ((interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) && (USBFS_wValueLoReg == 0u)) 
+                /* Validate interfaceNumber and Report ID (should be 0) */
+                if( (interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) &&
+                    (CY_GET_REG8(USBFS_wValueLo) == 0u ) ) /* Do not support Idle per Report ID */
                 {
                     USBFS_currentTD.count = 1u;
                     USBFS_currentTD.pData = &USBFS_hidIdleRate[interfaceNumber];
                     requestHandled  = USBFS_InitControlRead();
                 }
                 break;
-                
             case USBFS_HID_GET_PROTOCOL:
                 /* Validate interfaceNumber */
                 if( interfaceNumber < USBFS_MAX_INTERFACES_NUMBER)
@@ -192,16 +179,14 @@ uint8 USBFS_DispatchHIDClassRqst(void)
                     requestHandled  = USBFS_InitControlRead();
                 }
                 break;
-                
             default:    /* requestHandled is initialized as FALSE by default */
                 break;
         }
     }
-    else
-    {   
-        /* Handle direction from host to device. */
-        
-        switch (USBFS_bRequestReg)
+    else if ((CY_GET_REG8(USBFS_bmRequestType) & USBFS_RQST_DIR_MASK) ==
+                                                                            USBFS_RQST_DIR_H2D)
+    {   /* Control Write */
+        switch (CY_GET_REG8(USBFS_bRequest))
         {
             case USBFS_HID_SET_REPORT:
                 USBFS_FindReport();
@@ -210,13 +195,13 @@ uint8 USBFS_DispatchHIDClassRqst(void)
                     requestHandled = USBFS_InitControlWrite();
                 }
                 break;
-                
             case USBFS_HID_SET_IDLE:
                 /* This function does not support multiple reports per interface */
-                /* Validate interfaceNumber and Report ID (should be 0): Do not support Idle per Report ID */
-                if ((interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) && (USBFS_wValueLoReg == 0u))
+                /* Validate interfaceNumber and Report ID (should be 0) */
+                if( (interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) &&
+                    (CY_GET_REG8(USBFS_wValueLo) == 0u ) ) /* Do not support Idle per Report ID */
                 {
-                    USBFS_hidIdleRate[interfaceNumber] = (uint8)USBFS_wValueHiReg;
+                    USBFS_hidIdleRate[interfaceNumber] = CY_GET_REG8(USBFS_wValueHi);
                     /* With regards to HID spec: "7.2.4 Set_Idle Request"
                     *  Latency. If the current period has gone past the
                     *  newly proscribed time duration, then a report
@@ -250,36 +235,42 @@ uint8 USBFS_DispatchHIDClassRqst(void)
 
             case USBFS_HID_SET_PROTOCOL:
                 /* Validate interfaceNumber and protocol (must be 0 or 1) */
-                if ((interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) && (USBFS_wValueLoReg <= 1u))
+                if( (interfaceNumber < USBFS_MAX_INTERFACES_NUMBER) &&
+                    (CY_GET_REG8(USBFS_wValueLo) <= 1u) )
                 {
-                    USBFS_hidProtocol[interfaceNumber] = (uint8)USBFS_wValueLoReg;
+                    USBFS_hidProtocol[interfaceNumber] = CY_GET_REG8(USBFS_wValueLo);
                     requestHandled = USBFS_InitNoDataControlTransfer();
                 }
                 break;
-            
-            default:    
-                /* Unknown class request is not handled. */
+            default:    /* requestHandled is initialized as FALSE by default */
                 break;
         }
     }
+    else
+    {   /* requestHandled is initialized as FALSE by default */
+    }
 
-    return (requestHandled);
+    return(requestHandled);
 }
 
 
 /*******************************************************************************
 * Function Name: USB_FindHidClassDescriptor
-****************************************************************************//**
+********************************************************************************
 *
+* Summary:
 *  This routine find Hid Class Descriptor pointer based on the Interface number
 *  and Alternate setting then loads the currentTD structure with the address of
 *  the buffer and the size.
 *  The HID Class Descriptor resides inside the config descriptor.
 *
-* \return
+* Parameters:
+*  None.
+*
+* Return:
 *  currentTD
 *
-* \reentrant
+* Reentrant:
 *  No.
 *
 *******************************************************************************/
@@ -290,25 +281,19 @@ void USBFS_FindHidClassDecriptor(void)
     uint8 interfaceN;
 
     pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
-    
-    interfaceN = (uint8) USBFS_wIndexLoReg;
+    interfaceN = CY_GET_REG8(USBFS_wIndexLo);
     /* Third entry in the LUT starts the Interface Table pointers */
     /* Now use the request interface number*/
     pTmp = &pTmp[interfaceN + 2u];
-    
     /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
     pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
-    
     /* Now use Alternate setting number */
     pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
-    
     /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
     pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
-    
     /* Fifth entry in the LUT points to Hid Class Descriptor in Configuration Descriptor */
     pTmp = &pTmp[4u];
     pDescr = (volatile uint8 *)pTmp->p_list;
-    
     /* The first byte contains the descriptor length */
     USBFS_currentTD.count = *pDescr;
     USBFS_currentTD.pData = pDescr;
@@ -317,17 +302,21 @@ void USBFS_FindHidClassDecriptor(void)
 
 /*******************************************************************************
 * Function Name: USB_FindReportDescriptor
-****************************************************************************//**
+********************************************************************************
 *
+* Summary:
 *  This routine find Hid Report Descriptor pointer based on the Interface
 *  number, then loads the currentTD structure with the address of the buffer
 *  and the size.
 *  Hid Report Descriptor is located after IN/OUT/FEATURE reports.
 *
-* \return
+* Parameters:
+*   void
+*
+* Return:
 *  currentTD
 *
-* \reentrant
+* Reentrant:
 *  No.
 *
 *******************************************************************************/
@@ -338,44 +327,42 @@ void USBFS_FindReportDescriptor(void)
     uint8 interfaceN;
 
     pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
-    interfaceN = (uint8) USBFS_wIndexLoReg;
-    
+    interfaceN = CY_GET_REG8(USBFS_wIndexLo);
     /* Third entry in the LUT starts the Interface Table pointers */
     /* Now use the request interface number */
     pTmp = &pTmp[interfaceN + 2u];
-    
     /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
     pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
-    
     /* Now use Alternate setting number */
     pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
-    
     /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
     pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
-    
     /* Fourth entry in the LUT starts the Hid Report Descriptor */
     pTmp = &pTmp[3u];
     pDescr = (volatile uint8 *)pTmp->p_list;
-    
     /* The 1st and 2nd bytes of descriptor contain its length. LSB is 1st. */
-    USBFS_currentTD.count =  ((uint16)((uint16) pDescr[1u] << 8u) | pDescr[0u]);
+    USBFS_currentTD.count =  (((uint16)pDescr[1u] << 8u) | pDescr[0u]);
     USBFS_currentTD.pData = &pDescr[2u];
 }
 
 
 /*******************************************************************************
 * Function Name: USBFS_FindReport
-****************************************************************************//**
+********************************************************************************
 *
+* Summary:
 *  This routine sets up a transfer based on the Interface number, Report Type
 *  and Report ID, then loads the currentTD structure with the address of the
 *  buffer and the size.  The caller has to decide if it is a control read or
 *  control write.
 *
-* \return
+* Parameters:
+*  None.
+*
+* Return:
 *  currentTD
 *
-* \reentrant
+* Reentrant:
 *  No.
 *
 *******************************************************************************/
@@ -383,48 +370,41 @@ void USBFS_FindReport(void)
 {
     const T_USBFS_LUT CYCODE *pTmp;
     T_USBFS_TD *pTD;
-    uint8 reportType;
     uint8 interfaceN;
- 
+    uint8 reportType;
+
     /* `#START HID_FINDREPORT` Place custom handling here */
 
     /* `#END` */
     
-#ifdef USBFS_FIND_REPORT_CALLBACK
-    USBFS_FindReport_Callback();
-#endif /* (USBFS_FIND_REPORT_CALLBACK) */
+    #ifdef USBFS_FIND_REPORT_CALLBACK
+        USBFS_FindReport_Callback();
+    #endif /* USBFS_FIND_REPORT_CALLBACK */
     
     USBFS_currentTD.count = 0u;   /* Init not supported condition */
     pTmp = USBFS_GetConfigTablePtr(USBFS_configuration - 1u);
-    reportType = (uint8) USBFS_wValueHiReg;
-    interfaceN = (uint8) USBFS_wIndexLoReg;
-    
-    /* Third entry in the LUT Configuration Table starts the Interface Table pointers */
+    reportType = CY_GET_REG8(USBFS_wValueHi);
+    interfaceN = CY_GET_REG8(USBFS_wIndexLo);
+    /* Third entry in the LUT COnfiguration Table starts the Interface Table pointers */
     /* Now use the request interface number */
     pTmp = &pTmp[interfaceN + 2u];
-    
-    /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE */
+    /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_TABLE*/
     pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
-    if (interfaceN < USBFS_MAX_INTERFACES_NUMBER)
+    if(interfaceN < USBFS_MAX_INTERFACES_NUMBER)
     {
         /* Now use Alternate setting number */
         pTmp = &pTmp[USBFS_interfaceSetting[interfaceN]];
-        
         /* USB_DEVICEx_CONFIGURATIONy_INTERFACEz_ALTERNATEi_HID_TABLE */
         pTmp = (const T_USBFS_LUT CYCODE *) pTmp->p_list;
-        
         /* Validate reportType to comply with "7.2.1 Get_Report Request" */
-        if ((reportType >= USBFS_HID_GET_REPORT_INPUT) &&
-            (reportType <= USBFS_HID_GET_REPORT_FEATURE))
+        if((reportType >= USBFS_HID_GET_REPORT_INPUT) &&
+           (reportType <= USBFS_HID_GET_REPORT_FEATURE))
         {
             /* Get the entry proper TD (IN, OUT or Feature Report Table)*/
             pTmp = &pTmp[reportType - 1u];
-            
-            /* Get reportID */
-            reportType = (uint8) USBFS_wValueLoReg;
-            
+            reportType = CY_GET_REG8(USBFS_wValueLo);    /* Get reportID */
             /* Validate table support by the HID descriptor, compare table count with reportID */
-            if (pTmp->c >= reportType)
+            if(pTmp->c >= reportType)
             {
                 pTD = (T_USBFS_TD *) pTmp->p_list;
                 pTD = &pTD[reportType];                          /* select entry depend on report ID*/

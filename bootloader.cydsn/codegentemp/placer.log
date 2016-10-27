@@ -6,7 +6,7 @@
 
 #Build Date:         Apr 25 2016 12:55:34
 
-#File Generated:     Jul 29 2016 09:50:36
+#File Generated:     Oct 3 2016 19:53:17
 
 #Purpose:            
 
@@ -49,7 +49,7 @@ Design Statistics after Packing
     Number of Sequential MCs    	:	0
     Number of DPs               	:	0
     Number of Controls          	:	1
-    Number of Status            	:	0
+    Number of Status            	:	1
     Number of SyncCells         	:	0
     Number of count7cells       	:	0
 
@@ -78,7 +78,7 @@ Final Design Statistics
     Number of Sequential MCs    	:	0
     Number of DPs               	:	0
     Number of Controls          	:	1
-    Number of Status            	:	0
+    Number of Status            	:	1
     Number of SyncCells         	:	0
     Number of count7cells       	:	0
     Number of IOs       	:	5
@@ -93,5 +93,5 @@ D2088: Phase 8, elapsed time : 0.0 (sec)
 
 D2054: Placement of the design completed successfully
 
-I2076: Total run-time: 0.6 sec.
+I2076: Total run-time: 0.7 sec.
 

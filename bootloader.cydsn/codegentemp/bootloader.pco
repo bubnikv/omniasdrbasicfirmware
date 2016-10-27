@@ -1,5 +1,5 @@
 # bootloader
-# 2016-07-29 13:50:36Z
+# 2016-10-03 23:53:18Z
 
 # IO_0@[IOP=(1)][IoId=(0)] is reserved: SWDDebugEnabled
 dont_use_io iocell 1 0
@@ -41,7 +41,8 @@ set_location "\USBFS:ep_0\" interrupt -1 -1 24
 set_location "\USBFS:bus_reset\" interrupt -1 -1 23
 set_location "\USBFS:arb_int\" interrupt -1 -1 22
 set_location "\USBFS:sof_int\" interrupt -1 -1 21
-set_location "\Control:Sync:ctrl_reg\" 0 4 6
-set_location "__ZERO__" 0 4 0 0
+set_location "\Control:Sync:ctrl_reg\" 0 2 6
+set_location "__ZERO__" 0 2 0 0
+set_location "\Status:sts:sts_reg\" 0 2 3
 set_location "morse_isr" interrupt -1 -1 2
 set_location "\Morse_Counter:CounterHW\" timercell -1 -1 0

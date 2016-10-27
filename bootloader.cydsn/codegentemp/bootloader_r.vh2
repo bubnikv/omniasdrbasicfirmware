@@ -1,5 +1,5 @@
 -- Project:   bootloader
--- Generated: 07/29/2016 09:50:36
+-- Generated: 10/03/2016 19:53:18
 -- PSoC Creator  3.3 CP3
 
 ENTITY bootloader IS
@@ -38,6 +38,7 @@ ARCHITECTURE __DEFAULT__ OF bootloader IS
     SIGNAL Net_101_local : bit;
     SIGNAL Net_125 : bit;
     SIGNAL Net_4 : bit;
+    SIGNAL Net_44 : bit;
     SIGNAL Net_9 : bit;
     SIGNAL \Control:control_1\ : bit;
     SIGNAL \Control:control_2\ : bit;
@@ -51,31 +52,31 @@ ARCHITECTURE __DEFAULT__ OF bootloader IS
     SIGNAL \\\USBFS:Dm(0)\\__PA\ : bit;
     SIGNAL \\\USBFS:Dp(0)\\__PA\ : bit;
     SIGNAL \USBFS:Net_1010\ : bit;
-    SIGNAL \USBFS:Net_1876\ : bit;
-    SIGNAL \USBFS:Net_1889\ : bit;
+    SIGNAL \USBFS:Net_79\ : bit;
+    SIGNAL \USBFS:Net_81\ : bit;
+    SIGNAL \USBFS:Net_824\ : bit;
     SIGNAL \USBFS:Net_95\ : bit;
-    SIGNAL \USBFS:dma_request_0\ : bit;
-    SIGNAL \USBFS:dma_request_1\ : bit;
-    SIGNAL \USBFS:dma_request_2\ : bit;
-    SIGNAL \USBFS:dma_request_3\ : bit;
-    SIGNAL \USBFS:dma_request_4\ : bit;
-    SIGNAL \USBFS:dma_request_5\ : bit;
-    SIGNAL \USBFS:dma_request_6\ : bit;
-    SIGNAL \USBFS:dma_request_7\ : bit;
-    SIGNAL \USBFS:dma_terminate\ : bit;
-    SIGNAL \USBFS:ep_int_0\ : bit;
-    SIGNAL \USBFS:ep_int_1\ : bit;
-    SIGNAL \USBFS:ep_int_2\ : bit;
-    SIGNAL \USBFS:ep_int_3\ : bit;
-    SIGNAL \USBFS:ep_int_4\ : bit;
-    SIGNAL \USBFS:ep_int_5\ : bit;
-    SIGNAL \USBFS:ep_int_6\ : bit;
-    SIGNAL \USBFS:ep_int_7\ : bit;
-    SIGNAL \USBFS:ep_int_8\ : bit;
+    SIGNAL \USBFS:dma_req_0\ : bit;
+    SIGNAL \USBFS:dma_req_1\ : bit;
+    SIGNAL \USBFS:dma_req_2\ : bit;
+    SIGNAL \USBFS:dma_req_3\ : bit;
+    SIGNAL \USBFS:dma_req_4\ : bit;
+    SIGNAL \USBFS:dma_req_5\ : bit;
+    SIGNAL \USBFS:dma_req_6\ : bit;
+    SIGNAL \USBFS:dma_req_7\ : bit;
+    SIGNAL \USBFS:ept_int_0\ : bit;
+    SIGNAL \USBFS:ept_int_1\ : bit;
+    SIGNAL \USBFS:ept_int_2\ : bit;
+    SIGNAL \USBFS:ept_int_3\ : bit;
+    SIGNAL \USBFS:ept_int_4\ : bit;
+    SIGNAL \USBFS:ept_int_5\ : bit;
+    SIGNAL \USBFS:ept_int_6\ : bit;
+    SIGNAL \USBFS:ept_int_7\ : bit;
+    SIGNAL \USBFS:ept_int_8\ : bit;
     SIGNAL __ONE__ : bit;
     ATTRIBUTE POWER OF __ONE__ : SIGNAL IS true;
     SIGNAL __ZERO__ : bit;
-    ATTRIBUTE placement_force OF __ZERO__ : SIGNAL IS "U(0,4,A)0";
+    ATTRIBUTE placement_force OF __ZERO__ : SIGNAL IS "U(0,2,A)0";
     ATTRIBUTE GROUND OF __ZERO__ : SIGNAL IS true;
     SIGNAL one : bit;
     ATTRIBUTE POWER OF one : SIGNAL IS true;
@@ -103,9 +104,11 @@ ARCHITECTURE __DEFAULT__ OF bootloader IS
     ATTRIBUTE Location OF \USBFS:arb_int\ : LABEL IS "[IntrContainer=(0)][IntrId=(22)]";
     ATTRIBUTE Location OF \USBFS:sof_int\ : LABEL IS "[IntrContainer=(0)][IntrId=(21)]";
     ATTRIBUTE lib_model OF \Control:Sync:ctrl_reg\ : LABEL IS "controlcell1";
-    ATTRIBUTE Location OF \Control:Sync:ctrl_reg\ : LABEL IS "U(0,4)";
+    ATTRIBUTE Location OF \Control:Sync:ctrl_reg\ : LABEL IS "U(0,2)";
     ATTRIBUTE lib_model OF __ZERO__ : LABEL IS "macrocell1";
-    ATTRIBUTE Location OF __ZERO__ : LABEL IS "U(0,4)";
+    ATTRIBUTE Location OF __ZERO__ : LABEL IS "U(0,2)";
+    ATTRIBUTE lib_model OF \Status:sts:sts_reg\ : LABEL IS "statuscell1";
+    ATTRIBUTE Location OF \Status:sts:sts_reg\ : LABEL IS "U(0,2)";
     ATTRIBUTE Location OF morse_isr : LABEL IS "[IntrContainer=(0)][IntrId=(2)]";
     ATTRIBUTE Location OF \Morse_Counter:CounterHW\ : LABEL IS "F(Timer,0)";
     COMPONENT clockblockcell
@@ -283,6 +286,20 @@ ARCHITECTURE __DEFAULT__ OF bootloader IS
             q : OUT std_ulogic;
             q_fixed : OUT std_ulogic);
     END COMPONENT;
+    COMPONENT statuscell
+        PORT (
+            status_0 : IN std_ulogic;
+            status_1 : IN std_ulogic;
+            status_2 : IN std_ulogic;
+            status_3 : IN std_ulogic;
+            status_4 : IN std_ulogic;
+            status_5 : IN std_ulogic;
+            status_6 : IN std_ulogic;
+            status_7 : IN std_ulogic;
+            clock : IN std_ulogic;
+            reset : IN std_ulogic;
+            clk_en : IN std_ulogic);
+    END COMPONENT;
     COMPONENT timercell
         PORT (
             clock : IN std_ulogic;
@@ -383,13 +400,13 @@ BEGIN
             port_alias_group => "",
             port_alias_required => 0,
             sio_group_cnt => 0,
-            sio_hifreq => "00000000",
+            sio_hifreq => "",
             sio_hyst => "1",
             sio_ibuf => "00000000",
             sio_info => "00",
             sio_obuf => "00000000",
             sio_refsel => "00000000",
-            sio_vohsel => "00000000",
+            sio_vohsel => "",
             sio_vtrip => "00000000",
             slew_rate => "0",
             spanning => 1,
@@ -434,7 +451,7 @@ BEGIN
             drive_mode => "000",
             ibuf_enabled => "0",
             id => "7ff4c03f-39bc-4316-a9b6-d2efece48e0a/618a72fc-5ddd-4df5-958f-a3d55102db42",
-            init_dr_st => "1",
+            init_dr_st => "0",
             input_buffer_sel => "00",
             input_clk_en => 0,
             input_sync => "1",
@@ -472,13 +489,13 @@ BEGIN
             port_alias_group => "",
             port_alias_required => 0,
             sio_group_cnt => 0,
-            sio_hifreq => "00000000",
+            sio_hifreq => "",
             sio_hyst => "1",
             sio_ibuf => "00000000",
             sio_info => "00",
             sio_obuf => "00000000",
             sio_refsel => "00000000",
-            sio_vohsel => "00000000",
+            sio_vohsel => "",
             sio_vtrip => "00000000",
             slew_rate => "0",
             spanning => 0,
@@ -563,13 +580,13 @@ BEGIN
             port_alias_group => "",
             port_alias_required => 0,
             sio_group_cnt => 0,
-            sio_hifreq => "00000000",
+            sio_hifreq => "",
             sio_hyst => "1",
             sio_ibuf => "00000000",
             sio_info => "00",
             sio_obuf => "00000000",
             sio_refsel => "00000000",
-            sio_vohsel => "00000000",
+            sio_vohsel => "",
             sio_vtrip => "00000000",
             slew_rate => "0",
             spanning => 0,
@@ -655,13 +672,13 @@ BEGIN
             port_alias_group => "",
             port_alias_required => 0,
             sio_group_cnt => 0,
-            sio_hifreq => "00000000",
+            sio_hifreq => "",
             sio_hyst => "1",
             sio_ibuf => "00000000",
             sio_info => "00",
             sio_obuf => "00000000",
             sio_refsel => "00000000",
-            sio_vohsel => "00000000",
+            sio_vohsel => "",
             sio_vtrip => "00000000",
             slew_rate => "0",
             spanning => 0,
@@ -747,18 +764,18 @@ BEGIN
             port_alias_group => "",
             port_alias_required => 0,
             sio_group_cnt => 0,
-            sio_hifreq => "00000000",
+            sio_hifreq => "",
             sio_hyst => "1",
             sio_ibuf => "00000000",
             sio_info => "00",
             sio_obuf => "00000000",
             sio_refsel => "00000000",
-            sio_vohsel => "00000000",
+            sio_vohsel => "",
             sio_vtrip => "00000000",
             slew_rate => "0",
             spanning => 0,
             sw_only => 0,
-            use_annotation => "1",
+            use_annotation => "0",
             vtrip => "00",
             width => 1,
             in_clk_inv => 0,
@@ -787,6 +804,7 @@ BEGIN
         PORT MAP(
             pa_out => BOOT(0)__PA,
             oe => open,
+            fb => Net_44,
             pad_in => BOOT(0)_PAD,
             in_clock => ClockBlock_BUS_CLK,
             in_clock_en => '1',
@@ -807,61 +825,61 @@ BEGIN
             cy_registers => "")
         PORT MAP(
             sof_int => Net_4,
-            arb_int => \USBFS:Net_1889\,
-            usb_int => \USBFS:Net_1876\,
-            ept_int_8 => \USBFS:ep_int_8\,
-            ept_int_7 => \USBFS:ep_int_7\,
-            ept_int_6 => \USBFS:ep_int_6\,
-            ept_int_5 => \USBFS:ep_int_5\,
-            ept_int_4 => \USBFS:ep_int_4\,
-            ept_int_3 => \USBFS:ep_int_3\,
-            ept_int_2 => \USBFS:ep_int_2\,
-            ept_int_1 => \USBFS:ep_int_1\,
-            ept_int_0 => \USBFS:ep_int_0\,
+            arb_int => \USBFS:Net_79\,
+            usb_int => \USBFS:Net_81\,
+            ept_int_8 => \USBFS:ept_int_8\,
+            ept_int_7 => \USBFS:ept_int_7\,
+            ept_int_6 => \USBFS:ept_int_6\,
+            ept_int_5 => \USBFS:ept_int_5\,
+            ept_int_4 => \USBFS:ept_int_4\,
+            ept_int_3 => \USBFS:ept_int_3\,
+            ept_int_2 => \USBFS:ept_int_2\,
+            ept_int_1 => \USBFS:ept_int_1\,
+            ept_int_0 => \USBFS:ept_int_0\,
             ord_int => \USBFS:Net_95\,
-            dma_req_7 => \USBFS:dma_request_7\,
-            dma_req_6 => \USBFS:dma_request_6\,
-            dma_req_5 => \USBFS:dma_request_5\,
-            dma_req_4 => \USBFS:dma_request_4\,
-            dma_req_3 => \USBFS:dma_request_3\,
-            dma_req_2 => \USBFS:dma_request_2\,
-            dma_req_1 => \USBFS:dma_request_1\,
-            dma_req_0 => \USBFS:dma_request_0\,
-            dma_termin => \USBFS:dma_terminate\);
+            dma_req_7 => \USBFS:dma_req_7\,
+            dma_req_6 => \USBFS:dma_req_6\,
+            dma_req_5 => \USBFS:dma_req_5\,
+            dma_req_4 => \USBFS:dma_req_4\,
+            dma_req_3 => \USBFS:dma_req_3\,
+            dma_req_2 => \USBFS:dma_req_2\,
+            dma_req_1 => \USBFS:dma_req_1\,
+            dma_req_0 => \USBFS:dma_req_0\,
+            dma_termin => \USBFS:Net_824\);
 
     \USBFS:ep_2\:interrupt
         GENERIC MAP(
             int_type => "10")
         PORT MAP(
-            interrupt => \USBFS:ep_int_2\,
+            interrupt => \USBFS:ept_int_2\,
             clock => ClockBlock_BUS_CLK);
 
     \USBFS:ep_1\:interrupt
         GENERIC MAP(
             int_type => "10")
         PORT MAP(
-            interrupt => \USBFS:ep_int_1\,
+            interrupt => \USBFS:ept_int_1\,
             clock => ClockBlock_BUS_CLK);
 
     \USBFS:ep_0\:interrupt
         GENERIC MAP(
             int_type => "10")
         PORT MAP(
-            interrupt => \USBFS:ep_int_0\,
+            interrupt => \USBFS:ept_int_0\,
             clock => ClockBlock_BUS_CLK);
 
     \USBFS:bus_reset\:interrupt
         GENERIC MAP(
             int_type => "10")
         PORT MAP(
-            interrupt => \USBFS:Net_1876\,
+            interrupt => \USBFS:Net_81\,
             clock => ClockBlock_BUS_CLK);
 
     \USBFS:arb_int\:interrupt
         GENERIC MAP(
             int_type => "10")
         PORT MAP(
-            interrupt => \USBFS:Net_1889\,
+            interrupt => \USBFS:Net_79\,
             clock => ClockBlock_BUS_CLK);
 
     \USBFS:sof_int\:interrupt
@@ -896,6 +914,22 @@ BEGIN
             clken_mode => 1)
         PORT MAP(
             q => __ZERO__);
+
+    \Status:sts:sts_reg\:statuscell
+        GENERIC MAP(
+            cy_force_order => 1,
+            cy_md_select => "00000000",
+            clken_mode => 1)
+        PORT MAP(
+            clock => open,
+            status_7 => open,
+            status_6 => open,
+            status_5 => open,
+            status_4 => open,
+            status_3 => open,
+            status_2 => open,
+            status_1 => open,
+            status_0 => Net_44);
 
     morse_isr:interrupt
         GENERIC MAP(

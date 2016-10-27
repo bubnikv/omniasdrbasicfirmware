@@ -1,15 +1,14 @@
 /*******************************************************************************
 * File Name: USBFS_Dm.h  
-* Version 2.20
+* Version 2.10
 *
 * Description:
-*  This file contains the Alias definitions for Per-Pin APIs in cypins.h. 
-*  Information on using these APIs can be found in the System Reference Guide.
+*  This file containts Control Register function prototypes and register defines
 *
 * Note:
 *
 ********************************************************************************
-* Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+* Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions, 
 * disclaimers, and limitations in the end user license agreement accompanying 
 * the software package with which this file was provided.
@@ -25,10 +24,7 @@
 /***************************************
 *              Constants        
 ***************************************/
-#define USBFS_Dm_0			(USBFS_Dm__0__PC)
-#define USBFS_Dm_0_INTR	((uint16)((uint16)0x0001u << USBFS_Dm__0__SHIFT))
-
-#define USBFS_Dm_INTR_ALL	 ((uint16)(USBFS_Dm_0_INTR))
+#define USBFS_Dm_0		(USBFS_Dm__0__PC)
 
 #endif /* End Pins USBFS_Dm_ALIASES_H */
 

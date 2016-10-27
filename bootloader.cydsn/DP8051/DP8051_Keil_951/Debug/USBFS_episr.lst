@@ -1,861 +1,778 @@
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 1   
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 1   
 
 
 C51 COMPILER V9.51, COMPILATION OF MODULE USBFS_EPISR
 OBJECT MODULE PLACED IN .\DP8051\DP8051_Keil_951\Debug\USBFS_episr.obj
 COMPILER INVOKED BY: C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\import\keil\pk51\9.51\C51\BIN\c51.exe 
                     -.\Generated_Source\PSoC3\USBFS_episr.c NOIV LARGE MODDP2 OMF2 VB(1) NOIP INCDIR(.,Generated_Source\PSoC3) FF(3) DB DF(DE
-                    -BUG) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_episr.lst) CD OT(5,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_epis
+                    -BUG) WL(2) PR(.\DP8051\DP8051_Keil_951\Debug/USBFS_episr.lst) CD OT(2,SIZE) OJ(.\DP8051\DP8051_Keil_951\Debug\USBFS_epis
                     -r.obj)
 
 line level    source
 
-   1          /***************************************************************************//**
-   2          * \file USBFS_episr.c
-   3          * \version 3.0
+   1          /*******************************************************************************
+   2          * File Name: USBFS_episr.c
+   3          * Version 2.80
    4          *
-   5          * \brief
-   6          *  This file contains the Data endpoint Interrupt Service Routines.
+   5          * Description:
+   6          *  Data endpoint Interrupt Service Routines
    7          *
-   8          ********************************************************************************
-   9          * \copyright
-  10          * Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
-  11          * You may use this file only in accordance with the license, terms, conditions,
-  12          * disclaimers, and limitations in the end user license agreement accompanying
-  13          * the software package with which this file was provided.
-  14          *******************************************************************************/
-  15          
-  16          #include "USBFS_pvt.h"
-  17          #include "USBFS_cydmac.h"
-  18          
+   8          * Note:
+   9          *
+  10          ********************************************************************************
+  11          * Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  12          * You may use this file only in accordance with the license, terms, conditions,
+  13          * disclaimers, and limitations in the end user license agreement accompanying
+  14          * the software package with which this file was provided.
+  15          *******************************************************************************/
+  16          
+  17          #include "USBFS.h"
+  18          #include "USBFS_pvt.h"
   19          
-  20          
-  21          /***************************************
-  22          * Custom Declarations
-  23          ***************************************/
-  24          /* `#START CUSTOM_DECLARATIONS` Place your declaration here */
-  25          
-  26          /* `#END` */
+  20          #if (defined(USBFS_ENABLE_MIDI_STREAMING) && (USBFS_ENABLE_MIDI_API != 0u))
+                  #include "USBFS_midi.h"
+              #endif /* (defined(USBFS_ENABLE_MIDI_STREAMING) && (USBFS_ENABLE_MIDI_API != 0u)) */
+  23          #if ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u))
+                  #include "USBFS_EP8_DMA_Done_SR.h"
+                  #include "USBFS_EP17_DMA_Done_SR.h"
+              #endif /* (USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u) */
   27          
   28          
-  29          #if (USBFS_EP1_ISR_ACTIVE)
-  30              /******************************************************************************
-  31              * Function Name: USBFS_EP_1_ISR
-  32              ***************************************************************************//**
-  33              *
-  34              *  Endpoint 1 Interrupt Service Routine
-  35              *
-  36              ******************************************************************************/
-  37              CY_ISR(USBFS_EP_1_ISR)
-  38              {
-  39   1      
-  40   1          #ifdef USBFS_EP_1_ISR_ENTRY_CALLBACK
-                      USBFS_EP_1_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_1_ISR_ENTRY_CALLBACK) */
-  43   1      
-  44   1              /* `#START EP1_USER_CODE` Place your code here */
-  45   1      
-  46   1              /* `#END` */
-  47   1      
-  48   1          #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-  49   1              !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 2   
+  29          /***************************************
+  30          * Custom Declarations
+  31          ***************************************/
+  32          /* `#START CUSTOM_DECLARATIONS` Place your declaration here */
+  33          
+  34          /* `#END` */
+  35          
+  36          
+  37          #if(USBFS_EP1_ISR_REMOVE == 0u)
+  38          
+  39          
+  40              /******************************************************************************
+  41              * Function Name: USBFS_EP_1_ISR
+  42              *******************************************************************************
+  43              *
+  44              * Summary:
+  45              *  Endpoint 1 Interrupt Service Routine
+  46              *
+  47              * Parameters:
+  48              *  None.
+  49              *
+  50              * Return:
+  51              *  None.
+  52              *
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 2   
 
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
-  54   1          
-  55   1              USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP1_INTR);
-  56   1                  
-  57   1              /* Notifies user that transfer IN or OUT transfer is completed.
-  58   1              * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-  59   1              * OUT endpoint: data is ready to be read from endpoint buffer. 
-  60   1              */
-  61   1          #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP1].addr & USBFS_DIR_IN))
-                  #endif /* (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO) */
-  64   1              {
-  65   2                  /* Read CR0 register to clear SIE lock. */
-  66   2                  (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP1].epCr0;
-  67   2                  
-  68   2                  /* Toggle all endpoint types except ISOC. */
-  69   2                  if (USBFS_GET_EP_TYPE(USBFS_EP1) != USBFS_EP_TYPE_ISOC)
-  70   2                  {
-  71   3                      USBFS_EP[USBFS_EP1].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-  72   3                  }
-  73   2      
-  74   2                  /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-  75   2                  * user that DMA has completed copying data from OUT endpoint which is not completely true.
-  76   2                  * Because last chunk of data is being copied.
-  77   2                  * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-  78   2                  * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-  79   2                  */
-  80   2                  USBFS_EP[USBFS_EP1].apiEpState = USBFS_EVENT_PENDING;
+  53              ******************************************************************************/
+  54              CY_ISR(USBFS_EP_1_ISR)
+  55              {
+  56   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT)  && \
+  57   1                           USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+  60   1      
+  61   1              #ifdef USBFS_EP_1_ISR_ENTRY_CALLBACK
+                          USBFS_EP_1_ISR_EntryCallback();
+                      #endif /* USBFS_EP_1_ISR_ENTRY_CALLBACK */
+  64   1      
+  65   1              /* `#START EP1_USER_CODE` Place your code here */
+  66   1      
+  67   1              /* `#END` */
+  68   1      
+  69   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+  70   1                           USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+  74   1      
+  75   1              CY_GET_REG8(USBFS_SIE_EP1_CR0_PTR); /* Must read the mode reg */
+  76   1              /* Do not toggle ISOC endpoint */
+  77   1              if((USBFS_EP[USBFS_EP1].attrib & USBFS_EP_TYPE_MASK) !=
+  78   1                                                                                          USBFS_EP_TYPE_ISOC)
+  79   1              {
+  80   2                  USBFS_EP[USBFS_EP1].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
   81   2              }
-  82   1      
-  83   1          #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
-  84   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-  85   1                  !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                          if (USBFS_midi_out_ep == USBFS_EP1)
+  82   1              USBFS_EP[USBFS_EP1].apiEpState = USBFS_EVENT_PENDING;
+  83   1              CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR) &
+  84   1                                                                          (uint8)~USBFS_SIE_EP_INT_EP1_MASK);
+  85   1      
+  86   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+  87   1                           USBFS_ISR_SERVICE_MIDI_OUT)
+                          if(USBFS_midi_out_ep == USBFS_EP1)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-  91   1          #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */
-  92   1          
-  93   1              /* `#START EP1_END_USER_CODE` Place your code here */
-  94   1      
-  95   1              /* `#END` */
-  96   1      
-  97   1          #ifdef USBFS_EP_1_ISR_EXIT_CALLBACK
-                      USBFS_EP_1_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_1_ISR_EXIT_CALLBACK) */
- 100   1      
- 101   1          #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
- 102   1              !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
- 107   1          }
- 108          
- 109          #endif /* (USBFS_EP1_ISR_ACTIVE) */
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT */
+  93   1      
+  94   1              /* `#START EP1_END_USER_CODE` Place your code here */
+  95   1      
+  96   1              /* `#END` */
+  97   1      
+  98   1              #ifdef USBFS_EP_1_ISR_EXIT_CALLBACK
+                          USBFS_EP_1_ISR_ExitCallback();
+                      #endif /* USBFS_EP_1_ISR_EXIT_CALLBACK */
+ 101   1      
+ 102   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+ 103   1                           USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+ 106   1          }
+ 107          
+ 108          #endif   /*  USBFS_EP1_ISR_REMOVE */
+ 109          
  110          
- 111          
- 112          #if (USBFS_EP2_ISR_ACTIVE)
+ 111          #if(USBFS_EP2_ISR_REMOVE == 0u)
+ 112          
  113              /*******************************************************************************
  114              * Function Name: USBFS_EP_2_ISR
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 3   
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 3   
 
- 115              ****************************************************************************//**
+ 115              ********************************************************************************
  116              *
- 117              *  Endpoint 2 Interrupt Service Routine.
- 118              *
- 119              *******************************************************************************/
- 120              CY_ISR(USBFS_EP_2_ISR)
- 121              {
- 122   1          #ifdef USBFS_EP_2_ISR_ENTRY_CALLBACK
-                      USBFS_EP_2_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_2_ISR_ENTRY_CALLBACK) */
- 125   1      
- 126   1              /* `#START EP2_USER_CODE` Place your code here */
- 127   1      
- 128   1              /* `#END` */
- 129   1      
- 130   1          #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
- 131   1              !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
- 136   1      
- 137   1              USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP2_INTR);
- 138   1      
- 139   1              /* Notifies user that transfer IN or OUT transfer is completed.
- 140   1              * IN endpoint: endpoint buffer can be reloaded, Host is read data.
- 141   1              * OUT endpoint: data is ready to be read from endpoint buffer. 
- 142   1              */
- 143   1          #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP2].addr & USBFS_DIR_IN))
-                  #endif /* (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO) */
- 146   1              {            
- 147   2                  /* Read CR0 register to clear SIE lock. */
- 148   2                  (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP2].epCr0;
- 149   2                  
- 150   2                  /* Toggle all endpoint types except ISOC. */
- 151   2                  if (USBFS_GET_EP_TYPE(USBFS_EP2) != USBFS_EP_TYPE_ISOC)
- 152   2                  {
- 153   3                      USBFS_EP[USBFS_EP2].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
- 154   3                  }
- 155   2      
- 156   2                  /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
- 157   2                  * user that DMA has completed copying data from OUT endpoint which is not completely true.
- 158   2                  * Because last chunk of data is being copied.
- 159   2                  * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
- 160   2                  * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
- 161   2                  */
- 162   2                  USBFS_EP[USBFS_EP2].apiEpState = USBFS_EVENT_PENDING;
- 163   2              }
- 164   1      
- 165   1          #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
- 166   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
- 167   1                  !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                          if (USBFS_midi_out_ep == USBFS_EP2)
+ 117              * Summary:
+ 118              *  Endpoint 2 Interrupt Service Routine
+ 119              *
+ 120              * Parameters:
+ 121              *  None.
+ 122              *
+ 123              * Return:
+ 124              *  None.
+ 125              *
+ 126              *******************************************************************************/
+ 127              CY_ISR(USBFS_EP_2_ISR)
+ 128              {
+ 129   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+ 130   1                           USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+ 133   1      
+ 134   1              #ifdef USBFS_EP_2_ISR_ENTRY_CALLBACK
+                          USBFS_EP_2_ISR_EntryCallback();
+                      #endif /* USBFS_EP_2_ISR_ENTRY_CALLBACK */
+ 137   1      
+ 138   1              /* `#START EP2_USER_CODE` Place your code here */
+ 139   1      
+ 140   1              /* `#END` */
+ 141   1      
+ 142   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+ 143   1                           USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+ 147   1      
+ 148   1              CY_GET_REG8(USBFS_SIE_EP2_CR0_PTR); /* Must read the mode reg */
+ 149   1              /* Do not toggle ISOC endpoint */
+ 150   1              if((USBFS_EP[USBFS_EP2].attrib & USBFS_EP_TYPE_MASK) !=
+ 151   1                                                                                          USBFS_EP_TYPE_ISOC)
+ 152   1              {
+ 153   2                  USBFS_EP[USBFS_EP2].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
+ 154   2              }
+ 155   1              USBFS_EP[USBFS_EP2].apiEpState = USBFS_EVENT_PENDING;
+ 156   1              CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+ 157   1                                                                              & (uint8)~USBFS_SIE_EP_INT_EP2_MAS
+             -K);
+ 158   1      
+ 159   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+ 160   1                           USBFS_ISR_SERVICE_MIDI_OUT)
+                          if(USBFS_midi_out_ep == USBFS_EP2)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
- 173   1          #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */        
- 174   1          
- 175   1              /* `#START EP2_END_USER_CODE` Place your code here */
- 176   1      
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 4   
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT */
+ 166   1      
+ 167   1              /* `#START EP2_END_USER_CODE` Place your code here */
+ 168   1      
+ 169   1              /* `#END` */
+ 170   1      
+ 171   1              #ifdef USBFS_EP_2_ISR_EXIT_CALLBACK
+                          USBFS_EP_2_ISR_ExitCallback();
+                      #endif /* USBFS_EP_2_ISR_EXIT_CALLBACK */
+ 174   1              
+ 175   1              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 4   
 
- 177   1              /* `#END` */
- 178   1      
- 179   1          #ifdef USBFS_EP_2_ISR_EXIT_CALLBACK
-                      USBFS_EP_2_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_2_ISR_EXIT_CALLBACK) */
- 182   1      
- 183   1          #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
- 184   1              !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
- 189   1          }
- 190          #endif /* (USBFS_EP2_ISR_ACTIVE) */
- 191          
- 192          
- 193          #if (USBFS_EP3_ISR_ACTIVE)
+ 176   1                           USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+ 179   1          }
+ 180          
+ 181          #endif   /*  USBFS_EP2_ISR_REMOVE */
+ 182          
+ 183          
+ 184          #if(USBFS_EP3_ISR_REMOVE == 0u)
+              
                   /*******************************************************************************
                   * Function Name: USBFS_EP_3_ISR
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  Endpoint 3 Interrupt Service Routine.
+                  * Summary:
+                  *  Endpoint 3 Interrupt Service Routine
+                  *
+                  * Parameters:
+                  *  None.
+                  *
+                  * Return:
+                  *  None.
                   *
                   *******************************************************************************/
                   CY_ISR(USBFS_EP_3_ISR)
                   {
-                  #ifdef USBFS_EP_3_ISR_ENTRY_CALLBACK
-                      USBFS_EP_3_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_3_ISR_ENTRY_CALLBACK) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3 */
+              
+                      #ifdef USBFS_EP_3_ISR_ENTRY_CALLBACK
+                          USBFS_EP_3_ISR_EntryCallback();
+                      #endif /* USBFS_EP_3_ISR_ENTRY_CALLBACK */
               
                       /* `#START EP3_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      CY_GET_REG8(USBFS_SIE_EP3_CR0_PTR); /* Must read the mode reg */
+                      /* Do not toggle ISOC endpoint */
+                      if((USBFS_EP[USBFS_EP3].attrib & USBFS_EP_TYPE_MASK) !=
+                                                                                                  USBFS_EP_TYPE_ISOC)
                       {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
-              
-                      USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP3_INTR);    
-              
-                      /* Notifies user that transfer IN or OUT transfer is completed.
-                      * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-                      * OUT endpoint: data is ready to be read from endpoint buffer. 
-                      */
-                  #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP3].addr & USBFS_DIR_IN))
-                  #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-                      {            
-                          /* Read CR0 register to clear SIE lock. */
-                          (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP3].epCr0;
-              
-                          /* Toggle all endpoint types except ISOC. */
-                          if (USBFS_GET_EP_TYPE(USBFS_EP3) != USBFS_EP_TYPE_ISOC)
-                          {
-                              USBFS_EP[USBFS_EP3].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                          }
-              
-                          /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-                          * user that DMA has completed copying data from OUT endpoint which is not completely true.
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 5   
-
-                          * Because last chunk of data is being copied.
-                          * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-                          * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-                          */
-                          USBFS_EP[USBFS_EP3].apiEpState = USBFS_EVENT_PENDING;
+                          USBFS_EP[USBFS_EP3].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
                       }
+                      USBFS_EP[USBFS_EP3].apiEpState = USBFS_EVENT_PENDING;
+                      CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+                                                                                      & (uint8)~USBFS_SIE_EP_INT_EP3_MAS
+             -K);
               
-                  #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
-                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                          !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                          if (USBFS_midi_out_ep == USBFS_EP3)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT)
+                          if(USBFS_midi_out_ep == USBFS_EP3)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 5   
+
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                  #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */        
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT */
               
                       /* `#START EP3_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_EP_3_ISR_EXIT_CALLBACK
-                      USBFS_EP_3_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_3_ISR_EXIT_CALLBACK) */
+                      #ifdef USBFS_EP_3_ISR_EXIT_CALLBACK
+                          USBFS_EP_3_ISR_ExitCallback();
+                      #endif /* USBFS_EP_3_ISR_EXIT_CALLBACK */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
                   }
-              #endif /* (USBFS_EP3_ISR_ACTIVE) */
- 272          
- 273          
- 274          #if (USBFS_EP4_ISR_ACTIVE)
+              
+              #endif   /*  USBFS_EP3_ISR_REMOVE */
+ 255          
+ 256          
+ 257          #if(USBFS_EP4_ISR_REMOVE == 0u)
+              
                   /*******************************************************************************
                   * Function Name: USBFS_EP_4_ISR
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  Endpoint 4 Interrupt Service Routine.
+                  * Summary:
+                  *  Endpoint 4 Interrupt Service Routine
+                  *
+                  * Parameters:
+                  *  None.
+                  *
+                  * Return:
+                  *  None.
                   *
                   *******************************************************************************/
                   CY_ISR(USBFS_EP_4_ISR)
                   {
-                  #ifdef USBFS_EP_4_ISR_ENTRY_CALLBACK
-                      USBFS_EP_4_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_4_ISR_ENTRY_CALLBACK) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      #ifdef USBFS_EP_4_ISR_ENTRY_CALLBACK
+                          USBFS_EP_4_ISR_EntryCallback();
+                      #endif /* USBFS_EP_4_ISR_ENTRY_CALLBACK */
               
                       /* `#START EP4_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
               
-                      USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP4_INTR);
-                      
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 6   
+                      CY_GET_REG8(USBFS_SIE_EP4_CR0_PTR); /* Must read the mode reg */
+                      /* Do not toggle ISOC endpoint */
+                      if((USBFS_EP[USBFS_EP4].attrib & USBFS_EP_TYPE_MASK) !=
+                                                                                                  USBFS_EP_TYPE_ISOC)
+                      {
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 6   
 
-                      /* Notifies user that transfer IN or OUT transfer is completed.
-                      * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-                      * OUT endpoint: data is ready to read from endpoint buffer. 
-                      */
-                  #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP4].addr & USBFS_DIR_IN))
-                  #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-                      {
-                          /* Read CR0 register to clear SIE lock. */
-                          (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP4].epCr0;
-              
-                          /* Toggle all endpoint types except ISOC. */
-                          if (USBFS_GET_EP_TYPE(USBFS_EP4) != USBFS_EP_TYPE_ISOC)
-                          {
-                              USBFS_EP[USBFS_EP4].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                          }
-              
-                          /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-                          * user that DMA has completed copying data from OUT endpoint which is not completely true.
-                          * Because last chunk of data is being copied.
-                          * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-                          * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-                          */
-                          USBFS_EP[USBFS_EP4].apiEpState = USBFS_EVENT_PENDING;
+                          USBFS_EP[USBFS_EP4].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
                       }
+                      USBFS_EP[USBFS_EP4].apiEpState = USBFS_EVENT_PENDING;
+                      CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+                                                                                      & (uint8)~USBFS_SIE_EP_INT_EP4_MAS
+             -K);
               
-                  #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
-                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                          !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT)
                           if(USBFS_midi_out_ep == USBFS_EP4)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                  #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */        
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT */
               
                       /* `#START EP4_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_EP_4_ISR_EXIT_CALLBACK
-                      USBFS_EP_4_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_4_ISR_EXIT_CALLBACK) */
+                      #ifdef USBFS_EP_4_ISR_EXIT_CALLBACK
+                          USBFS_EP_4_ISR_ExitCallback();
+                      #endif /* USBFS_EP_4_ISR_EXIT_CALLBACK */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
                   }
-              #endif /* (USBFS_EP4_ISR_ACTIVE) */
- 353          
- 354          
- 355          #if (USBFS_EP5_ISR_ACTIVE)
+              
+              #endif   /*  USBFS_EP4_ISR_REMOVE */
+ 328          
+ 329          
+ 330          #if(USBFS_EP5_ISR_REMOVE == 0u)
+              
                   /*******************************************************************************
                   * Function Name: USBFS_EP_5_ISR
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Endpoint 5 Interrupt Service Routine
                   *
+                  * Parameters:
+                  *  None.
                   *
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 7   
-
+                  * Return:
+                  *  None.
+                  *
                   *******************************************************************************/
                   CY_ISR(USBFS_EP_5_ISR)
                   {
-                  #ifdef USBFS_EP_5_ISR_ENTRY_CALLBACK
-                      USBFS_EP_5_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_5_ISR_ENTRY_CALLBACK) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      #ifdef USBFS_EP_5_ISR_ENTRY_CALLBACK
+                          USBFS_EP_5_ISR_EntryCallback();
+                      #endif /* USBFS_EP_5_ISR_ENTRY_CALLBACK */
               
                       /* `#START EP5_USER_CODE` Place your code here */
               
                       /* `#END` */
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 7   
+
               
-                  #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
-                               USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      CY_GET_REG8(USBFS_SIE_EP5_CR0_PTR); /* Must read the mode reg */
+                      /* Do not toggle ISOC endpoint */
+                      if((USBFS_EP[USBFS_EP5].attrib & USBFS_EP_TYPE_MASK) !=
+                                                                                                  USBFS_EP_TYPE_ISOC)
                       {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
-              
-                      USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP5_INTR);
-                  
-                      /* Notifies user that transfer IN or OUT transfer is completed.
-                      * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-                      * OUT endpoint: data is ready to read from endpoint buffer. 
-                      */
-                  #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP5].addr & USBFS_DIR_IN))
-                  #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-                      {            
-                          /* Read CR0 register to clear SIE lock. */
-                          (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP5].epCr0;
-              
-                          /* Toggle all endpoint types except ISOC. */
-                          if (USBFS_GET_EP_TYPE(USBFS_EP5) != USBFS_EP_TYPE_ISOC)
-                          {
-                              USBFS_EP[USBFS_EP5].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                          }
-              
-                          /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-                          * user that DMA has completed copying data from OUT endpoint which is not completely true.
-                          * Because last chunk of data is being copied.
-                          * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-                          * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-                          */
-                          USBFS_EP[USBFS_EP5].apiEpState = USBFS_EVENT_PENDING;
+                          USBFS_EP[USBFS_EP5].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
                       }
+                      USBFS_EP[USBFS_EP5].apiEpState = USBFS_EVENT_PENDING;
+                      CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+                                                                                      & (uint8)~USBFS_SIE_EP_INT_EP5_MAS
+             -K);
               
-                  #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))        
-                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                          !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                          if (USBFS_midi_out_ep == USBFS_EP5)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT)
+                          if(USBFS_midi_out_ep == USBFS_EP5)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                  #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT */
               
                       /* `#START EP5_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_EP_5_ISR_EXIT_CALLBACK
-                      USBFS_EP_5_ISR_ExitCallback();
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 8   
-
-                  #endif /* (USBFS_EP_5_ISR_EXIT_CALLBACK) */
+                      #ifdef USBFS_EP_5_ISR_EXIT_CALLBACK
+                          USBFS_EP_5_ISR_ExitCallback();
+                      #endif /* USBFS_EP_5_ISR_EXIT_CALLBACK */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
                   }
-              #endif /* (USBFS_EP5_ISR_ACTIVE) */
- 435          
- 436          
- 437          #if (USBFS_EP6_ISR_ACTIVE)
+              #endif   /*  USBFS_EP5_ISR_REMOVE */
+ 400          
+ 401          
+ 402          #if(USBFS_EP6_ISR_REMOVE == 0u)
+              
                   /*******************************************************************************
                   * Function Name: USBFS_EP_6_ISR
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  Endpoint 6 Interrupt Service Routine.
+                  * Summary:
+                  *  Endpoint 6 Interrupt Service Routine
                   *
+                  * Parameters:
+                  *  None.
+                  *
+                  * Return:
+                  *  None.
                   *
                   *******************************************************************************/
                   CY_ISR(USBFS_EP_6_ISR)
                   {
-                  #ifdef USBFS_EP_6_ISR_ENTRY_CALLBACK
-                      USBFS_EP_6_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_6_ISR_ENTRY_CALLBACK) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 8   
+
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      #ifdef USBFS_EP_6_ISR_ENTRY_CALLBACK
+                          USBFS_EP_6_ISR_EntryCallback();
+                      #endif /* USBFS_EP_6_ISR_ENTRY_CALLBACK */
               
                       /* `#START EP6_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
               
-                      USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP6_INTR);
-                      
-                      /* Notifies user that transfer IN or OUT transfer is completed.
-                      * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-                      * OUT endpoint: data is ready to read from endpoint buffer. 
-                      */
-                  #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP6].addr & USBFS_DIR_IN))
-                  #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
+                      CY_GET_REG8(USBFS_SIE_EP6_CR0_PTR); /* Must read the mode reg */
+                      /* Do not toggle ISOC endpoint */
+                      if((USBFS_EP[USBFS_EP6].attrib & USBFS_EP_TYPE_MASK) !=
+                                                                                                  USBFS_EP_TYPE_ISOC)
                       {
-                          /* Read CR0 register to clear SIE lock. */
-                          (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP6].epCr0;
-              
-                          /* Toggle all endpoint types except ISOC. */
-                          if (USBFS_GET_EP_TYPE(USBFS_EP6) != USBFS_EP_TYPE_ISOC)
-                          {
-                              USBFS_EP[USBFS_EP6].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                          }
-                          
-                          /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-                          * user that DMA has completed copying data from OUT endpoint which is not completely true.
-                          * Because last chunk of data is being copied.
-                          * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-                          * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 9   
-
-                          */
-                          USBFS_EP[USBFS_EP6].apiEpState = USBFS_EVENT_PENDING;
+                          USBFS_EP[USBFS_EP6].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
                       }
+                      USBFS_EP[USBFS_EP6].apiEpState = USBFS_EVENT_PENDING;
+                      CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+                                                                                      & (uint8)~USBFS_SIE_EP_INT_EP6_MAS
+             -K);
               
-                  #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
-                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                          !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                          if (USBFS_midi_out_ep == USBFS_EP6)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT)
+                          if(USBFS_midi_out_ep == USBFS_EP6)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                  #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT  */
               
                       /* `#START EP6_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_EP_6_ISR_EXIT_CALLBACK
-                      USBFS_EP_6_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_6_ISR_EXIT_CALLBACK) */
+                      #ifdef USBFS_EP_6_ISR_EXIT_CALLBACK
+                          USBFS_EP_6_ISR_ExitCallback();
+                      #endif /* USBFS_EP_6_ISR_EXIT_CALLBACK */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
                   }
-              #endif /* (USBFS_EP6_ISR_ACTIVE) */
- 517          
- 518          
- 519          #if (USBFS_EP7_ISR_ACTIVE)
+              
+              #endif   /*  USBFS_EP6_ISR_REMOVE */
+ 473          
+ 474          
+ 475          #if(USBFS_EP7_ISR_REMOVE == 0u)
+              
                   /*******************************************************************************
                   * Function Name: USBFS_EP_7_ISR
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  Endpoint 7 Interrupt Service Routine.
+                  * Summary:
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 9   
+
+                  *  Endpoint 7 Interrupt Service Routine
                   *
+                  * Parameters:
+                  *  None.
+                  *
+                  * Return:
+                  *  None.
                   *
                   *******************************************************************************/
                   CY_ISR(USBFS_EP_7_ISR)
                   {
-                  #ifdef USBFS_EP_7_ISR_ENTRY_CALLBACK
-                      USBFS_EP_7_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_7_ISR_ENTRY_CALLBACK) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      #ifdef USBFS_EP_7_ISR_ENTRY_CALLBACK
+                          USBFS_EP_7_ISR_EntryCallback();
+                      #endif /* USBFS_EP_7_ISR_ENTRY_CALLBACK */
               
                       /* `#START EP7_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      CY_GET_REG8(USBFS_SIE_EP7_CR0_PTR); /* Must read the mode reg */
+                      /* Do not toggle ISOC endpoint */
+                      if((USBFS_EP[USBFS_EP7].attrib & USBFS_EP_TYPE_MASK) !=
+                                                                                                  USBFS_EP_TYPE_ISOC)
                       {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
-                  
-                      USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP7_INTR);
-                      
-                      /* Notifies user that transfer IN or OUT transfer is completed.
-                      * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 10  
-
-                      * OUT endpoint: data is ready to read from endpoint buffer. 
-                      */
-                  #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP7].addr & USBFS_DIR_IN))
-                  #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-                      {           
-                          /* Read CR0 register to clear SIE lock. */
-                          (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP7].epCr0;
-              
-                          /* Toggle all endpoint types except ISOC. */
-                          if (USBFS_GET_EP_TYPE(USBFS_EP7) != USBFS_EP_TYPE_ISOC)
-                          {
-                              USBFS_EP[USBFS_EP7].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                          }
-                          
-                          /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-                          * user that DMA has completed copying data from OUT endpoint which is not completely true.
-                          * Because last chunk of data is being copied.
-                          * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-                          * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-                          */
-                          USBFS_EP[USBFS_EP7].apiEpState = USBFS_EVENT_PENDING;
+                          USBFS_EP[USBFS_EP7].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
                       }
+                      USBFS_EP[USBFS_EP7].apiEpState = USBFS_EVENT_PENDING;
+                      CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+                                                                                      & (uint8)~USBFS_SIE_EP_INT_EP7_MAS
+             -K);
               
-              
-                  #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
-                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                          !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT)
                           if(USBFS_midi_out_ep == USBFS_EP7)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                  #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT  */
               
                       /* `#START EP7_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_EP_7_ISR_EXIT_CALLBACK
-                      USBFS_EP_7_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_7_ISR_EXIT_CALLBACK) */
+                      #ifdef USBFS_EP_7_ISR_EXIT_CALLBACK
+                          USBFS_EP_7_ISR_ExitCallback();
+                      #endif /* USBFS_EP_7_ISR_EXIT_CALLBACK */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 10  
+
                   }
-              #endif /* (USBFS_EP7_ISR_ACTIVE) */
- 600          
- 601          
- 602          #if (USBFS_EP8_ISR_ACTIVE)
+              
+              #endif   /*  USBFS_EP7_ISR_REMOVE */
+ 546          
+ 547          
+ 548          #if(USBFS_EP8_ISR_REMOVE == 0u)
+              
                   /*******************************************************************************
                   * Function Name: USBFS_EP_8_ISR
-                  ****************************************************************************//**
+                  ********************************************************************************
                   *
+                  * Summary:
                   *  Endpoint 8 Interrupt Service Routine
                   *
+                  * Parameters:
+                  *  None.
+                  *
+                  * Return:
+                  *  None.
                   *
                   *******************************************************************************/
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 11  
-
                   CY_ISR(USBFS_EP_8_ISR)
                   {
-                  #ifdef USBFS_EP_8_ISR_ENTRY_CALLBACK
-                      USBFS_EP_8_ISR_EntryCallback();
-                  #endif /* (USBFS_EP_8_ISR_ENTRY_CALLBACK) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          uint8 int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      #ifdef USBFS_EP_8_ISR_ENTRY_CALLBACK
+                          USBFS_EP_8_ISR_EntryCallback();
+                      #endif /* USBFS_EP_8_ISR_ENTRY_CALLBACK */
               
                       /* `#START EP8_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          int_en = EA;
+                          CyGlobalIntEnable;  /* Make sure nested interrupt is enabled */
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
+              
+                      CY_GET_REG8(USBFS_SIE_EP8_CR0_PTR); /* Must read the mode reg */
+                      /* Do not toggle ISOC endpoint */
+                      if((USBFS_EP[USBFS_EP8].attrib & USBFS_EP_TYPE_MASK) !=
+                                                                                                  USBFS_EP_TYPE_ISOC)
                       {
-                          uint8 intEn = EA;
-                          CyGlobalIntEnable;  /* Enable nested interrupts. */
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
-              
-                      USBFS_ClearSieEpInterruptSource(USBFS_SIE_INT_EP8_INTR);
-                      
-                      /* Notifies user that transfer IN or OUT transfer is completed.
-                      * IN endpoint: endpoint buffer can be reloaded, Host is read data.
-                      * OUT endpoint: data is ready to read from endpoint buffer. 
-                      */
-                  #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                      if (0u != (USBFS_EP[USBFS_EP8].addr & USBFS_DIR_IN))
-                  #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-                      {
-                          /* Read CR0 register to clear SIE lock. */
-                          (void) USBFS_SIE_EP_BASE.sieEp[USBFS_EP8].epCr0;
-              
-                          /* Toggle all endpoint types except ISOC. */
-                          if (USBFS_GET_EP_TYPE(USBFS_EP8) != USBFS_EP_TYPE_ISOC)
-                          {
-                              USBFS_EP[USBFS_EP8].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                          }
-              
-                          /* EP_MANAGEMENT_DMA_AUTO (Ticket ID# 214187): For OUT endpoint this event is used to notify
-                          * user that DMA has completed copying data from OUT endpoint which is not completely true.
-                          * Because last chunk of data is being copied.
-                          * For CY_PSOC 3/5LP: it is acceptable as DMA is really fast.
-                          * For CY_PSOC4: this event is set in Arbiter interrupt (source is DMA_TERMIN).
-                          */
-                          USBFS_EP[USBFS_EP8].apiEpState = USBFS_EVENT_PENDING;
+                          USBFS_EP[USBFS_EP8].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
                       }
+                      USBFS_EP[USBFS_EP8].apiEpState = USBFS_EVENT_PENDING;
+                      CY_SET_REG8(USBFS_SIE_EP_INT_SR_PTR, CY_GET_REG8(USBFS_SIE_EP_INT_SR_PTR)
+                                                                                      & (uint8)~USBFS_SIE_EP_INT_EP8_MAS
+             -K);
               
-                  #if (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO))
-                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                          !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                          if (USBFS_midi_out_ep == USBFS_EP8)
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT)
+                          if(USBFS_midi_out_ep == USBFS_EP8)
                           {
-                              USBFS_MIDI_OUT_Service();
+                              USBFS_MIDI_OUT_EP_Service();
                           }
-                      #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                  #endif /* (!(CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)) */
+                      #endif /*  USBFS_ISR_SERVICE_MIDI_OUT */
               
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 11  
+
                       /* `#START EP8_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_EP_8_ISR_EXIT_CALLBACK
-                      USBFS_EP_8_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_8_ISR_EXIT_CALLBACK) */
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 12  
-
+                      #ifdef USBFS_EP_8_ISR_EXIT_CALLBACK
+                          USBFS_EP_8_ISR_ExitCallback();
+                      #endif /* USBFS_EP_8_ISR_EXIT_CALLBACK */
               
-                  #if (CY_PSOC3 && defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                      !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                      
-                          EA = intEn; /* Restore nested interrupt configuration. */
-                      }
-                  #endif /* (CY_PSOC3 && USBFS_ISR_SERVICE_MIDI_OUT) */
+                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && \
+                                   USBFS_ISR_SERVICE_MIDI_OUT && CY_PSOC3)
+                          EA = int_en;
+                      #endif /* CY_PSOC3 & USBFS_ISR_SERVICE_MIDI_OUT  */
                   }
-              #endif /* (USBFS_EP8_ISR_ACTIVE) */
- 682          
- 683          
- 684          #if (USBFS_SOF_ISR_ACTIVE)
- 685              /*******************************************************************************
- 686              * Function Name: USBFS_SOF_ISR
- 687              ****************************************************************************//**
- 688              *
- 689              *  Start of Frame Interrupt Service Routine.
- 690              *
- 691              *
- 692              *******************************************************************************/
- 693              CY_ISR(USBFS_SOF_ISR)
- 694              {
- 695   1          #ifdef USBFS_SOF_ISR_ENTRY_CALLBACK
-                      USBFS_SOF_ISR_EntryCallback();
-                  #endif /* (USBFS_SOF_ISR_ENTRY_CALLBACK) */
- 698   1      
- 699   1              /* `#START SOF_USER_CODE` Place your code here */
- 700   1      
- 701   1              /* `#END` */
- 702   1      
- 703   1              USBFS_ClearSieInterruptSource(USBFS_INTR_SIE_SOF_INTR);
- 704   1      
- 705   1          #ifdef USBFS_SOF_ISR_EXIT_CALLBACK
-                      USBFS_SOF_ISR_ExitCallback();
-                  #endif /* (USBFS_SOF_ISR_EXIT_CALLBACK) */
- 708   1          }
- 709          #endif /* (USBFS_SOF_ISR_ACTIVE) */
- 710          
- 711          
- 712          #if (USBFS_BUS_RESET_ISR_ACTIVE)
- 713          /*******************************************************************************
- 714          * Function Name: USBFS_BUS_RESET_ISR
- 715          ****************************************************************************//**
- 716          *
- 717          *  USB Bus Reset Interrupt Service Routine.  Calls _Start with the same
- 718          *  parameters as the last USER call to _Start
- 719          *
- 720          *
- 721          *******************************************************************************/
- 722          CY_ISR(USBFS_BUS_RESET_ISR)
- 723          {
- 724   1      #ifdef USBFS_BUS_RESET_ISR_ENTRY_CALLBACK
-                  USBFS_BUS_RESET_ISR_EntryCallback();
-              #endif /* (USBFS_BUS_RESET_ISR_ENTRY_CALLBACK) */
- 727   1      
- 728   1          /* `#START BUS_RESET_USER_CODE` Place your code here */
- 729   1      
- 730   1          /* `#END` */
- 731   1      
- 732   1          USBFS_ClearSieInterruptSource(USBFS_INTR_SIE_BUS_RESET_INTR);
- 733   1      
- 734   1          USBFS_ReInitComponent();
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 13  
+              
+              #endif   /*  USBFS_EP8_ISR_REMOVE */
+ 619          
+ 620          
+ 621          /*******************************************************************************
+ 622          * Function Name: USBFS_SOF_ISR
+ 623          ********************************************************************************
+ 624          *
+ 625          * Summary:
+ 626          *  Start of Frame Interrupt Service Routine
+ 627          *
+ 628          * Parameters:
+ 629          *  None.
+ 630          *
+ 631          * Return:
+ 632          *  None.
+ 633          *
+ 634          *******************************************************************************/
+ 635          CY_ISR(USBFS_SOF_ISR)
+ 636          {
+ 637   1          #ifdef USBFS_SOF_ISR_INTERRUPT_CALLBACK
+                      USBFS_SOF_ISR_InterruptCallback();
+                  #endif /* USBFS_SOF_ISR_INTERRUPT_CALLBACK */
+ 640   1      
+ 641   1          /* `#START SOF_USER_CODE` Place your code here */
+ 642   1      
+ 643   1          /* `#END` */
+ 644   1      }
+ 645          
+ 646          
+ 647          /*******************************************************************************
+ 648          * Function Name: USBFS_BUS_RESET_ISR
+ 649          ********************************************************************************
+ 650          *
+ 651          * Summary:
+ 652          *  USB Bus Reset Interrupt Service Routine.  Calls _Start with the same
+ 653          *  parameters as the last USER call to _Start
+ 654          *
+ 655          * Parameters:
+ 656          *  None.
+ 657          *
+ 658          * Return:
+ 659          *  None.
+ 660          *
+ 661          *******************************************************************************/
+ 662          CY_ISR(USBFS_BUS_RESET_ISR)
+ 663          {
+ 664   1          #ifdef USBFS_BUS_RESET_ISR_ENTRY_CALLBACK
+                      USBFS_BUS_RESET_ISR_EntryCallback();
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 12  
 
- 735   1      
- 736   1      #ifdef USBFS_BUS_RESET_ISR_EXIT_CALLBACK
-                  USBFS_BUS_RESET_ISR_ExitCallback();
-              #endif /* (USBFS_BUS_RESET_ISR_EXIT_CALLBACK) */
- 739   1      }
- 740          #endif /* (USBFS_BUS_RESET_ISR_ACTIVE) */
- 741          
- 742          
- 743          #if (USBFS_LPM_ACTIVE)
-              /***************************************************************************
-              * Function Name: USBFS_INTR_LPM_ISR
-              ************************************************************************//**
-              *
-              *   Interrupt Service Routine for LPM of the interrupt sources.
-              *
-              *
-              ***************************************************************************/
-              CY_ISR(USBFS_LPM_ISR)
-              {
-              #ifdef USBFS_LPM_ISR_ENTRY_CALLBACK
-                  USBFS_LPM_ISR_EntryCallback();
-              #endif /* (USBFS_LPM_ISR_ENTRY_CALLBACK) */
+                  #endif /* USBFS_BUS_RESET_ISR_ENTRY_CALLBACK */
+ 667   1      
+ 668   1          /* `#START BUS_RESET_USER_CODE` Place your code here */
+ 669   1      
+ 670   1          /* `#END` */
+ 671   1      
+ 672   1          USBFS_ReInitComponent();
+ 673   1      
+ 674   1          #ifdef USBFS_BUS_RESET_ISR_EXIT_CALLBACK
+                      USBFS_BUS_RESET_ISR_ExitCallback();
+                  #endif /* USBFS_BUS_RESET_ISR_EXIT_CALLBACK */    
+ 677   1      }
+ 678          
+ 679          
+ 680          #if((USBFS_EP_MM != USBFS__EP_MANUAL) && (USBFS_ARB_ISR_REMOVE == 0u))
               
-                  /* `#START LPM_BEGIN_USER_CODE` Place your code here */
               
-                  /* `#END` */
-              
-                  USBFS_ClearSieInterruptSource(USBFS_INTR_SIE_LPM_INTR);
-              
-                  /* `#START LPM_END_USER_CODE` Place your code here */
-              
-                  /* `#END` */
-              
-              #ifdef USBFS_LPM_ISR_EXIT_CALLBACK
-                  USBFS_LPM_ISR_ExitCallback();
-              #endif /* (USBFS_LPM_ISR_EXIT_CALLBACK) */
-              }
-              #endif /* (USBFS_LPM_ACTIVE) */
- 773          
- 774          
- 775          #if (USBFS_EP_MANAGEMENT_DMA && USBFS_ARB_ISR_ACTIVE)
-                  /***************************************************************************
+                  /*******************************************************************************
                   * Function Name: USBFS_ARB_ISR
-                  ************************************************************************//**
+                  ********************************************************************************
                   *
-                  *  Arbiter Interrupt Service Routine.
+                  * Summary:
+                  *  Arbiter Interrupt Service Routine
                   *
+                  * Parameters:
+                  *  None.
                   *
-                  ***************************************************************************/
+                  * Return:
+                  *  None.
+                  *
+                  * Side effect:
+                  *  Search for EP8 int_status will be much slower than search for EP1 int_status.
+                  *
+                  *******************************************************************************/
                   CY_ISR(USBFS_ARB_ISR)
                   {
-                      uint8 arbIntrStatus;
-                      uint8 epStatus;
+                      uint8 int_status;
+                      uint8 ep_status;
                       uint8 ep = USBFS_EP1;
+                      uint8 ptr = 0u;
               
-                  #ifdef USBFS_ARB_ISR_ENTRY_CALLBACK
-                      USBFS_ARB_ISR_EntryCallback();
-                  #endif /* (USBFS_ARB_ISR_ENTRY_CALLBACK) */
+                      #ifdef USBFS_ARB_ISR_ENTRY_CALLBACK
+                          USBFS_ARB_ISR_EntryCallback();
+                      #endif /* USBFS_ARB_ISR_ENTRY_CALLBACK */
               
                       /* `#START ARB_BEGIN_USER_CODE` Place your code here */
               
                       /* `#END` */
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 14  
-
               
-                      /* Get pending ARB interrupt sources. */
-                      arbIntrStatus = USBFS_ARB_INT_SR_REG;
+                      int_status = USBFS_ARB_INT_SR_REG;                   /* read Arbiter Status Register */
+                      USBFS_ARB_INT_SR_REG = int_status;                   /* Clear Serviced Interrupts */
               
-                      while (0u != arbIntrStatus)
+                      while(int_status != 0u)
                       {
-                          /* Check which EP is interrupt source. */
-                          if (0u != (arbIntrStatus & 0x01u))
-                          {
-                              /* Get endpoint enable interrupt sources. */
-                              epStatus = (USBFS_ARB_EP_BASE.arbEp[ep].epSr & USBFS_ARB_EP_BASE.arbEp[ep].epIntEn);
-              
-                              /* Handle IN endpoint buffer full event: happens only once when endpoint buffer is loaded.
-             - */
-                              if (0u != (epStatus & USBFS_ARB_EPX_INT_IN_BUF_FULL))
+                          if((int_status & 1u) != 0u)  /* If EpX interrupt present */
+                          {   /* read Endpoint Status Register */
+                              ep_status  = CY_GET_REG8((reg8 *)(USBFS_ARB_EP1_SR_IND + ptr));
+                              /* If In Buffer Full */
+                              if((ep_status & USBFS_ARB_EPX_SR_IN_BUF_FULL) != 0u)
                               {
-                                  if (0u != (USBFS_EP[ep].addr & USBFS_DIR_IN))
+                                  if((USBFS_EP[ep].addr & USBFS_DIR_IN) != 0u)
                                   {
-                                      /* Clear data ready status. */
-                                      USBFS_ARB_EP_BASE.arbEp[ep].epCfg &= (uint8) ~USBFS_ARB_EPX_CFG_IN_DATA_RDY;
-              
-                                  #if (CY_PSOC3 || CY_PSOC5LP)
-                                      #if (USBFS_EP_MANAGEMENT_DMA_AUTO && (USBFS_EP_DMA_AUTO_OPT == 0u))
-                                          /* Set up common area DMA with rest of data. */
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 13  
+
+                                      /* Clear Data ready status */
+                                      *(reg8 *)(USBFS_ARB_EP1_CFG_IND + ptr) &=
+                                                                                  (uint8)~USBFS_ARB_EPX_CFG_IN_DATA_RDY;
+                                      #if((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u))
+                                          /* Setup common area DMA with rest of the data */
                                           if(USBFS_inLength[ep] > USBFS_DMA_BYTES_PER_BURST)
                                           {
                                               USBFS_LoadNextInEP(ep, 0u);
@@ -864,835 +781,153 @@ line level    source
                                           {
                                               USBFS_inBufFull[ep] = 1u;
                                           }
-                                      #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO && (USBFS_EP_DMA_AUTO_OPT == 0u)) */
-                                  #endif /* (CY_PSOC3 || CY_PSOC5LP) */
-              
-                                      /* Arm IN endpoint. */
-                                      USBFS_SIE_EP_BASE.sieEp[ep].epCr0 = USBFS_EP[ep].epMode;
-              
-                                  #if (defined(USBFS_ENABLE_MIDI_STREAMING) && USBFS_ISR_SERVICE_MIDI_IN)
-                                      if (ep == USBFS_midi_in_ep)
+                                      #endif /* ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u)) */
+                                      /* Write the Mode register */
+                                      CY_SET_REG8((reg8 *)(USBFS_SIE_EP1_CR0_IND + ptr), USBFS_EP[ep].epMode);
+                                      #if (defined(USBFS_ENABLE_MIDI_STREAMING) && USBFS_ISR_SERVICE_MIDI_IN)
+                                          if(ep == USBFS_midi_in_ep)
+                                          {   /* Clear MIDI input pointer */
+                                              USBFS_midiInPointer = 0u;
+                                          }
+                                      #endif /*  USBFS_ENABLE_MIDI_STREAMING*/
+                                  }
+                              }
+                              /* (re)arm Out EP only for mode2 */
+                              #if(USBFS_EP_MM != USBFS__EP_DMAAUTO)
+                                  /* If DMA Grant */
+                                  if((ep_status & USBFS_ARB_EPX_SR_DMA_GNT) != 0u)
+                                  {
+                                      if((USBFS_EP[ep].addr & USBFS_DIR_IN) == 0u)
                                       {
-                                          /* Clear MIDI input pointer. */
-                                          USBFS_midiInPointer = 0u;
+                                              USBFS_EP[ep].apiEpState = USBFS_NO_EVENT_PENDING;
+                                              /* Write the Mode register */
+                                              CY_SET_REG8((reg8 *)(USBFS_SIE_EP1_CR0_IND + ptr),
+                                                                                                  USBFS_EP[ep].epMode);
                                       }
-                                  #endif /* (USBFS_ENABLE_MIDI_STREAMING) */
                                   }
-                              }
-              
-                          #if (USBFS_EP_MANAGEMENT_DMA_MANUAL)
-                              /* Handle DMA completion event for OUT endpoints. */
-                              if (0u != (epStatus & USBFS_ARB_EPX_SR_DMA_GNT))
-                              {
-                                  if (0u == (USBFS_EP[ep].addr & USBFS_DIR_IN))
-                                  {
-                                      /* Notify user that data has been copied from endpoint buffer. */
-                                      USBFS_EP[ep].apiEpState = USBFS_NO_EVENT_PENDING;
-              
-                                      /* DMA done coping data: OUT endpoint has to be re-armed by user. */
-                                  }
-                              }
-                          #endif /* (USBFS_EP_MANAGEMENT_DMA_MANUAL) */
-              
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 15  
-
-                          #if (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO)
-                              /* Handle DMA completion event for OUT endpoints. */
-                              if (0u != (epStatus & USBFS_ARB_EPX_INT_DMA_TERMIN))
-                              {
-                                  uint32 channelNum = USBFS_DmaChan[ep];
-              
-                                  /* Restore burst counter for endpoint. */
-                                  USBFS_DmaEpBurstCnt[ep] = USBFS_DmaEpBurstCntBackup[ep];
-              
-                                  /* Disable DMA channel to restore descriptor configuration. The on-going transfer is a
-             -borted. */
-                                  USBFS_CyDmaChDisable(channelNum);
-              
-                                  /* Generate DMA tr_out signal to notify USB IP that DMA is done. This signal is not ge
-             -nerated
-                                  * when transfer was aborted (it occurs when host writes less bytes than buffer size).
-                                  */
-                                  USBFS_CyDmaTriggerOut(USBFS_DmaBurstEndOut[ep]);
-              
-                                  /* Restore destination address for output endpoint. */
-                                  USBFS_CyDmaSetDstAddress(channelNum, USBFS_DMA_DESCR0, (void*) ((uint32) USBFS_DmaEpBu
-             -fferAddrBackup[ep]));
-                                  USBFS_CyDmaSetDstAddress(channelNum, USBFS_DMA_DESCR1, (void*) ((uint32) USBFS_DmaEpBu
-             -fferAddrBackup[ep] +
-                                                                                                                        
-             -         USBFS_DMA_BYTES_PER_BURST));
-              
-                                  /* Restore number of data elements to transfer which was adjusted for last burst. */
-                                  if (0u != (USBFS_DmaEpLastBurstEl[ep] & USBFS_DMA_DESCR_REVERT))
-                                  {
-                                      USBFS_CyDmaSetNumDataElements(channelNum, (USBFS_DmaEpLastBurstEl[ep] >> USBFS_DMA
-             -_DESCR_SHIFT),
-                                                                                           USBFS_DMA_GET_MAX_ELEM_PER_BU
-             -RST(USBFS_DmaEpLastBurstEl[ep]));
-                                  }
-              
-                                  /* Validate descriptor 0 and 1 (also reset current state). Command to start with descr
-             -iptor 0. */
-                                  USBFS_CyDmaValidateDescriptor(channelNum, USBFS_DMA_DESCR0);
-                                  USBFS_CyDmaValidateDescriptor(channelNum, USBFS_DMA_DESCR1);
-                                  USBFS_CyDmaSetDescriptor0Next(channelNum);
-              
-                                  /* Enable DMA channel: configuration complete. */
-                                  USBFS_CyDmaChEnable(channelNum);
-                                  
-                                  
-                                  /* Read CR0 register to clear SIE lock. */
-                                  (void) USBFS_SIE_EP_BASE.sieEp[ep].epCr0;
-                                  
-                                  /* Toggle all endpoint types except ISOC. */
-                                  if (USBFS_GET_EP_TYPE(ep) != USBFS_EP_TYPE_ISOC)
-                                  {
-                                      USBFS_EP[ep].epToggle ^= USBFS_EPX_CNT_DATA_TOGGLE;
-                                  }
-                          
-                                  /* Notify user that data has been copied from endpoint buffer. */
-                                  USBFS_EP[ep].apiEpState = USBFS_EVENT_PENDING;
-                                  
-                              #if (defined(USBFS_ENABLE_MIDI_STREAMING) && \
-                                  !defined(USBFS_MAIN_SERVICE_MIDI_OUT) && USBFS_ISR_SERVICE_MIDI_OUT)
-                                  if (USBFS_midi_out_ep == ep)
-                                  {
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 16  
-
-                                      USBFS_MIDI_OUT_Service();
-                                  }
-                              #endif /* (USBFS_ISR_SERVICE_MIDI_OUT) */
-                              }
-                          #endif /* (CY_PSOC4 && USBFS_EP_MANAGEMENT_DMA_AUTO) */
-              
+                              #endif /*  USBFS_EP_MM */
               
                               /* `#START ARB_USER_CODE` Place your code here for handle Buffer Underflow/Overflow */
               
                               /* `#END` */
               
-                          #ifdef USBFS_ARB_ISR_CALLBACK
-                              USBFS_ARB_ISR_Callback(ep, epStatus);
-                          #endif /* (USBFS_ARB_ISR_CALLBACK) */
+                              #ifdef USBFS_ARB_ISR_CALLBACK
+                                  USBFS_ARB_ISR_Callback();
+                              #endif /* USBFS_ARB_ISR_CALLBACK */
               
-                              /* Clear serviced endpoint interrupt sources. */
-                              USBFS_ARB_EP_BASE.arbEp[ep].epSr = epStatus;
+                              CY_SET_REG8((reg8 *)(USBFS_ARB_EP1_SR_IND + ptr), ep_status);   /* Clear Serviced events *
+             -/
                           }
-              
-                          ++ep;
-                          arbIntrStatus >>= 1u;
+                          ptr += USBFS_EPX_CNTX_ADDR_OFFSET;               /* prepare pointer for next EP */
+                          ep++;
+                          int_status >>= 1u;
                       }
               
                       /* `#START ARB_END_USER_CODE` Place your code here */
               
                       /* `#END` */
               
-                  #ifdef USBFS_ARB_ISR_EXIT_CALLBACK
-                      USBFS_ARB_ISR_ExitCallback();
-                  #endif /* (USBFS_ARB_ISR_EXIT_CALLBACK) */
+                      #ifdef USBFS_ARB_ISR_EXIT_CALLBACK
+                          USBFS_ARB_ISR_ExitCallback();
+                      #endif /* USBFS_ARB_ISR_EXIT_CALLBACK */
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 14  
+
                   }
               
-              #endif /*  (USBFS_ARB_ISR_ACTIVE && USBFS_EP_MANAGEMENT_DMA) */
- 945          
- 946          
- 947          #if (USBFS_EP_MANAGEMENT_DMA_AUTO)
-              #if (CY_PSOC4)
-                  #if (USBFS_DMA1_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP1_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 1 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP1_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP1])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP1];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP1_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP1] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 17  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP1] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP1].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP1_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP1_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP1]);
-                      }
-                  #endif /* (USBFS_DMA1_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA2_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP2_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 2 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP2_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP2])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP2];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP2_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP2] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 18  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP2] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP2].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP2_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP2_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP2]);
-                      }
-                  #endif /* (USBFS_DMA2_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA3_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP3_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 3 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP3_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP3])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP3];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP3_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP3] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 19  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP3] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP3].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP3_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP3_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP3]);
-                      }
-                  #endif /* (USBFS_DMA3_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA4_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP4_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 4 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP4_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP4])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP4];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP4_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP4] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 20  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP4] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP4].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP4_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP4_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP4]);
-                      }
-                  #endif /* (USBFS_DMA4_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA5_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP5_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 5 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP5_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP5])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP5];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP5_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP5] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 21  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP5] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP5].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP5_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP5_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP5]);
-                      }
-                  #endif /* (USBFS_DMA5_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA6_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP6_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 6 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP6_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP6])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP6];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP6_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP6] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 22  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP6] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP6].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable the DMA to execute transfer as it was disabled because there were no valid descripto
-             -r. */
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP6_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP6_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP6]);
-                      }
-                  #endif /* (USBFS_DMA6_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA7_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP7_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 7 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP7_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP7])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP7];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP7_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP7] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 23  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP7] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP7].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP7_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP7_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP7]);
-                      }
-                  #endif /* (USBFS_DMA7_ACTIVE) */
-              
-              
-                  #if (USBFS_DMA8_ACTIVE)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP8_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  Endpoint 8 DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      void USBFS_EP8_DMA_DONE_ISR(void)
-                      {
-                          uint32 nextAddr;
-              
-                          /* Manage data elements which remain to transfer. */
-                          if (0u != USBFS_DmaEpBurstCnt[USBFS_EP8])
-                          {
-                              /* Decrement burst counter. */
-                              --USBFS_DmaEpBurstCnt[USBFS_EP8];
-                          }
-                          else
-                          {
-                              /* Adjust length of last burst. */
-                              USBFS_CyDmaSetNumDataElements(USBFS_EP8_DMA_CH,
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP8] >> USB
-             -FS_DMA_DESCR_SHIFT),
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 24  
-
-                                                                      ((uint32) USBFS_DmaEpLastBurstEl[USBFS_EP8] &  USB
-             -FS_DMA_BURST_BYTES_MASK));
-                          }
-              
-                          /* Advance source for input endpoint or destination for output endpoint. */
-                          if (0u != (USBFS_EP[USBFS_EP8].addr & USBFS_DIR_IN))
-                          {
-                              /* Change source for descriptor 0. */
-                              nextAddr = (uint32) USBFS_CyDmaGetSrcAddress(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change source for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetSrcAddress(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-                          else
-                          {
-                              /* Change destination for descriptor 0. */
-                              nextAddr  = (uint32) USBFS_CyDmaGetDstAddress(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR0);
-                              nextAddr += (2u * USBFS_DMA_BYTES_PER_BURST);
-                              USBFS_CyDmaSetDstAddress(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR0, (void *) nextAddr);
-              
-                              /* Change destination for descriptor 1. */
-                              nextAddr += USBFS_DMA_BYTES_PER_BURST;
-                              USBFS_CyDmaSetDstAddress(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR1, (void *) nextAddr);
-                          }
-              
-                          /* Enable DMA to execute transfer as it was disabled because there were no valid descriptor. *
-             -/
-                          USBFS_CyDmaValidateDescriptor(USBFS_EP8_DMA_CH, USBFS_DMA_DESCR0);
-                          USBFS_CyDmaChEnable (USBFS_EP8_DMA_CH);
-                          USBFS_CyDmaTriggerIn(USBFS_DmaReqOut[USBFS_EP8]);
-                      }
-                  #endif /* (USBFS_DMA8_ACTIVE) */
-              
-              #else
-                  #if (USBFS_EP_DMA_AUTO_OPT == 0u)
-                      /******************************************************************************
-                      * Function Name: USBFS_EP_DMA_DONE_ISR
-                      ***************************************************************************//**
-                      *
-                      *  DMA Done Interrupt Service Routine.
-                      *
-                      *
-                      ******************************************************************************/
-                      CY_ISR(USBFS_EP_DMA_DONE_ISR)
-                      {
-                          uint8 int8Status;
-                          uint8 int17Status;
-                          uint8 ep_status;
-                          uint8 ep = USBFS_EP1;
+              #endif /*  USBFS_EP_MM */
+ 792          
+ 793          #if ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u))
+                  /******************************************************************************
+                  * Function Name: USBFS_EP_DMA_DONE_ISR
+                  *******************************************************************************
+                  *
+                  * Summary:
+                  *  Endpoint 1 DMA Done Interrupt Service Routine
+                  *
+                  * Parameters:
+                  *  None.
+                  *
+                  * Return:
+                  *  None.
+                  *
+                  ******************************************************************************/
+                  CY_ISR(USBFS_EP_DMA_DONE_ISR)
+                  {
+                      uint8 int8Status;
+                      uint8 int17Status;
+                      uint8 ep_status;
+                      uint8 ep = USBFS_EP1;
+                      uint8 ptr = 0u;
               
                       #ifdef USBFS_EP_DMA_DONE_ISR_ENTRY_CALLBACK
                           USBFS_EP_DMA_DONE_ISR_EntryCallback();
-                      #endif /* (USBFS_EP_DMA_DONE_ISR_ENTRY_CALLBACK) */
+                      #endif /* USBFS_EP_DMA_DONE_ISR_ENTRY_CALLBACK */
               
-                          /* `#START EP_DMA_DONE_BEGIN_USER_CODE` Place your code here */
+                      /* `#START EP_DMA_DONE_BEGIN_USER_CODE` Place your code here */
               
-                          /* `#END` */
+                      /* `#END` */
               
-                          /* Read clear on read status register with EP source of interrupt. */
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 25  
-
-                          int17Status = USBFS_EP17_DMA_Done_SR_Read() & USBFS_EP17_SR_MASK;
-                          int8Status  = USBFS_EP8_DMA_Done_SR_Read()  & USBFS_EP8_SR_MASK;
+                      /* Read clear on read status register with the EP source of interrupt */
+                      int17Status = USBFS_EP17_DMA_Done_SR_Read() & USBFS_EP17_SR_MASK;
+                      int8Status = USBFS_EP8_DMA_Done_SR_Read() & USBFS_EP8_SR_MASK;
               
-                          while (int8Status != 0u)
+                      while(int8Status != 0u)
+                      {
+                          while(int17Status != 0u)
                           {
-                              while (int17Status != 0u)
+                              if((int17Status & 1u) != 0u)  /* If EpX interrupt present */
                               {
-                                  if ((int17Status & 1u) != 0u)  /* If EpX interrupt present. */
+                                  /* Read Endpoint Status Register */
+                                  ep_status = CY_GET_REG8((reg8 *)(USBFS_ARB_EP1_SR_IND + ptr));
+                                  if( ((ep_status & USBFS_ARB_EPX_SR_IN_BUF_FULL) == 0u) &&
+                                      (USBFS_inBufFull[ep] == 0u))
                                   {
-                                      /* Read Endpoint Status Register. */
-                                      ep_status = USBFS_ARB_EP_BASE.arbEp[ep].epSr;
+                                      /* `#START EP_DMA_DONE_USER_CODE` Place your code here */
               
-                                      if ((0u == (ep_status & USBFS_ARB_EPX_SR_IN_BUF_FULL)) &&
-                                          (0u ==USBFS_inBufFull[ep]))
-                                      {
-                                          /* `#START EP_DMA_DONE_USER_CODE` Place your code here */
-              
-                                          /* `#END` */
+                                      /* `#END` */
               
                                       #ifdef USBFS_EP_DMA_DONE_ISR_CALLBACK
                                           USBFS_EP_DMA_DONE_ISR_Callback();
-                                      #endif /* (USBFS_EP_DMA_DONE_ISR_CALLBACK) */
+                                      #endif /* USBFS_EP_DMA_DONE_ISR_CALLBACK */
               
-                                          /* Transfer again 2 last bytes into pre-fetch endpoint area. */
-                                          USBFS_ARB_EP_BASE.arbEp[ep].rwWaMsb = 0u;
-                                          USBFS_ARB_EP_BASE.arbEp[ep].rwWa = (USBFS_DMA_BYTES_PER_BURST * ep) - USBFS_DM
-             -A_BYTES_REPEAT;
-                                          USBFS_LoadNextInEP(ep, 1u);
-              
-                                          /* Set Data ready status to generate DMA request. */
-                                          USBFS_ARB_EP_BASE.arbEp[ep].epCfg |= USBFS_ARB_EPX_CFG_IN_DATA_RDY;
-                                      }
+                                      CY_SET_REG8((reg8 *)(USBFS_ARB_RW1_WA_MSB_IND + ptr), 0x00u);
+                                      /* repeat 2 last bytes to prefetch endpoint area */
+                                      CY_SET_REG8((reg8 *)(USBFS_ARB_RW1_WA_IND + ptr),
+                                                  USBFS_DMA_BYTES_PER_BURST * ep - USBFS_DMA_BYTES_REPEAT);
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 15  
+
+                                      USBFS_LoadNextInEP(ep, 1);
+                                      /* Set Data ready status, This will generate DMA request */
+                                      * (reg8 *)(USBFS_ARB_EP1_CFG_IND + ptr) |= USBFS_ARB_EPX_CFG_IN_DATA_RDY;
                                   }
-              
-                                  ep++;
-                                  int17Status >>= 1u;
                               }
-              
-                              int8Status >>= 1u;
-              
-                              if (int8Status != 0u)
-                              {
-                                  /* Prepare pointer for EP8. */
-                                  ep = USBFS_EP8;
-                                  int17Status = int8Status & 0x01u;
-                              }
+                              ptr += USBFS_EPX_CNTX_ADDR_OFFSET;               /* prepare pointer for next EP */
+                              ep++;
+                              int17Status >>= 1u;
                           }
-              
-                          /* `#START EP_DMA_DONE_END_USER_CODE` Place your code here */
-              
-                          /* `#END` */
-              
-                  #ifdef USBFS_EP_DMA_DONE_ISR_EXIT_CALLBACK
-                      USBFS_EP_DMA_DONE_ISR_ExitCallback();
-                  #endif /* (USBFS_EP_DMA_DONE_ISR_EXIT_CALLBACK) */
-                      }
-                  #endif /* (USBFS_EP_DMA_AUTO_OPT == 0u) */
-              #endif /* (CY_PSOC4) */
-              #endif /* (USBFS_EP_MANAGEMENT_DMA_AUTO) */
-1504          
-1505          
-1506          #if (CY_PSOC4)
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 26  
-
-                  /***************************************************************************
-                  * Function Name: USBFS_IntrHandler
-                  ************************************************************************//**
-                  *
-                  *   Interrupt handler for Hi/Mid/Low ISRs.
-                  *
-                  *  regCause - The cause register of interrupt. One of the three variants:
-                  *       USBFS_INTR_CAUSE_LO_REG - Low interrupts.
-                  *       USBFS_INTR_CAUSE_MED_REG - Med interrupts.
-                  *       USBFS_INTR_CAUSE_HI_REG - - High interrupts.
-                  *
-                  *
-                  ***************************************************************************/
-                  CY_INLINE static void USBFS_IntrHandler(uint32 intrCause)
-                  {
-                      /* Array of pointers to component interrupt handlers. */
-                      static const cyisraddress USBFS_isrCallbacks[] =
-                      {
-              
-                      };
-              
-                      uint32 cbIdx = 0u;
-              
-                      /* Check arbiter interrupt source first. */
-                      if (0u != (intrCause & USBFS_INTR_CAUSE_ARB_INTR))
-                      {
-                          USBFS_isrCallbacks[USBFS_ARB_EP_INTR_NUM]();
-                      }
-              
-                      /* Check all other interrupt sources (except arbiter and resume). */
-                      intrCause = (intrCause  & USBFS_INTR_CAUSE_CTRL_INTR_MASK) |
-                                  ((intrCause & USBFS_INTR_CAUSE_EP1_8_INTR_MASK) >>
-                                                USBFS_INTR_CAUSE_EP_INTR_SHIFT);
-              
-                      /* Call interrupt handlers for active interrupt sources. */
-                      while (0u != intrCause)
-                      {
-                          if (0u != (intrCause & 0x1u))
+                          int8Status >>= 1u;
+                          if(int8Status != 0u)
                           {
-                               USBFS_isrCallbacks[cbIdx]();
+                              /* Prepare pointer for EP8 */
+                              ptr = ((USBFS_EP8 - USBFS_EP1) << USBFS_EPX_CNTX_ADDR_SHIFT);
+                              ep = USBFS_EP8;
+                              int17Status = int8Status & 0x01u;
                           }
-              
-                          intrCause >>= 1u;
-                          ++cbIdx;
                       }
-                  }
               
+                      /* `#START EP_DMA_DONE_END_USER_CODE` Place your code here */
               
-                  /***************************************************************************
-                  * Function Name: USBFS_INTR_HI_ISR
-                  ************************************************************************//**
-                  *
-                  *   Interrupt Service Routine for the high group of the interrupt sources.
-                  *
-                  *
-                  ***************************************************************************/
-                  CY_ISR(USBFS_INTR_HI_ISR)
-                  {
-                      USBFS_IntrHandler(USBFS_INTR_CAUSE_HI_REG);
-                  }
+                      /* `#END` */
               
-                  /***************************************************************************
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 27  
-
-                  * Function Name: USBFS_INTR_MED_ISR
-                  ************************************************************************//**
-                  *
-                  *   Interrupt Service Routine for the medium group of the interrupt sources.
-                  *
-                  *
-                  ***************************************************************************/
-                  CY_ISR(USBFS_INTR_MED_ISR)
-                  {
-                     USBFS_IntrHandler(USBFS_INTR_CAUSE_MED_REG);
+                      #ifdef USBFS_EP_DMA_DONE_ISR_EXIT_CALLBACK
+                          USBFS_EP_DMA_DONE_ISR_ExitCallback();
+                      #endif /* USBFS_EP_DMA_DONE_ISR_EXIT_CALLBACK */
                   }
-              
-                  /***************************************************************************
-                  * Function Name: USBFS_INTR_LO_ISR
-                  ************************************************************************//**
-                  *
-                  *   Interrupt Service Routine for the low group of the interrupt sources.
-                  *
-                  *
-                  ***************************************************************************/
-                  CY_ISR(USBFS_INTR_LO_ISR)
-                  {
-                      USBFS_IntrHandler(USBFS_INTR_CAUSE_LO_REG);
-                  }
-              #endif /* (CY_PSOC4) */
-1594          
-1595          
-1596          /* [] END OF FILE */
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 28  
+              #endif /* ((USBFS_EP_MM == USBFS__EP_DMAAUTO) && (USBFS_EP_DMA_AUTO_OPT == 0u)) */
+ 879          
+ 880          
+ 881          /* [] END OF FILE */
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 16  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1709,55 +944,70 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0011 750000      E     MOV     ?C?XPAGE1SFR,#?C?XPAGE1RST
 0014 C0D0              PUSH    PSW
 0016 75D000            MOV     PSW,#00H
-0019 C007              PUSH    AR7
-                                           ; SOURCE LINE # 37
-                                           ; SOURCE LINE # 55
-001B 90600B            MOV     DPTR,#0600BH
-001E E0                MOVX    A,@DPTR
-001F 54FE              ANL     A,#0FEH
-0021 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 64
-                                           ; SOURCE LINE # 66
-0022 90600E            MOV     DPTR,#0600EH
+0019 C006              PUSH    AR6
+001B C007              PUSH    AR7
+                                           ; SOURCE LINE # 54
+                                           ; SOURCE LINE # 75
+001D 90600E            MOV     DPTR,#0600EH
+0020 E0                MOVX    A,@DPTR
+0021 FF                MOV     R7,A
+                                           ; SOURCE LINE # 77
+0022 900000      E     MOV     DPTR,#USBFS_EP+0BH
 0025 E0                MOVX    A,@DPTR
 0026 FF                MOV     R7,A
-                                           ; SOURCE LINE # 69
-0027 900000      E     MOV     DPTR,#USBFS_EP+0BH
-002A E0                MOVX    A,@DPTR
-002B 5403              ANL     A,#03H
-002D 6401              XRL     A,#01H
-002F 6007              JZ      ?C0004
-                                           ; SOURCE LINE # 70
-                                           ; SOURCE LINE # 71
-0031 900000      E     MOV     DPTR,#USBFS_EP+0EH
-0034 E0                MOVX    A,@DPTR
-0035 6480              XRL     A,#080H
-0037 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 72
-0038         ?C0004:
+0027 EF                MOV     A,R7
+0028 5403              ANL     A,#03H
+002A FF                MOV     R7,A
+002B 7E00              MOV     R6,#00H
+002D EF                MOV     A,R7
+002E 6401              XRL     A,#01H
+0030 4E                ORL     A,R6
+0031 600E              JZ      ?C0001
+                                           ; SOURCE LINE # 79
                                            ; SOURCE LINE # 80
-0038 900000      E     MOV     DPTR,#USBFS_EP+0CH
-003B 7401              MOV     A,#01H
-003D F0                MOVX    @DPTR,A
+0033 900000      E     MOV     DPTR,#USBFS_EP+0EH
+0036 E0                MOVX    A,@DPTR
+0037 FF                MOV     R7,A
+0038 EF                MOV     A,R7
+0039 6480              XRL     A,#080H
+003B FF                MOV     R7,A
+003C 900000      E     MOV     DPTR,#USBFS_EP+0EH
+003F EF                MOV     A,R7
+0040 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 81
-                                           ; SOURCE LINE # 107
-003E D007              POP     AR7
-0040 D0D0              POP     PSW
-0042 D000        E     POP     ?C?XPAGE1SFR
-0044 D086              POP     DPS
-0046 D084              POP     DPL1
-0048 D085              POP     DPH1
-004A D082              POP     DPL
-004C D083              POP     DPH
-004E D0E0              POP     ACC
-0050 32                RETI    
+0041         ?C0001:
+                                           ; SOURCE LINE # 82
+0041 900000      E     MOV     DPTR,#USBFS_EP+0CH
+0044 7401              MOV     A,#01H
+0046 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 84
+0047 90600B            MOV     DPTR,#0600BH
+004A E0                MOVX    A,@DPTR
+004B FF                MOV     R7,A
+004C EF                MOV     A,R7
+004D 54FE              ANL     A,#0FEH
+004F FF                MOV     R7,A
+0050 EF                MOV     A,R7
+0051 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 106
+0052 D007              POP     AR7
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 17  
+
+0054 D006              POP     AR6
+0056 D0D0              POP     PSW
+0058 D000        E     POP     ?C?XPAGE1SFR
+005A D086              POP     DPS
+005C D084              POP     DPL1
+005E D085              POP     DPH1
+0060 D082              POP     DPL
+0062 D083              POP     DPH
+0064 D0E0              POP     ACC
+0066 32                RETI    
              ; FUNCTION USBFS_EP_1_ISR (END)
 
              ; FUNCTION USBFS_EP_2_ISR (BEGIN)
 0000 C0E0              PUSH    ACC
 0002 C083              PUSH    DPH
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 29  
-
 0004 C082              PUSH    DPL
 0006 C085              PUSH    DPH1
 0008 C084              PUSH    DPL1
@@ -1767,61 +1017,75 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0011 750000      E     MOV     ?C?XPAGE1SFR,#?C?XPAGE1RST
 0014 C0D0              PUSH    PSW
 0016 75D000            MOV     PSW,#00H
-0019 C007              PUSH    AR7
-                                           ; SOURCE LINE # 120
-                                           ; SOURCE LINE # 137
-001B 90600B            MOV     DPTR,#0600BH
-001E E0                MOVX    A,@DPTR
-001F 54FD              ANL     A,#0FDH
-0021 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 146
+0019 C006              PUSH    AR6
+001B C007              PUSH    AR7
+                                           ; SOURCE LINE # 127
                                            ; SOURCE LINE # 148
-0022 90601E            MOV     DPTR,#0601EH
+001D 90601E            MOV     DPTR,#0601EH
+0020 E0                MOVX    A,@DPTR
+0021 FF                MOV     R7,A
+                                           ; SOURCE LINE # 150
+0022 900000      E     MOV     DPTR,#USBFS_EP+016H
 0025 E0                MOVX    A,@DPTR
 0026 FF                MOV     R7,A
-                                           ; SOURCE LINE # 151
-0027 900000      E     MOV     DPTR,#USBFS_EP+016H
-002A E0                MOVX    A,@DPTR
-002B 5403              ANL     A,#03H
-002D 6401              XRL     A,#01H
-002F 6007              JZ      ?C0009
+0027 EF                MOV     A,R7
+0028 5403              ANL     A,#03H
+002A FF                MOV     R7,A
+002B 7E00              MOV     R6,#00H
+002D EF                MOV     A,R7
+002E 6401              XRL     A,#01H
+0030 4E                ORL     A,R6
+0031 600E              JZ      ?C0003
                                            ; SOURCE LINE # 152
                                            ; SOURCE LINE # 153
-0031 900000      E     MOV     DPTR,#USBFS_EP+019H
-0034 E0                MOVX    A,@DPTR
-0035 6480              XRL     A,#080H
-0037 F0                MOVX    @DPTR,A
+0033 900000      E     MOV     DPTR,#USBFS_EP+019H
+0036 E0                MOVX    A,@DPTR
+0037 FF                MOV     R7,A
+0038 EF                MOV     A,R7
+0039 6480              XRL     A,#080H
+003B FF                MOV     R7,A
+003C 900000      E     MOV     DPTR,#USBFS_EP+019H
+003F EF                MOV     A,R7
+0040 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 154
-0038         ?C0009:
-                                           ; SOURCE LINE # 162
-0038 900000      E     MOV     DPTR,#USBFS_EP+017H
-003B 7401              MOV     A,#01H
-003D F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 163
-                                           ; SOURCE LINE # 189
-003E D007              POP     AR7
-0040 D0D0              POP     PSW
-0042 D000        E     POP     ?C?XPAGE1SFR
-0044 D086              POP     DPS
-0046 D084              POP     DPL1
-0048 D085              POP     DPH1
-004A D082              POP     DPL
-004C D083              POP     DPH
-004E D0E0              POP     ACC
-0050 32                RETI    
+0041         ?C0003:
+                                           ; SOURCE LINE # 155
+0041 900000      E     MOV     DPTR,#USBFS_EP+017H
+0044 7401              MOV     A,#01H
+0046 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 157
+0047 90600B            MOV     DPTR,#0600BH
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 18  
+
+004A E0                MOVX    A,@DPTR
+004B FF                MOV     R7,A
+004C EF                MOV     A,R7
+004D 54FD              ANL     A,#0FDH
+004F FF                MOV     R7,A
+0050 EF                MOV     A,R7
+0051 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 179
+0052 D007              POP     AR7
+0054 D006              POP     AR6
+0056 D0D0              POP     PSW
+0058 D000        E     POP     ?C?XPAGE1SFR
+005A D086              POP     DPS
+005C D084              POP     DPL1
+005E D085              POP     DPH1
+0060 D082              POP     DPL
+0062 D083              POP     DPH
+0064 D0E0              POP     ACC
+0066 32                RETI    
              ; FUNCTION USBFS_EP_2_ISR (END)
 
              ; FUNCTION USBFS_SOF_ISR (BEGIN)
-                                           ; SOURCE LINE # 693
-                                           ; SOURCE LINE # 703
-                                           ; SOURCE LINE # 708
+                                           ; SOURCE LINE # 635
+                                           ; SOURCE LINE # 644
 0000 32                RETI    
              ; FUNCTION USBFS_SOF_ISR (END)
 
              ; FUNCTION USBFS_BUS_RESET_ISR (BEGIN)
 0000 C0E0              PUSH    ACC
-C51 COMPILER V9.51   USBFS_EPISR                                                           07/29/2016 09:50:44 PAGE 30  
-
 0002 C0F0              PUSH    B
 0004 C083              PUSH    DPH
 0006 C082              PUSH    DPL
@@ -1841,11 +1105,10 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0025 C005              PUSH    AR5
 0027 C006              PUSH    AR6
 0029 C007              PUSH    AR7
-                                           ; SOURCE LINE # 722
-                                           ; SOURCE LINE # 732
-                                           ; SOURCE LINE # 734
+                                           ; SOURCE LINE # 662
+                                           ; SOURCE LINE # 672
 002B 120000      E     LCALL   USBFS_ReInitComponent
-                                           ; SOURCE LINE # 739
+                                           ; SOURCE LINE # 677
 002E D007              POP     AR7
 0030 D006              POP     AR6
 0032 D005              POP     AR5
@@ -1856,6 +1119,8 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003C D000              POP     AR0
 003E D0D0              POP     PSW
 0040 D000        E     POP     ?C?XPAGE1SFR
+C51 COMPILER V9.51   USBFS_EPISR                                                           10/03/2016 19:53:27 PAGE 19  
+
 0042 D086              POP     DPS
 0044 D084              POP     DPL1
 0046 D085              POP     DPH1
@@ -1869,7 +1134,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    244    ----
+   CODE SIZE        =    288    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

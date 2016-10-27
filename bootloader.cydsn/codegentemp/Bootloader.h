@@ -1,15 +1,14 @@
-/****************************************************************************//**
-* \file Bootloader.c
-* \version 1.50
+/*******************************************************************************
+* File Name: Bootloader.h
+* Version 1.30
 *
-* \brief
+*  Description:
 *   Provides an API for the Bootloader. The API includes functions for starting
-*   bootloading operations, validating the application and jumping to the
+*   boot loading operations, validating the application and jumping to the
 *   application.
 *
 ********************************************************************************
-* \copyright
-* Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+* Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions,
 * disclaimers, and limitations in the end user license agreement accompanying
 * the software package with which this file was provided.
@@ -23,7 +22,7 @@
 
 #define Bootloader_DUAL_APP_BOOTLOADER        (0u)
 #define Bootloader_BOOTLOADER_APP_VERSION     (0u)
-#define Bootloader_FAST_APP_VALIDATION        (1u)
+#define Bootloader_FAST_APP_VALIDATION        (0u)
 #define Bootloader_PACKET_CHECKSUM_CRC        (1u)
 #define Bootloader_WAIT_FOR_COMMAND           (1u)
 #define Bootloader_WAIT_FOR_COMMAND_TIME      (0u)
@@ -31,99 +30,31 @@
 
 #define Bootloader_CMD_GET_FLASH_SIZE_AVAIL   (1u)
 #define Bootloader_CMD_ERASE_ROW_AVAIL        (1u)
-#define Bootloader_CMD_GET_ROW_CHKSUM_AVAIL   (1u)
+#define Bootloader_CMD_VERIFY_ROW_AVAIL       (1u)
 #define Bootloader_CMD_SYNC_BOOTLOADER_AVAIL  (1u)
 #define Bootloader_CMD_SEND_DATA_AVAIL        (1u)
-#define Bootloader_CMD_VERIFY_APP_CHKSUM_AVAIL (1u)
 #define Bootloader_CMD_GET_METADATA           (0u)
-#define Bootloader_CMD_VERIFY_FLS_ROW_AVAIL   (0u)
-#define Bootloader_GOLDEN_IMAGE_AVAIL         (0u)
-#define Bootloader_SECURITY_KEY_AVAIL         (0u)
-#define Bootloader_AUTO_SWITCHING_AVAIL       (1u)
 
-#if ((0u != Bootloader_DUAL_APP_BOOTLOADER) || \
-     (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)) 
+#if(0u != Bootloader_DUAL_APP_BOOTLOADER)
     #define Bootloader_CMD_GET_APP_STATUS_AVAIL   (1u)
-#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) ||
-           (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/
+#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) */
 
-#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER)
-    #define Bootloader_COPIER_AVAIL           (0u)
-#endif /*(CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER)*/
 
-#if (0u != Bootloader_SECURITY_KEY_AVAIL) 
-    #define Bootloader_SECURITY_KEY_LENGTH        (6u)
-#endif    /*(0u != Bootloader_SECURITY_KEY_AVAIL)*/
-
-/*******************************************************************************
-* Copier definitions
-*******************************************************************************/
-#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER)
-    #if (0u != Bootloader_COPIER_AVAIL)
-    /**************************************************************************** 
-    * Defines how many times Copier will try to copy the new app#0 image from
-    * the temporary location to app#0 flash space (if it was not successful 
-    * the first time) before giving up.
-    ****************************************************************************/    
-    #define Bootloader_MAX_ATTEMPTS      (3u)
-    #endif /* (0u != Bootloader_COPIER_AVAIL) */
-#endif /* (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER) */
-
-#if ((CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LAUNCHER) && (!CY_PSOC3))
-/*******************************************************************************
-* Callback definitions
-*******************************************************************************/   
-/**
- \defgroup structures_group Structures
- @{
-*/           
-typedef struct 
-{
-    uint8 command;
-    uint16 packetLength;
-    uint8* pInputBuffer;
-} Bootloader_in_packet_type;
-
-typedef struct 
-{
-    cystatus status;
-    uint16 packetLength;
-    uint8* pOutputBuffer;
-} Bootloader_out_packet_type;
-
-/** @}*/
-
-typedef void (*Bootloader_callback_type)(Bootloader_in_packet_type* inputPacket, 
-                                               Bootloader_out_packet_type* outputPacket);
-
-void Bootloader_InitCallback(Bootloader_callback_type userCallback) \
-           CYSMALL ;
-#endif /* (CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LAUNCHER) && (!CY_PSOC3) */
-           
 /*******************************************************************************
 * Bootloadable applications identification
 *******************************************************************************/
 #define Bootloader_MD_BTLDB_ACTIVE_0          (0x00u)
-
-#if ((0u != Bootloader_DUAL_APP_BOOTLOADER) || \
-     (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER))
+#if(0u != Bootloader_DUAL_APP_BOOTLOADER)
     #define Bootloader_MD_BTLDB_ACTIVE_1      (0x01u)
     #define Bootloader_MD_BTLDB_ACTIVE_NONE   (0x02u)
-
-    #if (1u == Bootloader_GOLDEN_IMAGE_AVAIL)
-        #define Bootloader_GOLDEN_IMAGE           (0x00u)
-    #endif /*(1u == Bootloader_GOLDEN_IMAGE_AVAIL)*/
-#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) || 
-           (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER) */
+#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) */
 
 
 /* Mask used to indicate starting application */
 #define Bootloader_SCHEDULE_BTLDB             (0x80u)
 #define Bootloader_SCHEDULE_BTLDR             (0x40u)
 #define Bootloader_SCHEDULE_MASK              (0xC0u)
-#define Bootloader_SCHEDULE_BTLDR_INIT_STATE  (0x00u)
 
-#if (CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
 #if defined(__ARMCC_VERSION) || defined (__GNUC__)
     __attribute__((section (".bootloader")))
 #elif defined (__ICCARM__)
@@ -140,22 +71,11 @@ extern const uint8  CYCODE  *Bootloader_ChecksumAccess;
 #endif  /* defined(__ARMCC_VERSION) || defined (__GNUC__) */
 extern const uint32 CYCODE Bootloader_SizeBytes;
 extern const uint32 CYCODE *Bootloader_SizeBytesAccess;
-#endif /*CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER*/
 
-#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER) 
-extern uint8 Bootloader_initVar;
-extern uint8 Bootloader_runningApp;
-extern uint8 Bootloader_isBootloading;
-#endif /*CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER*/
-
-#if ((CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER) && (CY_PSOC4))
-    extern void Bootloader_UserCopierCallback(void);
-    #define Bootloader_USER_COPIER_CALLBACK Bootloader_UserCopierCallback()
-#endif /* (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LAUNCHER) && (CY_PSOC4) */
 
 /*******************************************************************************
-* This variable is used by the Bootloader/Bootloadable components to schedule which
-* application will be started after a software reset.
+* This variable is used by Bootloader/Bootloadable components to schedule what
+* application will be started after software reset.
 *******************************************************************************/
 #if (CY_PSOC4)
     #if defined(__ARMCC_VERSION)
@@ -169,11 +89,9 @@ extern uint8 Bootloader_isBootloading;
 #endif  /* (CY_PSOC4) */
 
 
-#if ((0u != Bootloader_DUAL_APP_BOOTLOADER) || \
-     (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER))
-    extern volatile uint8 Bootloader_activeApp;
-#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) ||
-           (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/
+#if(0u != Bootloader_DUAL_APP_BOOTLOADER)
+    extern uint8 Bootloader_activeApp;
+#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) */
 
 
 #if(CY_PSOC4)
@@ -187,9 +105,9 @@ extern uint8 Bootloader_isBootloading;
 
 
 /*******************************************************************************
-* Get the reason for a device reset
-*  Return cyBtldrRunType in the case if a software reset was the reset reason and
-*  set cyBtldrRunType to zero (the Bootloader application is scheduled - that is
+* Get the reason of the device reset
+*  Return cyBtldrRunType in the case if software reset was the reset reason and
+*  set cyBtldrRunType to zero (bootloader application is scheduled - that is
 *  the initial clean state) and return zero.
 *******************************************************************************/
 #if(CY_PSOC4)
@@ -200,7 +118,7 @@ extern uint8 Bootloader_isBootloading;
 
 
 /*******************************************************************************
-* Schedule Bootloader/Bootloadable to be run after a software reset
+* Schedule Bootloader/Bootloadable to be run after software reset
 *******************************************************************************/
 #if(CY_PSOC4)
     #define Bootloader_SET_RUN_TYPE(x)                (cyBtldrRunType = (x))
@@ -209,7 +127,7 @@ extern uint8 Bootloader_isBootloading;
 #endif  /* (CY_PSOC4) */
 
 
-/* Returns number of flash arrays available in device. */
+/* Returns the number of Flash arrays available in the device */
 #ifndef CY_FLASH_NUMBER_ARRAYS
     #define CY_FLASH_NUMBER_ARRAYS                  (CYDEV_FLASH_SIZE / CYDEV_FLS_SECTOR_SIZE)
 #endif /* CY_FLASH_NUMBER_ARRAYS */
@@ -218,15 +136,8 @@ extern uint8 Bootloader_isBootloading;
 /*******************************************************************************
 * External References
 *******************************************************************************/
-/**
- \defgroup functions_group Functions
- @{
-*/
-#if (CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
-    void CyBtldr_CheckLaunch(void)  CYSMALL ;
-#endif /*CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER*/
-
 void Bootloader_SetFlashByte(uint32 address, uint8 runType);
+void CyBtldr_CheckLaunch(void)  CYSMALL ;
 void Bootloader_Start(void) CYSMALL ;
 cystatus Bootloader_ValidateBootloadable(uint8 appId) \
             CYSMALL ;
@@ -236,105 +147,54 @@ uint32   Bootloader_GetMetadata(uint8 field, uint8 appId) \
                                     ;
 void Bootloader_Exit(uint8 appId) CYSMALL ;
 
-#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
-    void Bootloader_HostLink(uint8 timeOut) CYLARGE ;    
-    void Bootloader_Initialize(void)  CYSMALL ;
-    uint8 Bootloader_GetRunningAppStatus(void) CYSMALL ;
-    uint8 Bootloader_GetActiveAppStatus(void) CYSMALL ;
-#endif /*(CYDEV_PROJ_TYPE != CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/
-/** @} */
-
 #if(CY_PSOC3)
-    /* Implementation for PSoC 3 resides in Bootloader_psoc3.a51 file.  */
+    /* Implementation for the PSoC 3 resides in a Bootloader_psoc3.a51 file.  */
     void     Bootloader_LaunchBootloadable(uint32 appAddr);
 #endif  /* (CY_PSOC3) */
 
 /* When using a custom interface as the IO Component, the user must provide these functions */
 #if defined(CYDEV_BOOTLOADER_IO_COMP) && (CYDEV_BOOTLOADER_IO_COMP == CyBtldr_Custom_Interface)
-#if ((CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER) || (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_BOOTLOADER) || \
-     (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_MULTIAPPBOOTLOADER)) 
+
     extern void CyBtldrCommStart(void);
     extern void CyBtldrCommStop (void);
     extern void CyBtldrCommReset(void);
     extern cystatus CyBtldrCommWrite(uint8* buffer, uint16 size, uint16* count, uint8 timeOut);
     extern cystatus CyBtldrCommRead (uint8* buffer, uint16 size, uint16* count, uint8 timeOut);
-#endif /*(CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER) || (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_BOOTLOADER) || \
-         (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_MULTIAPPBOOTLOADER)*/
+
 #endif  /* defined(CYDEV_BOOTLOADER_IO_COMP) && (CYDEV_BOOTLOADER_IO_COMP == CyBtldr_Custom_Interface) */
 
-/*******************************************************************************
-* Bootloader_Initialize()
-*******************************************************************************/
-#define Bootloader_BOTH_ACTIVE                (0x03u)
 
-/**
- \defgroup constants_group Constants
- @{
-*/
-
-/** \addtogroup group_metadataFields Metadata Fields
- *  Metadata fields description 
- *  @{
- */
 /*******************************************************************************
 * Bootloader_GetMetadata()
 *******************************************************************************/
-#define Bootloader_GET_BTLDB_CHECKSUM         (1u)   /**< Bootloadable Application Checksum */
-#define Bootloader_GET_BTLDB_ADDR             (2u)   /**< Bootloadable Application Start Routine Address */
-#define Bootloader_GET_BTLDR_LAST_ROW         (3u)   /**< Bootloader Last Flash Row */
-#define Bootloader_GET_BTLDB_LENGTH           (4u)   /**< Bootloadable Application Length */
-#define Bootloader_GET_BTLDB_ACTIVE           (5u)   /**< Active Bootloadable Application */
-#define Bootloader_GET_BTLDB_STATUS           (6u)   /**< Bootloadable Application Verification Status */
-#define Bootloader_GET_BTLDR_APP_VERSION      (7u)   /**< Bootloader Application Version */
-#define Bootloader_GET_BTLDB_APP_VERSION      (8u)   /**< Bootloadable Application Version */
-#define Bootloader_GET_BTLDB_APP_ID           (9u)   /**< Bootloadable Application ID */
-#define Bootloader_GET_BTLDB_APP_CUST_ID      (10u)  /**< Bootloadable Application Custom ID */
-#define Bootloader_GET_BTLDB_COPY_FLAG        (11u)  /**< "need-to-copy flag */
-#define Bootloader_GET_BTLDB_USER_DATA        (12u)  /**< User data */
+#define Bootloader_GET_BTLDB_CHECKSUM         (1u)
+#define Bootloader_GET_BTLDB_ADDR             (2u)
+#define Bootloader_GET_BTLDR_LAST_ROW         (3u)
+#define Bootloader_GET_BTLDB_LENGTH           (4u)
+#define Bootloader_GET_BTLDB_ACTIVE           (5u)
+#define Bootloader_GET_BTLDB_STATUS           (6u)
+#define Bootloader_GET_BTLDR_APP_VERSION      (7u)
+#define Bootloader_GET_BTLDB_APP_VERSION      (8u)
+#define Bootloader_GET_BTLDB_APP_ID           (9u)
+#define Bootloader_GET_BTLDB_APP_CUST_ID      (10u)
 
-/** @} group_metadataFields */
-/** @} constants_group */
-
-#define Bootloader_GET_METADATA_RESPONSE_SIZE (56u)  
+#define Bootloader_GET_METADATA_RESPONSE_SIZE (56u)
 
 /*******************************************************************************
 * Bootloader_Exit()
 *******************************************************************************/
 #define Bootloader_EXIT_TO_BTLDR              (2u)
 #define Bootloader_EXIT_TO_BTLDB              (0u)
-#if ((0u != Bootloader_DUAL_APP_BOOTLOADER) || \
-    (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER))
+#if(0u != Bootloader_DUAL_APP_BOOTLOADER)
     #define Bootloader_EXIT_TO_BTLDB_1        (0u)
     #define Bootloader_EXIT_TO_BTLDB_2        (1u)
-#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) ||
-           (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/
+#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) */
 
-#if (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)
-/*******************************************************************************
-* In-app Bootloader definitions
-*******************************************************************************/
-#define Bootloader_BOOTLOADING_IN_PROGRESS     (1u)
-#define Bootloader_BOOTLOADING_COMPLETED       (0u)
-
-#define Bootloader_BOOTLADING_INITIALIZED      (1u)
-#define Bootloader_BOOTLOADING_NOT_INITIALIZED (0u)
-
-#define Bootloader_RUNNING_APPLICATION_0       (0u)     
-#define Bootloader_RUNNING_APPLICATION_1       (1u)     
-#define Bootloader_RUNNING_APPLICATION_UNKNOWN (2u)     
-#endif /*CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER*/    
-
-
-/*******************************************************************************
-* Input/output packet defines
-*******************************************************************************/
-#define Bootloader_MIN_PKT_SIZE             (7u)   /* The minimum number of bytes in a packet */
-#define Bootloader_SIZEOF_COMMAND_BUFFER    (300u) /* Maximum number of bytes accepted in one packet plus some */
 
 /*******************************************************************************
 * Kept for backward compatibility.
 *******************************************************************************/
-#if ((0u != Bootloader_DUAL_APP_BOOTLOADER) || (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER))
+#if(0u != Bootloader_DUAL_APP_BOOTLOADER)
     #define Bootloader_ValidateApp(x)                 Bootloader_ValidateBootloadable((x))
     #define Bootloader_ValidateApplication()            \
                             Bootloader_ValidateBootloadable(Bootloader_MD_BTLDB_ACTIVE_0)
@@ -342,17 +202,15 @@ void Bootloader_Exit(uint8 appId) CYSMALL ;
     #define Bootloader_ValidateApplication()            \
                             Bootloader_ValidateBootloadable(Bootloader_MD_BTLDB_ACTIVE_0)
     #define Bootloader_ValidateApp(x)                 Bootloader_ValidateBootloadable((x))
-#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) || (CYDEV_PROJ_TYPE == CYDEV_PROJ_TYPE_LOADABLEANDBOOTLOADER)*/
+#endif  /* (0u != Bootloader_DUAL_APP_BOOTLOADER) */
 #define Bootloader_Calc8BitFlashSum(start, size)      Bootloader_Calc8BitSum(CY_FLASH_BASE, (start), (size))
 
 
 /*******************************************************************************
 * The following code is DEPRECATED and must not be used.
 *******************************************************************************/
-#define Bootloader_CMD_VERIFY_ROW_AVAIL           Bootloader_CMD_GET_ROW_CHKSUM_AVAIL
-
-#define Bootloader_BOOTLOADABLE_APP_VALID         (Bootloader_BOOTLOADER_APP_VALIDATION)
-#define CyBtldr_Start                                    Bootloader_Start
+#define Bootloader_BOOTLOADABLE_APP_VALID     (Bootloader_BOOTLOADER_APP_VALIDATION)
+#define CyBtldr_Start                               Bootloader_Start
 
 #define Bootloader_NUM_OF_FLASH_ARRAYS            (CYDEV_FLASH_SIZE / CYDEV_FLS_SECTOR_SIZE)
 #define Bootloader_META_BASE(x)                   (CYDEV_FLASH_BASE + \
@@ -444,14 +302,12 @@ void Bootloader_Exit(uint8 appId) CYSMALL ;
     #define Bootloader_META_APP_BYTE_LEN_OFFSET       (9u)
     #define Bootloader_META_APP_RUN_TYPE_OFFSET       (13u)
 #endif /* (CY_PSOC3) */
-
 #define Bootloader_META_APP_ACTIVE_OFFSET             (16u)
 #define Bootloader_META_APP_VERIFIED_OFFSET           (17u)
 #define Bootloader_META_APP_BL_BUILD_VER_OFFSET       (18u)
 #define Bootloader_META_APP_ID_OFFSET                 (20u)
 #define Bootloader_META_APP_VER_OFFSET                (22u)
 #define Bootloader_META_APP_CUST_ID_OFFSET            (24u)
-
 #if (CY_PSOC4)
     #define Bootloader_GET_REG16(x)   ((uint16)(                                                          \
                                                 (( uint16 )(( uint16 )CY_GET_XTND_REG8((x)     )       ))   |   \

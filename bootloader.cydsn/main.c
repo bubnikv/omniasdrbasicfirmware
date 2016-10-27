@@ -14,7 +14,6 @@
 
 #include <device.h>
 
-#define FALSE 0
 #define CONTROL_LED   0x01
 #define STATUS_BOOT   0x01
 
@@ -38,14 +37,14 @@
 #define MCODE_6(x) (((x&0x00F00000LU)?4:0)\
 + ((((x&0x00F00000LU)?1:0) & ((x&0x00000002LU)?0:1))?2:0))
 #define MCODE(d)((uint8) (d==0)?7:MCODE_L(0x##d##LU)\
-+ (MCODE_C(0x##d##LU) << (8 - MCODE_L(0x##d##LU)))\
++ (MCODE_C(0x##d##LU) << 8 - MCODE_L(0x##d##LU))\
 - MCODE_6(0x##d##LU))
 
 const uint8 code MORSE_BOOT[] = {
-    /* 0x4C L */ MCODE(1311),
+    /* 0x42 B */ MCODE(3111),
     /* 0x4F O */ MCODE(333),
-    /* 0x41 A */ MCODE(13),
-    /* 0x44 D */ MCODE(311),
+    /* 0x4F O */ MCODE(333),
+    /* 0x54 T */ MCODE(3),
     0
 };
 
@@ -58,7 +57,7 @@ const uint8 code MORSE_XTAL[] = {
 };
 
 uint8 *message;
-//CY_ISR_PROTO(morse_interrupt);    
+
 CY_ISR(morse_interrupt)
 {
     static uint8 pos = 0, state = 0, codes, len, timer;
@@ -103,25 +102,19 @@ CY_ISR(morse_interrupt)
     
 void main()
 {
-    uint8 boot_pin;
-    uint8 crystal_status = FALSE;
-    
-    CyDelay(1000);  // Let things settle down after a power on    
-    
-    crystal_status = CyXTAL_ReadStatus();
-    if (crystal_status) message = MORSE_XTAL; else message = MORSE_BOOT;
-    boot_pin = BOOT_Read();
-    if (!boot_pin){      
-        //User will place a "boot" jumper on this pin to ground taking this pin to a "low" state to enable firmware upload.
-        morse_isr_StartEx(&morse_interrupt); //This blinks a LED morse code message.  
-        Morse_Counter_Start();
-        CyGlobalIntEnable;
-        if(!crystal_status) {Bootloader_Start();} //If the crystal is good then start the bootloader component.
-    }else {
-        Bootloader_Exit(Bootloader_EXIT_TO_BTLDB); 
-        //Bootloader_SET_RUN_TYPE(Bootloader_START_APP); // This jumps to the Peaberry program 
-        CySoftwareReset();
+    message = MORSE_BOOT;
+    if (Status_Read() & STATUS_BOOT) {
+        if (CyXTAL_ReadStatus()) message = MORSE_XTAL;
+        else {
+            if (CYRET_SUCCESS == Bootloader_ValidateBootloadable(0)) {
+                Bootloader_Exit(Bootloader_EXIT_TO_BTLDB);
+            }
+        }
     }
+    morse_isr_StartEx(&morse_interrupt);
+    Morse_Counter_Start();
+    CyGlobalIntEnable;
+    Bootloader_Start();
     for(;;) {}
 }
 

@@ -1,12 +1,12 @@
 ;-------------------------------------------------------------------------------
 ; FILENAME: CyBootAsmKeil.a51
-; Version 5.30
+; Version 4.20
 ;
 ;  DESCRIPTION:
 ;    Assembly routines for Keil A51.
 ;
 ;-------------------------------------------------------------------------------
-; Copyright 2010-2015, Cypress Semiconductor Corporation.  All rights reserved.
+; Copyright 2010-2014, Cypress Semiconductor Corporation.  All rights reserved.
 ; You may use this file only in accordance with the license, terms, conditions,
 ; disclaimers, and limitations in the end user license agreement accompanying
 ; the software package with which this file was provided.

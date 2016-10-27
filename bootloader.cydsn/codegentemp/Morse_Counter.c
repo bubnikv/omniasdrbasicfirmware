@@ -1,6 +1,6 @@
 /*******************************************************************************
 * File Name: Morse_Counter.c  
-* Version 3.0
+* Version 2.40
 *
 *  Description:
 *     The Counter component consists of a 8, 16, 24 or 32-bit counter with
@@ -9,12 +9,12 @@
 *   Note:
 *     None
 *
-********************************************************************************
+*******************************************************************************
 * Copyright 2008-2012, Cypress Semiconductor Corporation.  All rights reserved.
 * You may use this file only in accordance with the license, terms, conditions, 
 * disclaimers, and limitations in the end user license agreement accompanying 
 * the software package with which this file was provided.
-*******************************************************************************/
+********************************************************************************/
 
 #include "Morse_Counter.h"
 

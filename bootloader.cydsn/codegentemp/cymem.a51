@@ -1,6 +1,6 @@
 ;***************************************************************************
 ; FILENAME: cymem.a51
-; Version 5.30
+; Version 4.20
 ;
 ;  DESCRIPTION:
 ;    Specialized memory routines for Keil bootup. These functions accept
@@ -34,7 +34,7 @@
 ;    extern void cywrite32_nodpx(void far *addr, unsigned long value);
 ;
 ;*******************************************************************************
-; Copyright 2008-2015, Cypress Semiconductor Corporation.  All rights reserved.
+; Copyright 2008-2014, Cypress Semiconductor Corporation.  All rights reserved.
 ; You may use this file only in accordance with the license, terms, conditions,
 ; disclaimers, and limitations in the end user license agreement accompanying
 ; the software package with which this file was provided.
