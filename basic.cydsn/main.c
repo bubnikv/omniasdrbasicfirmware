@@ -46,7 +46,10 @@ void main_usb_vbus(void) {
         }
     } else {
         if(USBFS_initVar) {
-            TX_Request = 0;
+            // USB cable plugged out. Ensure that the transmit mode is safely finished.
+            if (TX_Phase != TX_PHASE_RECEIVING)
+                TX_Phase = TX_PHASE_IQTONE_END;
+            TX_State = 0;
             PCM3060_Stop();
             USBFS_Stop();
         }

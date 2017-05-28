@@ -17,46 +17,105 @@
 #define TX_LED_BLINK_ON_MS 40
 #define TX_LED_BLINK_OFF_MS 50
 
-uint8 TX_Request = 0;
-uint8 TX_Inhibit = 0;
+uint8 TX_State = 0;
+uint8 TX_Phase = TX_PHASE_RECEIVING;
 
 void TX_Main(void) {
-    static uint8 state = 0, blink;
+    static uint8 blink;
     uint8 i;
     
-    switch (state) {
-        case 0: // receiving
-            if (TX_Request && !TX_Inhibit) {
-                state = 1;
-                Control_Write(Control_Read() & ~CONTROL_RX);
+    switch (TX_Phase) {
+        case TX_PHASE_RECEIVING:
+            // Remember the current state of tkey key down input.
+            if (Status_Read() & STATUS_KEY_0)
+                TX_State &= ~TX_KEY_REQUESTED;
+            else
+                TX_State |= TX_KEY_REQUESTED;
+            if (! (TX_State & TX_INHIBITED)) {
+                if (TX_State & (TX_PC_REQUESTED | TX_KEY_REQUESTED)) {
+                    // Start the TX sequencing.
+                    TX_State |= (TX_State & TX_PC_REQUESTED) ? TX_PC_ACTIVE : TX_KEY_ACTIVE;
+                    TX_Phase = TX_PHASE_TX_ENABLE;
+                    TX_IQ_Phase = 0;
+                    // Mute the receiver.
+                    Control_Write(Control_Read() & ~CONTROL_RX);
+                }
             }
             break;
-        case 1:
+        case TX_PHASE_TX_ENABLE:
+            // Enable transmitter.
             Control_Write(Control_Read() | CONTROL_TX);
-            state = 2;
+            TX_Phase = TX_PHASE_AMP_ENABLE;
             break;
-        case 2:
+        case TX_PHASE_AMP_ENABLE:
+            // Enable an externa amplifier.
             Control_Write(Control_Read() & ~CONTROL_AMP);
-            state = 10;
+            TX_Phase = (TX_State & TX_PC_ACTIVE) ? TX_PHASE_TXPC : TX_PHASE_IQTONE_RAMP_UP;
             blink = 1;
             break;
-        case 10: // transmitting
-            if (TX_Request) {
-                blink--;
-                if (!blink) {
+        case TX_PHASE_TXPC:
+            // Transmitting PC generated audio data.
+            if (TX_State & TX_PC_REQUESTED) {
+                if (! (-- blink)) {
                     i = Control_Read();
                     if (i & CONTROL_LED) blink = TX_LED_BLINK_OFF_MS * 2;
                     else blink = TX_LED_BLINK_ON_MS * 2;
                     Control_Write(i ^ CONTROL_LED);
                 }
             } else {
-                Control_Write(Control_Read() & ~(CONTROL_TX | CONTROL_LED) | CONTROL_AMP);
-                state = 11;
+                // End of PC transmit, switch to receive.
+                Control_Write((Control_Read() & ~(CONTROL_TX | CONTROL_LED)) | CONTROL_AMP);
+                TX_Phase = TX_PHASE_TXPC_EXIT;
             }
             break;
-        case 11:
+        case TX_PHASE_TXPC_EXIT:
             Control_Write(Control_Read() | CONTROL_RX);
-            state = 0;
+            TX_Phase = TX_PHASE_RECEIVING;
+            TX_State &= ~TX_PC_ACTIVE;
+            break;
+        case TX_PHASE_IQTONE_RAMP_UP:
+            // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
+            // Transition from TX_PHASE_IQTONE_RAMP_UP to TX_PHASE_IQTONE_STEADY is controlled by the IQ tone generator.
+            break;
+        case TX_PHASE_IQTONE_STEADY:
+            // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
+            // Steady phase. If the key is released, do a single debounce step.
+            if (Status_Read() & STATUS_KEY_0) {
+                // Key is released.
+                TX_State &= ~TX_KEY_REQUESTED;
+                TX_Phase = TX_PHASE_IQTONE_KEY_DEBOUNCE;
+            }
+            break;
+        case TX_PHASE_IQTONE_KEY_DEBOUNCE:
+            if (Status_Read() & STATUS_KEY_0) {
+                // Key is still released. Continue with stopping the IQ tone.
+                TX_Phase = TX_PHASE_IQTONE_RAMP_DOWN;
+                TX_IQ_Phase = 0;
+            } else {
+                // Key is pressed again. Continue with a steady tone.
+                TX_State |= TX_KEY_REQUESTED;
+                TX_Phase = TX_PHASE_IQTONE_STEADY;
+            }
+            break;
+        case TX_PHASE_IQTONE_RAMP_DOWN:
+            // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
+            // Transition from TX_PHASE_IQTONE_RAMP_DOWN to TX_PHASE_IQTONE_END is controlled by the IQ tone generator.
+            break;
+        case TX_PHASE_IQTONE_END:
+            // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
+            Control_Write((Control_Read() & ~(CONTROL_TX | CONTROL_LED)) | CONTROL_AMP);
+            TX_Phase = TX_PHASE_IQTONE_UNMUTE;
+            TX_IQ_Phase = 0;
+            break;
+        case TX_PHASE_IQTONE_UNMUTE:
+            Control_Write(Control_Read() | CONTROL_RX);
+            TX_Phase = TX_PHASE_IQTONE_EXIT;
+            TX_IQ_Phase = 0;
+            break;
+        case TX_PHASE_IQTONE_EXIT:
+            TX_Phase = TX_PHASE_RECEIVING;
+            TX_State &= ~TX_KEY_ACTIVE;
+            RX_MuteCounter = 250;
             break;
     }
     

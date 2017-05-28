@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <basic.h>
+#include <iqhump.h>
 
 // Constants from our USBFS enumeration
 #define RX_ENDPOINT     2
@@ -84,6 +85,9 @@ void Audio_Start(void) {
     Audio_USB_ReadOutEP(TX_ENDPOINT, PCM3060_TxBuf(), 0);
 }
 
+uint8 TX_IQ_Phase = 0;
+uint16 RX_MuteCounter = 0;
+
 void Audio_Main(void) {
 
     if (USBFS_GetInterfaceSetting(TX_INTERFACE)) {
@@ -108,6 +112,62 @@ void Audio_Main(void) {
     }
 
     if (USBFS_GetEPState(RX_ENDPOINT) == USBFS_IN_BUFFER_EMPTY) {
+        if (TX_State & TX_KEY_ACTIVE) {
+            // Mute the receiver audio. This is important with the internally generated IQ tone,
+            // when the receiver SDR software does not know of the transmitter existence.
+            memset(PCM3060_RxBuf(), 0, 96 * 2 * sizeof(int16));
+            // Fill in the transmit data based on the IQ generator phase.
+            switch (TX_Phase) {
+            case TX_PHASE_IQTONE_RAMP_UP:
+                memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + (TX_IQ_Phase * 96 * 2)), 96 * 2 * sizeof(int16));
+                if (++ TX_IQ_Phase == 8) {
+                    TX_Phase = TX_PHASE_IQTONE_STEADY;
+                    TX_IQ_Phase = 0;
+                }
+                break;
+            case TX_PHASE_IQTONE_STEADY:
+            case TX_PHASE_IQTONE_KEY_DEBOUNCE:
+                memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + ((TX_IQ_Phase + 8) * 96 * 2)), 96 * 2 * sizeof(int16));
+                break;
+            case TX_PHASE_IQTONE_RAMP_DOWN:
+                memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + ((TX_IQ_Phase + 9) * 96 * 2)), 96 * 2 * sizeof(int16));
+                if (++ TX_IQ_Phase == 8) {
+                    TX_Phase = TX_PHASE_IQTONE_END;
+                    TX_IQ_Phase = 0;
+                }
+                break;
+            //default:
+                // Don't touch the transmit buffer, as it is being zeroed by a DMA after it is consumed by the codec.
+            }
+        } else if (RX_MuteCounter > 0) {
+            // Mute the receiver audio after transition from transmit to receve,
+            // before the decoupling capacitors in the receive path charge.
+            -- RX_MuteCounter;
+            memset(PCM3060_RxBuf(), 0, 96 * 2 * sizeof(int16));
+        }
+        
+/* Testing the compiler performance when doing simple tasks like copying a block of memory. The Keil compiler sucks.
+        else {
+            static uint16 cntr = 0;
+            if (++ cntr > 500) {
+                uint8 i;
+                int16 *buf = (int16*)PCM3060_RxBuf();
+#if 0
+                //memset(PCM3060_RxBuf(), 0, 96 * 2 * sizeof(int16));
+//                memcpy(buf, (void*)white_noise, 96 * 2 * sizeof(int16));
+                memcpy(buf, (void*)white_noise, 96 * 2 * sizeof(int16));
+                memcpy(buf, (void*)(white_noise + (rand() >> 8)), 96 * 2 * sizeof(int16));
+#else
+                uint8 offset = rand();
+                for (i = 0; i < 192; ++ i)
+                    buf[i] = white_noise[i+offset];
+#endif
+            }
+            if (cntr == 1000)
+                cntr = 0;
+        }
+*/
+
 		Audio_USB_LoadInEP(RX_ENDPOINT, PCM3060_RxBuf(), I2S_BUF_SIZE);
 	}
 }

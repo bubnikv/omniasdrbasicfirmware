@@ -59,6 +59,7 @@ void Morse_Main(char* msg);
 
 // audio.c
 extern uint8 Audio_IQ_Channels;
+extern uint16 RX_MuteCounter;
 void Audio_Start(void);
 void Audio_Main(void);
 
@@ -90,8 +91,43 @@ void Settings_Init(void);
 void Settings_Main(void);
 
 // tx.c
-extern uint8 TX_Request;
-extern uint8 TX_Inhibit;
+// Bitmap of TX_xxx flags indicating TX state.
+extern uint8 TX_State;
+// Transmit is inhibited, because the IF frequency is out of the HAM bands.
+#define TX_INHIBITED     0x01
+// PC requested to TX using the libusb DG8SAQ / PE0FKO protocol.
+#define TX_PC_REQUESTED  0x02
+// PC requested to TX and the request has been granted, therefore the radio is in transmit mode.
+// In that case the internal TX IQ tone generator will be supressed.
+#define TX_PC_ACTIVE     0x04
+// Sampled key down signal of the external straight key or an external iambic keyer output.
+// If the TX is not requested by the PC, the key signal triggers transmit mode with an internal IQ tone generator.
+#define TX_KEY_REQUESTED 0x08
+// Key was down, therefore the transceiver went into the IQ tone transmit phase. This is mutually exculsive
+// with TX_PC_ACTIVE.
+#define TX_KEY_ACTIVE    0x10
+
+// Phase of the TX process. This is used to sequence the receive muting, transmitter keying and PA activation.
+extern uint8 TX_Phase;
+#define TX_PHASE_RECEIVING           0
+#define TX_PHASE_TX_ENABLE           1
+#define TX_PHASE_AMP_ENABLE          2
+// Transmitting PC audio data.
+#define TX_PHASE_TXPC                10
+// End the transmit of PC audio data.
+#define TX_PHASE_TXPC_EXIT           11
+// Transmitting an internal shaped IQ tone, keyed by the external key down signal.
+#define TX_PHASE_IQTONE_RAMP_UP      20
+#define TX_PHASE_IQTONE_STEADY       21
+#define TX_PHASE_IQTONE_KEY_DEBOUNCE 22
+#define TX_PHASE_IQTONE_RAMP_DOWN    23
+#define TX_PHASE_IQTONE_END          24
+#define TX_PHASE_IQTONE_UNMUTE       25
+#define TX_PHASE_IQTONE_EXIT         26
+
+// Phase of the IQ tone generator (position at the amplitude envelope of the IQ hump).
+extern uint8 TX_IQ_Phase;
+
 void TX_Main(void);
 
 // t1.c
