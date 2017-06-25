@@ -20,7 +20,8 @@ To allow a zero latency QSK, this firmware generates a sidetone on pin 29 (P1[4]
 
 Couple of buttons are always handy to control the integrated keyer without a host intervention. 
 
-![Add-on board schematic](https://github.com/bubnikv/omniasdrbasicfirmware/blob/master/kicad/omnia-addon-schematic.svg)
+![Add-on board schematic](https://github.com/bubnikv/omniasdrbasicfirmware/blob/master/kicad/omnia-addon-schematic.png)
+[Add-on board schematic PDF](https://github.com/bubnikv/omniasdrbasicfirmware/blob/master/kicad/omnia-addon.pdf "Open full detail schematic diagram")
 
 ## Features
 
