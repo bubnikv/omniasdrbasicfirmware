@@ -95,7 +95,7 @@ uint8* PCM3060_RxBuf(void);
 void Settings_Init(void);
 void Settings_Main(void);
 
-// tone.c
+// sidetone.c
 void Tone_Init(void);
 void Tone_Start(void);
 void Tone_Stop(void);
