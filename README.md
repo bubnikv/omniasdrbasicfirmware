@@ -34,7 +34,7 @@ The add-on schematic has been split to two parts: The ESD protection dead-bug so
 
 The ESD protection chip and the amplifier chip were found in Vojtech's junk box and they are not critical. Four silicon diodes were used to limit the LM386's Vss to 12V.
 
-Other add-on board pictures could be seen here: #1.
+Other add-on board pictures could be seen [here](https://github.com/bubnikv/omniasdrbasicfirmware/issues/1).
 
 ## Building Firmware
 
