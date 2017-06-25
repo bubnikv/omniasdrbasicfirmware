@@ -32,7 +32,18 @@ void main_init() {
     if (si_err && pcm_err) ERROR("I2C ");
     if (si_err) ERROR("Si570 ");
     if (pcm_err) ERROR("PCM3060 ");
+    Tone_Init();
+    Buttons_Start();
     Control_Write(Control_Read() & ~CONTROL_LED);
+  
+    // 600Hz sidetone
+    TONE_CLK_SetDividerRegister(625, 1); 
+    // 1200Hz sidetone
+    TONE_CLK_SetDividerRegister(625/2, 1); 
+    
+//        speed = (f(clk) * 60) / (wpm * 50)     (Using PARIS standard timing.)
+//        At 1000 Hz clk, 12 wpm is speed=100, 5 wpm is speed = 240, and 20 wpm is speed = 60
+    KeyerSpeed_Write(70);
 }
 
 // A compliant USB device is required to monitor
@@ -43,6 +54,7 @@ void main_usb_vbus(void) {
             USBFS_Start(0, USBFS_DWR_VDDD_OPERATION);
             Audio_Start();
             PCM3060_Start();
+            Tone_Start();
         }
     } else {
         if(USBFS_initVar) {
@@ -50,6 +62,7 @@ void main_usb_vbus(void) {
             if (TX_Phase != TX_PHASE_RECEIVING)
                 TX_Phase = TX_PHASE_IQTONE_END;
             TX_State = 0;
+            Tone_Stop();
             PCM3060_Stop();
             USBFS_Stop();
         }

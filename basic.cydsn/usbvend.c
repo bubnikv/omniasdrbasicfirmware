@@ -95,6 +95,13 @@ uint8 USBFS_HandleVendorRqst(void)
                     requestHandled  = USBFS_InitControlRead();
                 }
                 break;
+                
+            case 0x2e: // Reading of the AD buttons converter, for testing purposes only.
+                *(uint8*)&result = ADC_Buttons_Read8();
+                USBFS_currentTD.pData = (void *)&result;
+                USBFS_currentTD.count = 1;
+                requestHandled  = USBFS_InitControlRead();
+                break;
         }
     }
     if ((reqType & USBFS_RQST_DIR_MASK) == USBFS_RQST_DIR_H2D)

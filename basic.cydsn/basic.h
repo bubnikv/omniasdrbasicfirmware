@@ -27,6 +27,7 @@
 #define STATUS_BOOT   0x04
 #define STATUS_BEAT   0x08
 #define STATUS_ATU_0  0x10
+#define STATUS_KEYER  0x20
 
 // Control register bits
 #define CONTROL_LED      0x01
@@ -70,6 +71,10 @@ void Sync_Main(void);
 // band.c
 void Band_Main(void);
 
+// buttons.c
+void Buttons_Start(void);
+void Buttons_Stop(void);
+
 // si570.c
 #define SI570_STARTUP_FREQ 56.32
 extern volatile uint32 Si570_Xtal, Si570_LO;
@@ -89,6 +94,11 @@ uint8* PCM3060_RxBuf(void);
 // settings.c
 void Settings_Init(void);
 void Settings_Main(void);
+
+// tone.c
+void Tone_Init(void);
+void Tone_Start(void);
+void Tone_Stop(void);
 
 // tx.c
 // Bitmap of TX_xxx flags indicating TX state.
@@ -119,11 +129,10 @@ extern uint8 TX_Phase;
 // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
 #define TX_PHASE_IQTONE_RAMP_UP      20
 #define TX_PHASE_IQTONE_STEADY       21
-#define TX_PHASE_IQTONE_KEY_DEBOUNCE 22
-#define TX_PHASE_IQTONE_RAMP_DOWN    23
-#define TX_PHASE_IQTONE_END          24
-#define TX_PHASE_IQTONE_UNMUTE       25
-#define TX_PHASE_IQTONE_EXIT         26
+#define TX_PHASE_IQTONE_RAMP_DOWN    22
+#define TX_PHASE_IQTONE_END          23
+#define TX_PHASE_IQTONE_UNMUTE       24
+#define TX_PHASE_IQTONE_EXIT         25
 
 // Phase of the IQ tone generator (position at the amplitude envelope of the IQ hump).
 extern uint8 TX_IQ_Phase;

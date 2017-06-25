@@ -27,11 +27,11 @@ void TX_Main(void) {
     switch (TX_Phase) {
         case TX_PHASE_RECEIVING:
             // Remember the current state of tkey key down input.
-            if (Status_Read() & STATUS_KEY_0)
-                TX_State &= ~TX_KEY_REQUESTED;
-            else
+            if (Status_Read() & STATUS_KEYER)
                 TX_State |= TX_KEY_REQUESTED;
-            if (! (TX_State & TX_INHIBITED)) {
+            else
+                TX_State &= ~TX_KEY_REQUESTED;
+            if (! (TX_State & TX_INHIBITED) && USBFS_initVar) {
                 if (TX_State & (TX_PC_REQUESTED | TX_KEY_REQUESTED)) {
                     // Start the TX sequencing.
                     TX_State |= (TX_State & TX_PC_REQUESTED) ? TX_PC_ACTIVE : TX_KEY_ACTIVE;
@@ -79,22 +79,11 @@ void TX_Main(void) {
             break;
         case TX_PHASE_IQTONE_STEADY:
             // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
-            // Steady phase. If the key is released, do a single debounce step.
-            if (Status_Read() & STATUS_KEY_0) {
+            if ((Status_Read() & STATUS_KEYER) == 0) {
                 // Key is released.
                 TX_State &= ~TX_KEY_REQUESTED;
-                TX_Phase = TX_PHASE_IQTONE_KEY_DEBOUNCE;
-            }
-            break;
-        case TX_PHASE_IQTONE_KEY_DEBOUNCE:
-            if (Status_Read() & STATUS_KEY_0) {
-                // Key is still released. Continue with stopping the IQ tone.
                 TX_Phase = TX_PHASE_IQTONE_RAMP_DOWN;
                 TX_IQ_Phase = 0;
-            } else {
-                // Key is pressed again. Continue with a steady tone.
-                TX_State |= TX_KEY_REQUESTED;
-                TX_Phase = TX_PHASE_IQTONE_STEADY;
             }
             break;
         case TX_PHASE_IQTONE_RAMP_DOWN:

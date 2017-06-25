@@ -126,14 +126,16 @@ void Audio_Main(void) {
                 }
                 break;
             case TX_PHASE_IQTONE_STEADY:
-            case TX_PHASE_IQTONE_KEY_DEBOUNCE:
                 memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + ((TX_IQ_Phase + 8) * 96 * 2)), 96 * 2 * sizeof(int16));
                 break;
             case TX_PHASE_IQTONE_RAMP_DOWN:
-                memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + ((TX_IQ_Phase + 9) * 96 * 2)), 96 * 2 * sizeof(int16));
-                if (++ TX_IQ_Phase == 8) {
+                if (TX_IQ_Phase == 9) {
                     TX_Phase = TX_PHASE_IQTONE_END;
                     TX_IQ_Phase = 0;
+                } else {
+                    if (TX_IQ_Phase < 8)
+                        memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + ((TX_IQ_Phase + 9) * 96 * 2)), 96 * 2 * sizeof(int16));
+                    ++ TX_IQ_Phase;
                 }
                 break;
             //default:

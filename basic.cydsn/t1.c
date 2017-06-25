@@ -45,7 +45,7 @@ void T1_Main(void) {
                 timer = 20;
                 send = band = T1_Band_Number;
                 bits = 4;
-                Control_Write(Control_Read() & ~CONTROL_ATU_0 | CONTROL_ATU_0_OE);
+                Control_Write((Control_Read() & ~CONTROL_ATU_0) | CONTROL_ATU_0_OE);
             }
             else {
                 timer = 0;
