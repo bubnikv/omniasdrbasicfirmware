@@ -1,5 +1,7 @@
 # Omnia SDR Basic
 
+![Add-on board image](https://user-images.githubusercontent.com/5830947/27516361-b5740710-59b8-11e7-93f3-9995d8a913ac.jpg)
+
 This is a firmware fork for the Omnia Basic SDR (now Proficio Basic SDR) by Vojtech Bubnik OK1IAK. In the current incarnation, the firmware integrates a Iambic keyer,
 which produces an IQ transmit tone at VFO+1kHz frequency and a 1.2kHz sine sidetone at the pin 29 (P1[4], connected to the programming connector), therefore a full BK transmit is possible without the host SDR application even knowing the hardware is transmitting.
 
@@ -22,6 +24,8 @@ Couple of buttons are always handy to control the integrated keyer without a hos
 
 ![Add-on board schematic](https://github.com/bubnikv/omniasdrbasicfirmware/blob/master/kicad/omnia-addon-schematic.png)
 [Add-on board schematic PDF](https://github.com/bubnikv/omniasdrbasicfirmware/blob/master/kicad/omnia-addon.pdf "Open full detail schematic diagram")
+
+Other add-on board pictures could be seen here: https://github.com/bubnikv/omniasdrbasicfirmware/issues/1.
 
 ## Features
 
