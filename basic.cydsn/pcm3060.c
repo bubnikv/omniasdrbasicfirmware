@@ -112,6 +112,24 @@ uint8* PCM3060_TxBuf(void) {
     return TxI2S[SyncSOF_USB_Buffer()];
 }
 
+// Set the address of the TX buffer to be transmitted by the DMA.
+void PCM3060_SetTxBufAddress(uint16 source) 
+{
+    uint8 buffer_idx = SyncSOF_USB_Buffer();
+    // DMA register of the buffer source address.
+    CY_SET_REG16((reg16*)&CY_DMA_TDMEM_STRUCT_PTR[TxI2S_Buff_TD[buffer_idx]].TD1[0u], source);
+}
+
+// Set the address of the TX buffer to be transmitted by the DMA to a default buffer address.
+void PCM3060_SetTxBufAddressDefault()
+{
+    uint8 buffer_idx = SyncSOF_USB_Buffer();
+    // DMA register of the buffer source address.
+    CY_SET_REG16(
+        (reg16*)&CY_DMA_TDMEM_STRUCT_PTR[TxI2S_Buff_TD[buffer_idx]].TD1[0u], 
+        LO16((uint32)TxI2S[buffer_idx]));
+}
+
 uint8* PCM3060_RxBuf(void) {
     return RxI2S[SyncSOF_USB_Buffer()];
 }

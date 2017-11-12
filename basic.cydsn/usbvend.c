@@ -53,8 +53,8 @@ uint8 USBFS_HandleVendorRqst(void)
                 requestHandled  = USBFS_InitControlRead();
                 break;
             case 0x3A: // CMD_GET_FREQ
-                USBFS_currentTD.pData = (void *)&Si570_LO;
-                USBFS_currentTD.count = sizeof(Si570_LO);
+                USBFS_currentTD.pData = (void *)&Si570_RX_LO;
+                USBFS_currentTD.count = sizeof(Si570_RX_LO);
                 requestHandled  = USBFS_InitControlRead();
                 break;
             case 0x3C: // CMD_GET_STARTUP
@@ -102,6 +102,11 @@ uint8 USBFS_HandleVendorRqst(void)
                 USBFS_currentTD.count = 1;
                 requestHandled  = USBFS_InitControlRead();
                 break;
+            case 0x61: // CMD_GET_CW_TX_FREQ
+                USBFS_currentTD.pData = (void *)&Si570_TX_LO;
+                USBFS_currentTD.count = sizeof(Si570_TX_LO);
+                requestHandled  = USBFS_InitControlRead();
+                break;
         }
     }
     if ((reqType & USBFS_RQST_DIR_MASK) == USBFS_RQST_DIR_H2D)
@@ -109,18 +114,23 @@ uint8 USBFS_HandleVendorRqst(void)
         switch (reqCmd)
         {
             case 0x30: // CMD_SET_FREQ_REG
-                USBFS_currentTD.pData = (void *)&Si570_OLD;
+                USBFS_currentTD.pData = (void *)&Si570_FreqReg_Deprecated;
                 USBFS_currentTD.count = 6;
                 requestHandled  = USBFS_InitControlWrite();
                 break;
             case 0x32: // CMD_SET_FREQ
-                USBFS_currentTD.pData = (void *)&Si570_LO;
-                USBFS_currentTD.count = sizeof(Si570_LO);
+                USBFS_currentTD.pData = (void *)&Si570_RX_LO;
+                USBFS_currentTD.count = sizeof(Si570_RX_LO);
                 requestHandled  = USBFS_InitControlWrite();
                 break;
             case 0x33: // CMD_SET_XTAL
                 USBFS_currentTD.pData = (void *)&Si570_Xtal;
                 USBFS_currentTD.count = sizeof(Si570_Xtal);
+                requestHandled  = USBFS_InitControlWrite();
+                break;
+            case 0x60: // CMD_SET_CW_TX_FREQ
+                USBFS_currentTD.pData = (void *)&Si570_TX_LO;
+                USBFS_currentTD.count = sizeof(Si570_TX_LO);
                 requestHandled  = USBFS_InitControlWrite();
                 break;
         }

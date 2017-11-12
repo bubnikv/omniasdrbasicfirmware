@@ -19,6 +19,7 @@
 
 uint8 TX_State = 0;
 uint8 TX_Phase = TX_PHASE_RECEIVING;
+uint8 TX_Frequency = 0;
 
 void TX_Main(void) {
     static uint8 blink;
@@ -37,6 +38,8 @@ void TX_Main(void) {
                     TX_State |= (TX_State & TX_PC_REQUESTED) ? TX_PC_ACTIVE : TX_KEY_ACTIVE;
                     TX_Phase = TX_PHASE_TX_ENABLE;
                     TX_IQ_Phase = 0;
+                    // Let the Si570 thread switch the LO to Si570_TX_LO.
+                    TX_Frequency = (TX_State & TX_PC_REQUESTED) == 0 && Si570_TX_LO != 0;
                     // Mute the receiver.
                     Control_Write(Control_Read() & ~CONTROL_RX);
                 }
@@ -100,11 +103,13 @@ void TX_Main(void) {
             Control_Write(Control_Read() | CONTROL_RX);
             TX_Phase = TX_PHASE_IQTONE_EXIT;
             TX_IQ_Phase = 0;
+            // Switch back to receive LO frequency.
+            TX_Frequency = 0;
             break;
         case TX_PHASE_IQTONE_EXIT:
             TX_Phase = TX_PHASE_RECEIVING;
             TX_State &= ~TX_KEY_ACTIVE;
-            RX_MuteCounter = 250;
+            RX_MuteCounter = 10;
             break;
     }
     

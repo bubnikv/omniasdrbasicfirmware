@@ -4,17 +4,17 @@
 #include "cytypes.h"
 
 #define IQHUMP_1KHZ
-#define IQHUMP8
+#define IQHUMP4
 
 #ifdef IQHUMP_1KHZ
     #ifdef IQHUMP4
-        extern const int16 code iqhump4_1khz[1728];
+        extern int16 iqhump4_1khz[1728];
     #endif
         #ifdef IQHUMP6
-    extern const int16 code iqhump6_1khz[2496];
+    extern int16 iqhump6_1khz[2496];
     #endif
     #ifdef IQHUMP8
-        extern const int16 code iqhump8_1khz[3264];
+        extern int16 iqhump8_1khz[3264];
     #endif
 #endif
 

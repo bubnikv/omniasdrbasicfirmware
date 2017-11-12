@@ -77,9 +77,15 @@ void Buttons_Stop(void);
 
 // si570.c
 #define SI570_STARTUP_FREQ 56.32
-extern volatile uint32 Si570_Xtal, Si570_LO;
+extern volatile uint32 Si570_Xtal;
+// Current local oscillator frequency, in freq_hz * 4 * 2.097152
+extern volatile uint32 Si570_RX_LO;
+extern volatile uint32 Si570_TX_LO;
 extern uint32 Current_LO;
-extern uint8 Si570_Buf[], Si570_Factory[], Si570_OLD[];
+extern uint8 Si570_Buf[];
+extern uint8 Si570_Factory[];
+// Receive buffer for the CMD_SET_FREQ_REG command.
+extern uint8 Si570_FreqReg_Deprecated[];
 uint8 Si570_Init(void);
 void Si570_Main(void);
 void Si570_Fake_Reset(void);
@@ -89,6 +95,8 @@ uint8 PCM3060_Init(void);
 void PCM3060_Start(void);
 uint8 PCM3060_Stop(void);
 uint8* PCM3060_TxBuf(void);
+extern void PCM3060_SetTxBufAddress(uint16 source);
+extern void PCM3060_SetTxBufAddressDefault();
 uint8* PCM3060_RxBuf(void);
 
 // settings.c
@@ -136,6 +144,9 @@ extern uint8 TX_Phase;
 
 // Phase of the IQ tone generator (position at the amplitude envelope of the IQ hump).
 extern uint8 TX_IQ_Phase;
+
+// Is the TX frequency active? If false, Si570_RX_LO is active, otherwise Si570_TX_LO is active.
+extern uint8 TX_Frequency;
 
 void TX_Main(void);
 

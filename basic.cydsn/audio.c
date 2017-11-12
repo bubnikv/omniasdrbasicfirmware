@@ -107,7 +107,9 @@ void Audio_Main(void) {
     }
     
     if (USBFS_GetEPState(TX_ENDPOINT) == USBFS_OUT_BUFFER_FULL) {
-        Audio_USB_ReadOutEP(TX_ENDPOINT, PCM3060_TxBuf(), I2S_BUF_SIZE);
+        if (TX_Phase < TX_PHASE_IQTONE_RAMP_UP || 
+            TX_Phase > TX_PHASE_IQTONE_RAMP_DOWN)
+            Audio_USB_ReadOutEP(TX_ENDPOINT, PCM3060_TxBuf(), I2S_BUF_SIZE);
         USBFS_EnableOutEP(TX_ENDPOINT);
     }
 
@@ -118,6 +120,7 @@ void Audio_Main(void) {
             memset(PCM3060_RxBuf(), 0, 96 * 2 * sizeof(int16));
             // Fill in the transmit data based on the IQ generator phase.
             switch (TX_Phase) {
+#ifdef IQHUMP8
             case TX_PHASE_IQTONE_RAMP_UP:
                 memcpy(PCM3060_TxBuf(), (void*)(iqhump8_1khz + (TX_IQ_Phase * 96 * 2)), 96 * 2 * sizeof(int16));
                 if (++ TX_IQ_Phase == 8) {
@@ -138,15 +141,69 @@ void Audio_Main(void) {
                     ++ TX_IQ_Phase;
                 }
                 break;
-            //default:
+#endif
+#ifdef IQHUMP6
+            case TX_PHASE_IQTONE_RAMP_UP:
+                memcpy(PCM3060_TxBuf(), (void*)(iqhump6_1khz + (TX_IQ_Phase * 96 * 2)), 96 * 2 * sizeof(int16));
+                if (++ TX_IQ_Phase == 6) {
+                    TX_Phase = TX_PHASE_IQTONE_STEADY;
+                    TX_IQ_Phase = 0;
+                }
+                break;
+            case TX_PHASE_IQTONE_STEADY:
+                memcpy(PCM3060_TxBuf(), (void*)(iqhump6_1khz + ((TX_IQ_Phase + 6) * 96 * 2)), 96 * 2 * sizeof(int16));
+                break;
+            case TX_PHASE_IQTONE_RAMP_DOWN:
+                if (TX_IQ_Phase == 7) {
+                    TX_Phase = TX_PHASE_IQTONE_END;
+                    TX_IQ_Phase = 0;
+                } else {
+                    if (TX_IQ_Phase < 6)
+                        memcpy(PCM3060_TxBuf(), (void*)(iqhump6_1khz + ((TX_IQ_Phase + 7) * 96 * 2)), 96 * 2 * sizeof(int16));
+                    ++ TX_IQ_Phase;
+                }
+                break;
+#endif
+#ifdef IQHUMP4
+            case TX_PHASE_IQTONE_RAMP_UP:
+//                memcpy(PCM3060_TxBuf(), (void*)(iqhump4_1khz + (TX_IQ_Phase * 96 * 2)), 96 * 2 * sizeof(int16));
+                PCM3060_SetTxBufAddress(LO16((uint32)(iqhump4_1khz + (TX_IQ_Phase * 96 * 2))));
+                if (++ TX_IQ_Phase == 4) {
+                    TX_Phase = TX_PHASE_IQTONE_STEADY;
+                    TX_IQ_Phase = 0;
+                }
+                break;
+            case TX_PHASE_IQTONE_STEADY:
+//                memcpy(PCM3060_TxBuf(), (void*)(iqhump4_1khz + ((TX_IQ_Phase + 5) * 96 * 2)), 96 * 2 * sizeof(int16));
+                PCM3060_SetTxBufAddress(LO16((uint32)(iqhump4_1khz + ((TX_IQ_Phase + 5) * 96 * 2))));
+                break;
+            case TX_PHASE_IQTONE_RAMP_DOWN:
+                if (TX_IQ_Phase == 5) {
+                    TX_Phase = TX_PHASE_IQTONE_END;
+                    TX_IQ_Phase = 0;
+                    PCM3060_SetTxBufAddressDefault();
+                } else {
+                    if (TX_IQ_Phase < 4) {
+//                        memcpy(PCM3060_TxBuf(), (void*)(iqhump4_1khz + ((TX_IQ_Phase + 5) * 96 * 2)), 96 * 2 * sizeof(int16));
+                        PCM3060_SetTxBufAddress(LO16((uint32)(iqhump4_1khz + ((TX_IQ_Phase + 5) * 96 * 2))));
+                    } else
+                        PCM3060_SetTxBufAddressDefault();
+                    ++ TX_IQ_Phase;
+                }
+                break;
+#endif
+            default:
                 // Don't touch the transmit buffer, as it is being zeroed by a DMA after it is consumed by the codec.
+                PCM3060_SetTxBufAddressDefault();
             }
         } else if (RX_MuteCounter > 0) {
             // Mute the receiver audio after transition from transmit to receve,
             // before the decoupling capacitors in the receive path charge.
             -- RX_MuteCounter;
             memset(PCM3060_RxBuf(), 0, 96 * 2 * sizeof(int16));
-        }
+            PCM3060_SetTxBufAddressDefault();
+        } else
+            PCM3060_SetTxBufAddressDefault();
         
 /* Testing the compiler performance when doing simple tasks like copying a block of memory. The Keil compiler sucks.
         else {

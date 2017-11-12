@@ -24,15 +24,18 @@
 #define SI570_DCO_MAX 5670.0
 #define SI570_DCO_CENTER ((SI570_DCO_MIN + SI570_DCO_MAX) / 2)
 
-volatile uint32 Si570_Xtal, Si570_LO = STARTUP_LO;
-uint32 Current_LO = STARTUP_LO;
+volatile uint32 Si570_Xtal;
+volatile uint32 Si570_RX_LO = STARTUP_LO;
+// TX frequency for firmware CW. zero means it has not been set.
+volatile uint32 Si570_TX_LO = 0;
+uint32          Current_LO  = STARTUP_LO;
 
 // [0-1] for commands, [2-8] retain registers
 uint8 Si570_Buf[8];
 // A copy of the factory registers used for cfgsr calibration.
 uint8 Si570_Factory[6];
 // Emulate old technique of setting of frequency by reg writes
-uint8 Si570_OLD[6];
+uint8 Si570_FreqReg_Deprecated[6];
 
 uint8 Si570_Init(void) {
     uint8 hsdiv, n1, i, state = 0;//, err = 0;
@@ -86,26 +89,29 @@ uint8 Si570_Init(void) {
         rfreq = rfreqint + (float)rfreqfrac / 0x10000000;
         Si570_Xtal = swap32((uint32)(SI570_STARTUP_FREQ * hsdiv * n1 / rfreq * 0x01000000));
     }
+    // CFGSR requests a reset in order to determine the xtal frequency.
+    // This enables its calibration tab to fully work.
     for (i = 0; i < 6; i++) Si570_Factory[i] = Si570_Buf[i+2];
-    Si570_OLD[0]=0;
+    // There is no data received in the Si570 FreqReg.
+    Si570_FreqReg_Deprecated[0]=0;
     return 0;
 }
 
 // This method of setting frequency is strongly discouraged.
 // It depends on client software managing the calibration data.
-uint32 FreqFromOLD() {
+uint32 FreqFrom_FreqReg_Deprecated() {
     uint8 hsdiv, n1;
     uint16 rfreqint;
     uint32 rfreqfrac;
     float rfreq;
 
-    hsdiv = (Si570_OLD[0] >> 5) + 4;
-    n1 = (((Si570_OLD[0] & 0x1F) << 2) | (Si570_OLD[1] >> 6)) + 1;
-    rfreqint = (((uint16)Si570_OLD[1] & 0x3F) << 4) | (Si570_OLD[2] >> 4);
-    rfreqfrac = ((uint32*)&Si570_OLD[2])[0] & 0x0FFFFFFF;
+    hsdiv = (Si570_FreqReg_Deprecated[0] >> 5) + 4;
+    n1 = (((Si570_FreqReg_Deprecated[0] & 0x1F) << 2) | (Si570_FreqReg_Deprecated[1] >> 6)) + 1;
+    rfreqint = (((uint16)Si570_FreqReg_Deprecated[1] & 0x3F) << 4) | (Si570_FreqReg_Deprecated[2] >> 4);
+    rfreqfrac = ((uint32*)&Si570_FreqReg_Deprecated[2])[0] & 0x0FFFFFFF;
     rfreq = rfreqint + (float)rfreqfrac / 0x10000000;
     
-    Si570_OLD[0]=0;
+    Si570_FreqReg_Deprecated[0]=0;
     // Client software typically uses a fixed xtal freq of 114.285.
     return swap32((uint32)(114.285 * rfreq / (hsdiv * n1) * 0x200000));
 }
@@ -128,10 +134,11 @@ void Si570_Main(void) {
 
     switch (state) {
     case 0: // idle
-        if (Si570_OLD[0]) Si570_LO = FreqFromOLD();
-        if ((Current_Si570_Xtal != Si570_Xtal || Current_LO != Si570_LO)) {
+        if (Si570_FreqReg_Deprecated[0]) Si570_RX_LO = FreqFrom_FreqReg_Deprecated();
+        if (Current_Si570_Xtal != Si570_Xtal || 
+            Current_LO != (TX_Frequency ? Si570_TX_LO : Si570_RX_LO)) {
             i = CyEnterCriticalSection();
-            Current_LO = Si570_LO;
+            Current_LO = TX_Frequency ? Si570_TX_LO : Si570_RX_LO;
             Current_Si570_Xtal = Si570_Xtal;
             CyExitCriticalSection(i);
             fout = (float)swap32(Current_LO) / 0x200000;

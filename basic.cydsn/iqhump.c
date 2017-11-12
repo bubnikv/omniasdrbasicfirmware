@@ -67,7 +67,7 @@ fclose(fid);
 #ifdef IQHUMP_1KHZ
     
 #ifdef IQHUMP4
-const int16 code iqhump4_1khz[1728] = {
+int16 iqhump4_1khz[1728] = {
        3,
       78,
        8,
@@ -1800,7 +1800,7 @@ const int16 code iqhump4_1khz[1728] = {
 #endif /* IQHUMP4 */
 
 #ifdef IQHUMP6
-const int16 code iqhump6_1khz[2496] = {
+int16 iqhump6_1khz[2496] = {
        3,
       78,
        8,
@@ -4301,7 +4301,7 @@ const int16 code iqhump6_1khz[2496] = {
 #endif /* IQHUMP6 */
 
 #ifdef IQHUMP8
-const int16 code iqhump8_1khz[3264] = {
+int16 iqhump8_1khz[3264] = {
        3,
       77,
        8,
