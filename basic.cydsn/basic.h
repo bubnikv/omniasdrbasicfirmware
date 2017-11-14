@@ -102,6 +102,7 @@ uint8* PCM3060_RxBuf(void);
 // settings.c
 void Settings_Init(void);
 void Settings_Main(void);
+extern uint8 keyer_cntr;
 
 // sidetone.c
 void Tone_Init(void);

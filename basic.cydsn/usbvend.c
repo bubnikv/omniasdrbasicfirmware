@@ -133,6 +133,11 @@ uint8 USBFS_HandleVendorRqst(void)
                 USBFS_currentTD.count = sizeof(Si570_TX_LO);
                 requestHandled  = USBFS_InitControlWrite();
                 break;
+            case 0x65: // CMD_SET_CW_KEYER_SPEED
+                USBFS_currentTD.pData = (void *)&keyer_cntr;
+                USBFS_currentTD.count = 1;
+                requestHandled  = USBFS_InitControlWrite();
+                break;
         }
     }
 

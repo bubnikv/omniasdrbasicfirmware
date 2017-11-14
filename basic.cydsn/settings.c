@@ -43,13 +43,14 @@ void Settings_Init(void) {
     
 }
 
+uint8 keyer_cntr_current = 0;
+uint8 keyer_cntr = 18;
+
 void Settings_Main(void) {
     uint8 i;
     
-    if (
-        XTAL_DATA(CYDEV_EE_BASE) != Si570_Xtal ||
-        REVERSE_DATA(CYDEV_EE_BASE) != Audio_IQ_Channels
-    ) {
+    if (XTAL_DATA(CYDEV_EE_BASE) != Si570_Xtal ||
+        REVERSE_DATA(CYDEV_EE_BASE) != Audio_IQ_Channels) {
         if (EEPROM_QueryWrite() != CYRET_STARTED) {
             for (i=4; i < CYDEV_EEPROM_ROW_SIZE; i++) buffer[i] = 0;
             XTAL_DATA(buffer) = Si570_Xtal;
@@ -59,4 +60,8 @@ void Settings_Main(void) {
         }
     }
 
+    if (keyer_cntr != keyer_cntr_current) {
+        keyer_cntr_current = keyer_cntr;
+        iambic_1_SetSpeed(keyer_cntr_current);
+    }
 }
