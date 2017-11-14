@@ -40,11 +40,6 @@ void main_init() {
     TONE_CLK_SetDividerRegister(625, 1); 
     // 1200Hz sidetone
     TONE_CLK_SetDividerRegister(625/2, 1); 
-    
-//        speed = (f(clk) * 60) / (wpm * 50)     (Using PARIS standard timing.)
-//        At 1000 Hz clk, 12 wpm is speed=100, 5 wpm is speed = 240, and 20 wpm is speed = 60
-//    KeyerSpeed_Write(70);
-    iambic_1_SetSpeed(250);
 }
 
 // A compliant USB device is required to monitor

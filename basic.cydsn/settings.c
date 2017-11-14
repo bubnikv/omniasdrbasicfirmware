@@ -43,8 +43,12 @@ void Settings_Init(void) {
     
 }
 
+// speed = (f(clk) * 60) / (wpm * 50) (Using PARIS standard timing.)
+// At 1000 Hz clk, 12 wpm is speed=100, 5 wpm is speed = 240, and 20 wpm is speed = 60
 uint8 keyer_cntr_current = 0;
-uint8 keyer_cntr = 18;
+uint8 keyer_cntr = 60; // 20 WPM
+uint8 keyer_mode_current = IAMBIC_RST_N;
+uint8 keyer_mode = IAMBIC_MODE_B | IAMBIC_SKEY | IAMBIC_RST_N;
 
 void Settings_Main(void) {
     uint8 i;
@@ -62,6 +66,10 @@ void Settings_Main(void) {
 
     if (keyer_cntr != keyer_cntr_current) {
         keyer_cntr_current = keyer_cntr;
-        iambic_1_SetSpeed(keyer_cntr_current);
+        IambicKeyer_SetSpeed(keyer_cntr_current);
+    }
+    if (keyer_mode != keyer_mode_current) {
+        keyer_mode_current = keyer_mode;
+        IambicKeyer_SetMode(keyer_mode_current);
     }
 }

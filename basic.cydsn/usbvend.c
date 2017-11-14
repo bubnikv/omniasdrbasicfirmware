@@ -138,6 +138,11 @@ uint8 USBFS_HandleVendorRqst(void)
                 USBFS_currentTD.count = 1;
                 requestHandled  = USBFS_InitControlWrite();
                 break;
+            case 0x66: // CMD_SET_CW_KEYER_MODE
+                USBFS_currentTD.pData = (void *)&keyer_mode;
+                USBFS_currentTD.count = 1;
+                requestHandled  = USBFS_InitControlWrite();
+                break;
         }
     }
 

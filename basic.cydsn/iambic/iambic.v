@@ -42,7 +42,22 @@ along with IambicV.  If not, see <http://www.gnu.org/licenses/>.
 //    key - Morse code keyed output
 //
 
-module iambic(input rst_n, input clk, input modeb, input skey, input dit, input dah, output key);
+module iambic(input clk, input dit, input dah, output key);
+
+    // Definition of the control register.
+    wire [7:0] iambic_control;
+    wire modeb;
+    wire skey;
+    wire autospace;
+    wire rst_n;
+    assign modeb        = iambic_control[0];
+    assign skey         = iambic_control[1];
+    assign autospace    = iambic_control[2];
+    assign rst_n        = iambic_control[7];
+    cy_psoc3_control #(.cy_init_value(8'b10000001), .cy_force_order(`TRUE))
+    IAMBIC_CONTROL(.control(iambic_control));
+ 
+ 
     reg [1:0] reps;
     
     wire start, nextDah;
@@ -57,8 +72,8 @@ module iambic(input rst_n, input clk, input modeb, input skey, input dit, input 
     wire cntr8_f1_load;
     wire cntr8_route_si;
     wire cntr8_route_ci;
-    wire  [2:0] cntr8_select;
-    
+    wire [2:0] cntr8_select;
+
     /* ==================== Assignment of Combinatorial Variables ==================== */
     assign cntr8_d0_load = (1'b0);
     assign cntr8_d1_load = (1'b0);
