@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <basic.h>
+#include <iqhump.h>
 
 uint32 result;
 
@@ -143,9 +144,15 @@ uint8 USBFS_HandleVendorRqst(void)
                 USBFS_currentTD.count = 1;
                 requestHandled  = USBFS_InitControlWrite();
                 break;
+            case 0x69: // CMD_SET_CW_IQ_WAVEFORM
+                // Receive 9ms of IQ int16 words, 
+                // representing 4ms of raise, 1ms of steady and 4ms of fall.
+                USBFS_currentTD.pData = (void *)iqhump4_1khz;
+                USBFS_currentTD.count = sizeof(int16) * 1728;
+                requestHandled  = USBFS_InitControlWrite();
+                break;
         }
     }
 
     return(requestHandled);
 }
-

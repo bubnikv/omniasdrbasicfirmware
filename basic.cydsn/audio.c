@@ -175,7 +175,7 @@ void Audio_Main(void) {
                 break;
             case TX_PHASE_IQTONE_STEADY:
 //                memcpy(PCM3060_TxBuf(), (void*)(iqhump4_1khz + ((TX_IQ_Phase + 5) * 96 * 2)), 96 * 2 * sizeof(int16));
-                PCM3060_SetTxBufAddress(LO16((uint32)(iqhump4_1khz + ((TX_IQ_Phase + 5) * 96 * 2))));
+                PCM3060_SetTxBufAddress(LO16((uint32)(iqhump4_1khz + ((TX_IQ_Phase + 4) * 96 * 2))));
                 break;
             case TX_PHASE_IQTONE_RAMP_DOWN:
                 if (TX_IQ_Phase == 5) {
