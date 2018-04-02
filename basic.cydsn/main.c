@@ -40,6 +40,8 @@ void main_init() {
     TONE_CLK_SetDividerRegister(625, 1); 
     // 1200Hz sidetone
     TONE_CLK_SetDividerRegister(625/2, 1); 
+
+    AmpSequencingReset();
 }
 
 // A compliant USB device is required to monitor
@@ -74,6 +76,7 @@ void main()
     for(;;) {
         // USB Audio is very high priority
         Audio_Main();
+        // Sync the internal RC oscillator onto the isochronous USB 1kHz framing.
         Sync_Main();
         // Everything else runs twice per millisecond
         // Keep T1 first for timing accuracy
@@ -107,7 +110,6 @@ void main()
                 beat = i;
             }
         }
-            
     }
 }
 

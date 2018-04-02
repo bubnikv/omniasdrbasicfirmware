@@ -137,12 +137,14 @@ extern uint8 TX_Phase;
 // End the transmit of PC audio data.
 #define TX_PHASE_TXPC_EXIT           11
 // Transmitting an internal shaped IQ tone, keyed by the external key down signal.
-#define TX_PHASE_IQTONE_RAMP_UP      20
-#define TX_PHASE_IQTONE_STEADY       21
-#define TX_PHASE_IQTONE_RAMP_DOWN    22
-#define TX_PHASE_IQTONE_END          23
-#define TX_PHASE_IQTONE_UNMUTE       24
-#define TX_PHASE_IQTONE_EXIT         25
+#define TX_PHASE_IQTONE_IDLE         20
+#define TX_PHASE_IQTONE_RAMP_UP      21
+#define TX_PHASE_IQTONE_STEADY       22
+#define TX_PHASE_IQTONE_RAMP_DOWN    23
+#define TX_PHASE_IQTONE_HANG         24
+#define TX_PHASE_IQTONE_END          25
+#define TX_PHASE_IQTONE_UNMUTE       26
+#define TX_PHASE_IQTONE_EXIT         27
 
 // Phase of the IQ tone generator (position at the amplitude envelope of the IQ hump).
 extern uint8 TX_IQ_Phase;
@@ -150,6 +152,19 @@ extern uint8 TX_IQ_Phase;
 // Is the TX frequency active? If false, Si570_RX_LO is active, otherwise Si570_TX_LO is active.
 extern uint8 TX_Frequency;
 
+struct AmpSequencingConfig
+{
+    uint8  AMP_Enabled;
+    // Initial TX delay after AMP relay is switched in, in 0.5ms. Maximum time is 15ms.
+    uint8  TX_Delay;
+    // TX Hang time for the amplifier control, in 0.5ms. Maximum time 32 seconds.
+    uint16 TX_Hang;
+};
+
+extern struct AmpSequencingConfig AmpSequencingNew;
+extern struct AmpSequencingConfig AmpSequencingCurrent;
+
+void AmpSequencingReset();
 void TX_Main(void);
 
 // t1.c
